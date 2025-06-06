@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Landing Page</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        .starburst {
+            background: radial-gradient(circle, #7fffd4, transparent);
+        }
+        .flower {
+            background: radial-gradient(circle, #ff69b4, transparent);
+        }
+        .shape-1 {
+            background: linear-gradient(45deg, #98fb98, #add8e6);
+        }
+        .shape-2 {
+            background: linear-gradient(45deg, #add8e6, #98fb98);
+        }
+        .grid_custome {
+            width: 1200px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="font-sans">
+    <div class="bg-white flex items-center justify-center min-h-screen">
+        <div class="relative w-full max-w-5xl h-[600px]">
+        <!-- Welcome Text -->
+        <div class="absolute top-5 left-40 flex items-center">
+            <span class="starburst w-10 h-10 rounded-full mr-2"></span>
+            <p class="bg-gray-100 text-sm px-4 py-2 rounded-full max-w-xs">
+                Welcome to our creative education portal, where innovation thrives, and artistic expression has no limits
+            </p>
+        </div>
+
+        <!-- Main Title -->
+        <h1 class="text-6xl font-bold text-center mt-40">
+            Learn <span class="text-orange-400">Anytime,</span> at <span class="text-orange-400">Your Pace</span>
+        </h1>
+
+        <!-- Call to Action Button -->
+        <a class="absolute left-1/2 transform -translate-x-1/2 mt-6 bg-gradient-to-r from-orange-400 to-orange-300 text-white text-lg font-semibold px-8 py-3 rounded-full hover:brightness-110 transition" href="/login">
+            Let's Start
+        </a>
+
+        <!-- Person Images -->
+        <div class="absolute bottom-5 left-10">
+            <img src="https://storage.googleapis.com/a1aa/image/7bd659bc-7043-4022-fe1c-defba2bdca82.jpg" alt="Person 1" class="w-48 rounded-2xl">
+        </div>
+
+
+        <!-- Decorative Elements -->
+        <div class="flower absolute w-10 h-10 rounded-full bottom-12 right-24"></div>
+        <div class="flower absolute w-8 h-8 rounded-full bottom-20 right-32"></div>
+        <div class="flower absolute w-6 h-6 rounded-full bottom-24 right-40"></div>
+        <div class="shape-1 absolute w-12 h-12 top-96 left-72 transform rotate-45"></div>
+        <div class="shape-2 absolute w-10 h-10 top-32 right-48 transform rotate-45"></div>
+    </div>
+    </div>
+    <div class="py-8 grid_custome">
+    <!-- Header -->
+    <h1 class="text-4xl font-bold text-gray-800 text-center">
+        Browse Our <span class="text-orange-500">Top Courses</span>
+    </h1>
+    <p class="text-gray-600 text-center mt-2">
+        Welcome to our renowned educational portal for creative individuals, where innovation is nurtured, and artistic expression knows no limits
+    </p>
+
+    <div class="flex space-x-4 overflow-x-auto scrollbar-hide mt-8 mb-8">
+        <a th:each="course : ${list10Courses}" class="bg-white rounded-lg shadow-md w-64 flex-shrink-0" th:href="@{/courseDetail/{courseId}(courseId=${course.courseId})}">
+            <img th:src="${course.image}" alt="Course Image" class="w-full h-36 object-cover rounded-t-lg">
+            <div class="p-4">
+                <h3 th:text="${course.title}" class="text-lg font-semibold text-gray-800 truncate hover:underline"></h3>
+                <p th:text="${course.lecturer.firstname} + ' '+ ${course.lecturer.lastname}" class="text-sm text-gray-600"></p>
+                <p class="text-gray-700 text-sm leading-snug mt-1 mb-1 overflow-hidden text-ellipsis line-clamp-3" th:text="${course.description}"></p>
+                <p th:text="${course.price} + ' ₫'" class="text-lg font-bold text-gray-800 mt-2"></p>
+            </div>
+        </a>
+    </div>
+
+    <!-- View All Courses Button -->
+    <div class="text-center mt-8">
+        <a class="bg-green-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-green-700" href="/listCourses">
+            View All Courses
+        </a>
+    </div>
+</div>
+    <section class="max-w-7xl mx-auto px-6 sm:px-10 md:px-16 py-12">
+        <header class="text-center max-w-3xl mx-auto">
+            <h2 class="text-2xl sm:text-3xl font-semibold text-black leading-tight">Our
+                <span class="text-[#D87D4A]">Mission</span>
+                Behind This Platform
+            </h2>
+            <p class="mt-2 text-xs sm:text-sm text-gray-700 font-normal max-w-xl mx-auto">
+                Our mission is to make quality education accessible, empowering learners to grow, explore, and achieve their goals
+            </p>
+        </header>
+        <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 max-w-6xl mx-auto">
+            <div class="relative flex-shrink-0">
+                <img alt="Young woman wearing teal headphones holding orange and white notes near a window, smiling and gesturing with hand" class="relative z-20 rounded-none" height="320" src="https://storage.googleapis.com/a1aa/image/91b88248-d559-4c7d-9df1-c93924ec4088.jpg" width="400"/>
+                <div aria-hidden="true" class="absolute -bottom-6 -left-6 w-[420px] h-[320px] bg-[#5DA94B] clip-polygon z-10" style="clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 20%);">
+                </div>
+            </div>
+            <div class="max-w-md text-center md:text-left">
+                <h3 class="text-lg sm:text-xl font-semibold text-black leading-snug">
+                    Make Class Material Instantly Studible at Your Pace
+                </h3>
+                <p class="mt-2 text-xs sm:text-sm text-gray-700 font-normal mb-6">
+                    Turn your slkides, videos, and notes into flashcard sets, practice tests, and study guides
+                </p>
+                <a class=" px-5 py-2.5 border border-gray-700 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-100 transition" href="/listCourses">
+                    View All Courses
+                </a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-around gap-8 md:gap-0">
+            <section class="max-w-xl flex flex-col gap-4">
+                <h1 class="text-black text-2xl md:text-3xl font-semibold leading-tight">
+                    One Ultimate Study App for Every Class, Every Test
+                </h1>
+                <p class="text-gray-700 text-sm md:text-base leading-relaxed">
+                    Turn your slkides, videos, and notes into flashcard sets, practice tests, and study guides
+                </p>
+                <div class="flex gap-3 mt-4">
+                    <a class="inline-block rounded-md overflow-hidden" href="#">
+                        <img alt="Black rectangular button with Apple logo and text 'Download on the App Store' in white" class="block" height="50" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAflBMVEUAAAD////w8PAtLS2BgYH39/fExMSJiYmfn5+pqalBQUG1tbXd3d3a2trq6urT09McHBxoaGhgYGBWVlYLCwsqKiojIyNycnL09PQ6Ojq+vr6RkZFMTEzi4uLIyMiLi4uurq55eXlRUVEXFxeYmJgfHx81NTVFRUWhoaFzc3PKCw0PAAAIl0lEQVR4nOWdaWOiOhiFQUUBBXEd2047dbrMzP//g1dUDEsOhJCQvLnPt3GwzdGS5bwLni9AkM6jxS6eZnvPBvbZNN4tonkaiAze61SXhBvTkiCbMOlU2aFwPTuYVtHBYbaWV3gKj6bHL8QxPEkpnCxMj7wHi0lvhaT05UCNQGFkx6zZh33UQ+EqNj1cKeKVqMK/pocqzV8hhcHW9DgHsG0ujw2FSWZ6lIPIki6Fc9NDHMy8XeHS9PgUsGxTGJkenRIirNCFbzBniRTSvwcL5nyFielxKSThKQxoLxNVsoCjkPJC32TbVEh3q8bnb13hyvSIlLOqKaR5mmgjrip0Y6mvEpUVTugdeLvZT0oKqVkWYiyYwonpsWhi8lDo5ld4/xJzhSfTI9HG6a4wND0QbYR3hTScbRmON4Vr0+PQyPqqcGZ6GBqZ5QoD26NLQzgEF4UuHXybJBeF7s6kOeFFob0RXhVsfC8wPQbNBF5qegiaST13LEQ+c8/Fs2+ZyHP1XFGw8Hamh6CZneeeBVUl9qamh6CZqeeSl88j81x02cqMoO/r5XmVrqMftZd/ROt09fzypX8AmonfHiGSz9LLn49X34hPdb/8EunT/dWntPzyL6MjHEjoVwhuEp9qSS+Ez28Lv8Y1erBv5NiR3VdN60puqQL1hJcLVBflZVPK5by94bxKNQmEI8VPvZT3sumhysH7snyfn5VdXy1pwEuFRNDMIuDdhgiaN6L7Ct97KHw3PVgpzj0U0oydfPRQ+GF6sHK8dSu782Z6qJLshBWStcNEv0SqX+HlmCSo8Kn7R9kKKNSpQdp2F6nypB39OgsoPJse5DC4xVYVqGe2/u5U+Nv0EIfy3CHw2fQAB3PoUOhArkvYKpCwk8hoK7R2Iy3yR4tCmv5MA9wSwJWkwS1U+NP00BQBjxg03ZkmfN80h+jJvgFs6PBiemSKeEECXck3+4IHKFeSIqEvTNe6qPITTjPE4/cP4Gr/bnpkioA7tpJ1QdZKvAJXCha6n5H2aeDJ6fVxyceJ8gmKk6pwhxWO54Yj1USFFgeDpV5/5/8k62RgF+r7cc1trqXqRr0igSxqv63flqQ4I4GlybNIPaHpCkN/hsl57MpJ+jUwKsNKyY5sV04wOoMja2xaKe/K6UXYOPl5N9jSEJdfJle7gyPcLHW+uiuntj3l5uflMOuitisnduRv5M4WlNo31D8EUnm0H3ClYCb3Z/2/TpSsN5jwxUxuTkzq3dh4e/MHCfT/PK7h7cr/tPxMu4DWBTO5uf4NmTAGNrnZNfz4PhWDEVoXrHZkxr+ASKOcxiRZwM5IGfoQPlt+rjUcBUxuGG8LKPRZETK5KQfcsMn9XboKnzzsD5o2+vgWVE+AcE9gfSMSEZP7CrxbbU9egCtFPVcdrBfWrxiwTqaZnwdz+qyun/lGo+Z0R8UZGjZb4NDk5oVD4YphsQWOTW5eyfYXvNpeCxya3PzokkBkyjJ6T4/QCbC1SEjA5K5yRm+w1AKHJjc+2MKjspUWuIjJXQdPTTZa4FKTf6/lxTB4AW99G3yXfQ3UBUxuHnSy3n7JjhR+MpY1BBExufnA45YpC/zjMOWQQetiveddP52y1j/YXM14bzxoFb55fhV65KAALFwYd19cIXh91mWr7rqrtHrA/Jg+dft3VlqCjXDWk6N0JJZ5u4YM6vbiHgnY7hoGG9tQngyHYxGylJ5WAE9dbai+GduKlyRhfozUx6f4/AFjEUNghXnivQlKqI1xSP0ddcF21zhNswWlTkDfNUuQapZpb1TmwuODwyBK34LMfa7y+HFWLK2gM2TaisqExrYiySEEbJMpsWFSGeEQ71LSk/fHr5C4EVRu3aaqNtwNmIMPU/0QgVL3v+PZ1/IwH65PS6LaW1XwT4e6K+xm6rvz/adUoZ4lP6fkcuBna/NQbf1L7TqEYOegfn8oymNwmhZ9H6fUtqPBbfyt4XhxpSPZjctJTwBOavMoADM0uhqhFOgLa5yX63SimlPJwYeaguLqdL2kWX5yB5pB1DsRMSSDA4SAhgaJnD4hBPKLiYNTclwpb8cWOJks8E7gSU3xVtsc0AIfMWi6nQHU+NDwHDNaFvgRTgZqnBO8yR9rxdCeQGE6pw+fAFT1z8N9+sbJAhfM5B6CQA2xRqCzqDJ9GRoaY1SaQtdPZUIhtMDHuBPR7l/t+QZZ4COsiTBBT62vAHP69Kf0oZlU9Z8PWpL0z6ZIoeqHb6EscP0KD3zLTf2Gih9YP43Qs5Y70+iYAEb7RXW4ZTE6ipW4QcsxCmp4MX09h1OeoTHKQZ9zCP/ufpcEnIVpJLOmsaXSZdE20nLHqmv7rk2n79p+U60O86Tnb4XDU+V4obNjR2XJSMYsUXh5/KW+6W31ED8+zMnYrvcmmqfJ8lP/o2gPn8skfYvkLSD3nyXr/vOAbS5JVcH0f/Bcbmottvqy80j1n5Jg4VlZy6iQyCPX664nc8+6KjjFpB7pTswCBB6Z7lNybHyPcq9pAcKLQutb3gwiuSgMHHimFOQQXBRa26JBBTM/V+hOFkeT9VXhaNHx8ckzDnKF7s6m4V2hpZ1EFHC6K6TV37YH19wjb0yjdWwmD4WOfom39LGbwomLjtt+UlJoZ0+fgdyTcorsePcMqSIKWCh0Jxe+YFVTaHe3QgkeoWpWw2Ff26IhsAxOpjBwyd/PAo5Cp47CpQBnudLIHWOxnF1YqaVypWijkktRrRZzY+Gv5t/W6uFc+BZr2TD1ij/692I9w7dR05jQXjSyRhZ6s2ozoLz0b5slRby6VLobOF5WIbfydkXzpBFzk8NBbXFE70i8B0UaqHp6Qs3YWKASDVwfTkoj1Nem0PdPIQ03/Bi2tXvoaFq4ntkemTrMOrppdLZlDJLQ3ijxJkw6ux8JNZ4M0nm02MXTzI4Zdp9N490imqdCvZ3+A97aWb76z2P6AAAAAElFTkSuQmCC" width="50"/>
+                    </a>
+                    <a aria-label="Get it on Google Play" href="#">
+                        <img alt="Get it on Google Play black badge" class="object-contain" height="32" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN4seAXx7stmGot-Nvoe15b2dqeQSgE61QiA&s" width="50"/>
+                    </a>
+                </div>
+            </section>
+            <section class="relative w-full max-w-md md:max-w-lg flex justify-center">
+                <img alt="Laptop on a wooden desk showing e-learning app screen with coffee cup and plant in background" class="relative z-20 rounded-tl-[160px] rounded-tr-[40px] rounded-br-[40px] rounded-bl-[0px] object-cover w-full max-w-md md:max-w-lg" height="280" src="https://storage.googleapis.com/a1aa/image/60697dbc-ef62-4508-6458-09723932809e.jpg" width="400"/>
+                <div aria-hidden="true" class="absolute bottom-0 right-0 w-[320px] h-[240px] rounded-tl-[160px] rounded-tr-[40px] rounded-br-[40px] rounded-bl-[0px] bg-purple-300 z-10" style="transform: translate(40px, 40px);">
+                </div>
+                <svg aria-hidden="true" class="absolute top-0 right-0 w-20 h-20 z-30" fill="none" stroke="#2ecc71" stroke-width="4" style="transform: translate(20px, -20px);" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="28">
+                    </circle>
+                    <circle cx="32" cy="32" r="20">
+                    </circle>
+                </svg>
+            </section>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+            <div class="relative w-full max-w-md md:max-w-lg flex justify-center">
+                <img alt="Person on video call with lesson 1 displayed on computer screen, wearing headphones and gesturing with hand" class="relative z-30 rounded-md" height="280" src="https://storage.googleapis.com/a1aa/image/4522f5de-66e1-4df4-b20c-8eb6f7542663.jpg" width="400"/>
+                <img alt="Yellow curved shape behind the main image" class="absolute bottom-0 left-0 -z-10 rounded-b-[100px] w-[320px] h-[280px] md:w-[400px] md:h-[280px]" height="280" src="https://storage.googleapis.com/a1aa/image/00d2507a-bb67-41ec-2d7f-a4d5df567fd4.jpg" style="clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 0);" width="320"/>
+                <img alt="Pink zigzag shape above the main image on the top right" class="absolute top-0 right-0 -z-10 w-14 h-14 rotate-12" height="60" src="https://storage.googleapis.com/a1aa/image/852bacfa-3c49-44ca-82c4-3c05efd2b00a.jpg" width="60"/>
+                <img alt="Blue scribble shape below the text on the right side" class="hidden md:block absolute bottom-10 right-0 -z-10 w-28 h-20 rotate-12" height="60" src="https://storage.googleapis.com/a1aa/image/b574f5a4-e4be-428f-5f3b-777c28110e9c.jpg" width="60"/>
+            </div>
+            <div class="max-w-xl text-left">
+                <h2 class="text-black font-semibold text-xl md:text-2xl leading-tight">
+                    Engaging, Dynamic, and
+                    <br/>
+                    Personalized Learning Experiences
+                </h2>
+                <p class="text-gray-600 mt-3 text-sm md:text-base leading-relaxed max-w-md">
+                    Turn your slkides, videos, and notes into flashcard sets, practice tests, and study guides
+                </p>
+                <button class="mt-6 px-5 py-2 border border-gray-700 rounded-full text-gray-900 font-semibold text-sm hover:bg-gray-100 transition" type="button">
+                    View All Courses
+                </button>
+            </div>
+        </div>
+        <div aria-hidden="true" class="absolute top-48 right-72 flex space-x-4 z-0 pointer-events-none">
+            <svg class="text-[#2FC18C]" fill="none" height="24" width="24">
+                <path d="M12 0v24M0 12h24" stroke="#2FC18C" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                </path>
+            </svg>
+            <svg class="text-[#F7E26B]" fill="none" height="16" width="16">
+                <circle cx="8" cy="8" r="4" stroke="#F7E26B" stroke-width="2">
+                </circle>
+            </svg>
+        </div>
+        <svg aria-hidden="true" class="absolute top-0 left-0 w-48 h-48 opacity-20 pointer-events-none" fill="none" stroke="#F7E26B" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" viewbox="0 0 100 100">
+            <path d="M10 10c20 40 40 20 60 0s40 40 20 60-40 20-60 0-40-40-20-60z">
+            </path>
+        </svg>
+    </section>
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+            intent="WELCOME"
+            chat-title="ChatBot"
+            agent-id="fcdf0434-7989-43a9-96a3-eb8a4010840a"
+            language-code="vi"
+    ></df-messenger>
+    <script>
+        const dropdownButton = document.querySelector('.relative button');
+        const dropdownMenu = document.querySelector('.relative div');
+
+        dropdownButton.addEventListener('click', () => {
+          dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener('click', (event) => {
+          if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+          }
+        });
+    </script>
+</body>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>

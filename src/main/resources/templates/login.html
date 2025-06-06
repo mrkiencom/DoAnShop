@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+    Sign in Page
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+  <div class="min-h-screen flex">
+    <div class="flex flex-1 max-w-4xl mx-auto my-12 rounded-3xl overflow-hidden shadow-lg">
+      <!-- Left side -->
+      <div class="flex flex-col justify-center flex-1 bg-white px-10 sm:px-16 md:px-20 lg:px-24 py-12">
+        <div class="flex items-center space-x-2 mb-4">
+          <img alt="Untitled UI logo, black circular sunburst icon" class="w-10 h-10" height="50" src="https://t4.ftcdn.net/jpg/01/11/94/71/360_F_111947179_ZIlKuzFxiOSJ7Ctl6PSQDMHA91RKVKDv.jpg" width="50"/>
+          <h1 class="text-black text-2xl font-semibold">
+            Welcome!
+          </h1>
+        </div>
+        <p class="text-gray-700 text-sm mb-6">
+          Continue with Google or enter your details.
+        </p>
+        <div th:if="${param.registrationSuccess}">
+          <p class="text-green-600 text-sm mb-4">Successful registration! Please login.</p>
+        </div>
+        <form action="/oauth2/authorization/google" method="get">
+          <button class="flex items-center justify-center gap-2 w-full max-w-xs border border-gray-300 rounded-md py-2.5 px-4 text-sm text-gray-900 hover:bg-gray-50 transition" type="submit">
+            <img alt="Google G logo" class="w-4.5 h-4.5" height="18" src="data:image/png;base64,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" width="18"/>
+            Log in with Google
+          </button>
+        </form>
+        <div class="flex items-center my-8 max-w-xs w-full">
+          <div class="border-t border-gray-300 flex-grow">
+          </div>
+          <span class="mx-3 text-xs text-gray-400 select-none">
+          or
+         </span>
+          <div class="border-t border-gray-300 flex-grow">
+          </div>
+        </div>
+        <form class="flex flex-col max-w-xs w-full space-y-4 text-xs text-gray-700" th:action="@{/login}" method="post">
+          <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Username" required="" type="text" name="username"/>
+          <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Password" required="" type="password" name="password"/>
+          <div class="flex justify-between items-center text-[10px] text-gray-600">
+            <label class="flex items-center gap-1 select-none">
+              <input class="w-3.5 h-3.5 border border-gray-300 rounded-sm" type="checkbox"/>
+              <span class="font-semibold">
+            Remember for 30 days
+           </span>
+            </label>
+            <a class="underline font-semibold" href="#">
+              Forgot password
+            </a>
+          </div>
+          <button class="bg-[#0F172A] text-white rounded-md py-2 text-sm font-semibold mt-4" type="submit">
+            Log in
+          </button>
+        </form>
+        <p class="text-[10px] text-gray-600 mt-6 max-w-xs w-full text-center select-none">
+          Don’t have an account?
+          <a class="font-semibold underline decoration-2 decoration-black underline-offset-4" href="/register">
+            Sign up for free
+          </a>
+        </p>
+      </div>
+      <!-- Right side -->
+      <div class="hidden md:flex flex-1 relative overflow-hidden rounded-tr-3xl rounded-br-3xl">
+        <img alt="Abstract 3D blue and purple wave background with diagonal lines" class="object-cover w-full h-full rounded-tr-3xl rounded-br-3xl" height="800" src="https://storage.googleapis.com/a1aa/image/c8c149bf-ee69-4edf-3e7c-5b0f7a542bcb.jpg" width="600"/>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center space-x-3 select-none">
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>

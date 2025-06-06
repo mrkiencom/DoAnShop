@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>
+        Udemy Course Page
+    </title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+         }
+        .grid_custome {
+            width: 1200px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .fullscreen-overlay {
+            /* Sử dụng visibility và opacity để chuyển đổi mượt mà */
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
+
+        .fullscreen-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Thêm style cho video để đảm bảo nó vừa với overlay */
+        .fullscreen-overlay video {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain; /* Đảm bảo video vừa vặn mà không bị cắt */
+        }
+    </style>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="bg-white text-gray-900">
+<!-- Main content -->
+    <div class="flex ">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-10 md:py-14 flex flex-col md:flex-row gap-10">
+            <!-- Left content -->
+            <div>
+                <section class="flex-1 max-w-4xl">
+                    <nav class="text-xs font-semibold mb-4 flex flex-wrap gap-1">
+                        <span th:text="${courseDetail.category}"></span>
+                        <span>›</span>
+                        <span th:text="${courseDetail.topic}"></span>
+                    </nav>
+                    <h1 th:text="${courseDetail.title}" class="text-3xl md:text-4xl font-extrabold leading-tight mb-4"></h1>
+                    <p class="text-sm mb-6">Created by
+                        <a class=" hover:underline font-semibold" href="#" th:text="${courseDetail.lecturer.firstname} + ' '+ ${courseDetail.lecturer.lastname}"></a>
+                    </p>
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-900">
+                        <div class="flex items-center gap-1">
+                            <i class="fas fa-sync-alt text-gray-900"></i>
+                            <span th:text="'Last updated : ' + ${courseDetail.date}"></span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="fas fa-globe text-gray-900"></i>
+                            <span>English</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="far fa-file-alt text-gray-900"></i>
+                            <span>English [Auto]</span>
+                        </div>
+                    </div>
+                </section>
+                <section class="border border-gray-300 rounded-md max-w-5xl mx-auto p-6 sm:p-10 mt-10" aria-labelledby="learn-heading">
+                    <h2 id="learn-heading" class="text-2xl font-extrabold text-gray-900 mb-6">What you'll learn</h2>
+                    <div class="text-gray-900 text-sm sm:text-base leading-relaxed">
+                        <ul class="space-y-3">
+                            <li class="flex items-start space-x-3"
+                                th:each="sentence : ${#strings.arraySplit(courseDetail.content, '.')}"
+                                th:if="${#strings.trim(sentence).length() > 0}"> <i class="fas fa-check text-gray-700 mt-1 flex-shrink-0"></i>
+                                <span th:text="${#strings.trim(sentence) + '.'}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section class="max-w-5xl mx-auto mt-10 px-6 sm:px-0" aria-labelledby="related-topics-heading">
+                    <h3 id="related-topics-heading" class="text-2xl font-extrabold text-gray-900 mb-4">Explore related topics</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span th:text="${courseDetail.category}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                        <span th:text="${courseDetail.topic}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                        <span th:text="${courseDetail.level}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                    </div>
+                </section>
+                <section class="max-w-5xl mx-auto mt-10 px-6 sm:px-0">
+                    <h2 class="text-2xl font-extrabold mb-4">Requirements</h2>
+                    <ul class="list-disc list-inside space-y-2 text-base font-normal">
+                        <li th:each="sentence : ${#strings.arraySplit(courseDetail.requirement, '.')}"
+                            th:if="${#strings.trim(sentence).length() > 0}">
+                            <span th:text="${#strings.trim(sentence) + '.'}"></span>
+                        </li>
+                    </ul>
+                </section>
+                <section class="max-w-5xl mx-auto mt-10 px-6 sm:px-0">
+                    <h2 class="text-2xl font-extrabold mb-4">Description</h2>
+                    <p class="mb-3 text-base font-normal"
+                       th:each="sentence : ${#strings.arraySplit(courseDetail.description, '.')}"
+                       th:if="${#strings.trim(sentence).length() > 0}"
+                       th:text="${#strings.trim(sentence) + '.'}">
+                    </p>
+                </section>
+            </div>
+            <!-- Right content -->
+            <aside class="w-full max-w-md bg-white rounded-md overflow-hidden text-gray-900 flex flex-col">
+                <div class="relative">
+                    <img alt="Course preview video thumbnail with purple and blue abstract lines and a large white circular play button in center" class="w-full h-auto" height="200" th:src="${courseDetail.image}" width="400"/>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <button id="preview-video-button"
+                                class="bg-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors duration-200">
+                            <i class="fas fa-play text-green-700 text-xl ml-1"></i>
+                        </button>
+
+                        <div id="video-fullscreen-overlay"
+                             class="fullscreen-overlay fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+                            <button id="close-video-button"
+                                    class="absolute top-5 right-5 bg-transparent border-none text-white text-4xl cursor-pointer p-2 rounded-full hover:bg-gray-700 transition-colors duration-200">&times;</button>
+                            <video id="fullscreen-video" controls class="w-full h-full object-contain">
+                                <source th:src="${earliestVideo.videoUrl}" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-3 left-0 right-0 text-center text-white font-semibold text-sm select-none">Preview this course</div>
+                </div>
+                <div class="p-6 flex flex-col gap-4 bg-[#b0b0d812]">
+                    <div class="grid">
+                        <span class="text-2xl font-extrabold" th:text="${courseDetail.title}"></span>
+                        <span class="text-2xl font-extrabold text-gray-600" th:text="${courseDetail.price} + ' ₫'"></span>
+                    </div>
+                    <div th:if="${courseDetail.is_paid}">
+                        <div th:if="${checkPayment}" class="flex gap-3 flex-col">
+                            <a class="flex justify-center border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition" th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo.videoId})}">Watch now</a>
+                        </div>
+
+                        <div th:unless="${checkPayment}" class="flex gap-3 flex-col">
+                            <form th:action="@{/cart/add}" method="post">
+                                <input type="hidden" name="courseId" th:value="${courseDetail.courseId}" />
+                                <button type="submit" class="flex justify-center flex-1 bg-green-600 hover:bg-green-600 text-white font-semibold rounded-md py-3 transition w-full">Add to cart</button>
+                            </form>
+                            <a class="flex justify-center cursor-pointer border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition" th:href="@{/create_payment/{courseId}(courseId=${courseDetail.courseId})}">Mua ngay</a>
+                        </div>
+                    </div>
+
+                    <div th:unless="${courseDetail.is_paid}" class="flex gap-3 flex-col">
+                        <button class="border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition" th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo.videoId})}">Watch now</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+    <div class="pb-8 grid_custome">
+        <h2 class="text-2xl font-extrabold mb-4" th:text="${'More Courses ' + courseDetail.category}"></h2>
+        <div class=" flex items-center space-x-4 overflow-x-auto scrollbar-hide mb-8">
+            <th:block th:if="${!#lists.isEmpty(coursesList)}">
+                <div class="bg-white rounded-lg shadow-md w-64 flex-shrink-0" th:each="course : ${coursesList}">
+                    <a th:href="@{/courseDetail/{id}(id=${course.courseId})}">
+                        <img th:src="${course.image}" alt="Course Image" class="w-full h-36 object-cover rounded-t-lg">
+                    </a>
+                    <div class="p-4">
+                        <a th:href="@{/courseDetail/{id}(id=${course.courseId})}">
+                            <h3 class="text-lg font-semibold text-gray-800 truncate" th:text="${course.title}"></h3>
+                        </a>
+                        <p class="text-sm text-gray-600" th:text="${courseDetail.lecturer.firstname} + ' '+ ${courseDetail.lecturer.lastname}"></p>
+                        <p class="text-sm text-gray-600 mt-2" th:text="${course.category}"></p>
+
+                        <p class="text-lg font-bold text-gray-800 mt-2" th:text="${courseDetail.price} + ' ₫'"></p>
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:unless="${!#lists.isEmpty(coursesList)}">
+                <p class="text-gray-600">Không có khóa học liên quan nào được tìm thấy.</p>
+            </th:block>
+        </div>
+    </div>
+    <script>
+        // JavaScript của bạn
+        const previewVideoButton = document.getElementById('preview-video-button');
+        const videoFullscreenOverlay = document.getElementById('video-fullscreen-overlay');
+        const fullscreenVideo = document.getElementById('fullscreen-video');
+        const closeVideoButton = document.getElementById('close-video-button');
+
+        function openFullscreenVideo() {
+            videoFullscreenOverlay.classList.add('active');
+            fullscreenVideo.load();
+            fullscreenVideo.play();
+        }
+
+        function closeFullscreenVideo() {
+            fullscreenVideo.pause();
+            videoFullscreenOverlay.classList.remove('active');
+        }
+
+        previewVideoButton.addEventListener('click', openFullscreenVideo);
+        closeVideoButton.addEventListener('click', closeFullscreenVideo);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && videoFullscreenOverlay.classList.contains('active')) {
+                closeFullscreenVideo();
+            }
+        });
+
+        videoFullscreenOverlay.addEventListener('click', (event) => {
+            if (event.target === videoFullscreenOverlay) {
+                closeFullscreenVideo();
+            }
+        });
+
+        const dropdownButton = document.querySelector('.relative button');
+        const dropdownMenu = document.querySelector('.relative div');
+
+        dropdownButton.addEventListener('click', () => {
+          dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener('click', (event) => {
+          if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+          }
+        });
+    </script>
+</body>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>

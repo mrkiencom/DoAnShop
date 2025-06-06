@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Học tập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+        body {
+            font-family: "Roboto", sans-serif;
+        }
+    </style>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="bg-white text-gray-900">
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6">Khóa học của bạn</h1>
+        <div th:if="${myCourses == null or myCourses.isEmpty()}">
+            <section class="border border-gray-200 rounded-md p-10 flex flex-col items-center justify-center space-y-6">
+                <img alt="Illustration of a person looking at floating course icons including a book, video, and image" class="w-[150px] h-[100px]" height="100" src="https://storage.googleapis.com/a1aa/image/d81fc3f3-26c7-4802-fca7-7d26f2ef23d4.jpg" width="150"/>
+                <p class="text-gray-900 text-center text-sm">Your course is empty. Keep shopping to find a course!</p>
+                <a class="bg-purple-700 text-white font-semibold rounded px-6 py-3 hover:bg-purple-800" href="/listCourses">
+                    Keep shopping
+                </a>
+            </section>
+        </div>
+        <div th:unless="${myCourses == null or myCourses.isEmpty()}" class="flex space-x-4 overflow-x-auto scrollbar-hide mt-8 mb-8">
+            <a th:each="myCourse : ${myCourses}" class="bg-white rounded-lg shadow-md w-64 flex-shrink-0" th:href="@{/courseDetail/{courseId}(courseId=${myCourse.course.courseId})}">
+                <img th:src="${myCourse.course.image}" alt="Course Image" class="w-full h-36 object-cover rounded-t-lg">
+                <div class="p-4">
+                    <h3 th:text="${myCourse.course.title}" class="text-lg font-semibold text-gray-800 truncate hover:underline"></h3>
+                    <p th:text="${myCourse.course.lecturer.firstname} + ' '+ ${myCourse.course.lecturer.lastname}" class="text-sm text-gray-600"></p>
+                    <p class="text-gray-700 text-sm leading-snug mt-1 mb-1 overflow-hidden text-ellipsis line-clamp-3" th:text="${myCourse.course.description}"></p>
+                </div>
+            </a>
+        </div>
+    </main>
+    <script>
+        const dropdownButton = document.querySelector('.relative button');
+        const dropdownMenu = document.querySelector('.relative div');
+
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener('click', (event) => {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>

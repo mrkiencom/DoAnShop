@@ -1,0 +1,425 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+    Huge LMS Dashboard
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .image-upload-container {
+        cursor: pointer;
+        position: relative; /* Thiết lập container làm gốc tọa độ cho định vị tuyệt đối */
+        overflow: hidden; /* Ẩn các phần của ảnh có thể tràn ra ngoài */
+    }
+    .image-preview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* object-fit: cover; */
+    }
+    .no-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #9ca3af; /* Màu chữ xám tương tự */
+        font-size: 0.875rem; /* text-sm của Tailwind */
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900">
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside th:replace="~{fragments/sidebar_lecturer :: sidebar_lecturer}"></aside>
+  <!-- Main content -->
+  <main class="flex-1 p-6">
+    <header th:replace="~{fragments/header_lecturer :: header_lecturer}"></header>
+    <form id="createCourseForm" class="mx-auto" th:action="@{/createCourses}" method="post" th:object="${course}">
+      <h2 class="font-semibold text-[14px] mb-4">Add New Course</h2>
+      <!-- Step navigation -->
+      <div class="flex items-center space-x-10 mb-6 text-[11px] font-normal text-[#64748b]">
+        <div class="flex items-center space-x-2">
+          <div class="w-5 h-5 rounded-full bg-[#3b82f6] flex items-center justify-center text-white text-[10px] font-semibold">
+            <i class="fas fa-check"></i>
+          </div>
+          <span class="text-[#3b82f6]">Course Landing</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span>02</span>
+          <span>Upload video</span>
+        </div>
+      </div>
+      <!-- Title input -->
+      <textarea
+              required=""
+              th:field="*{title}"
+              rows="2"
+              placeholder="Your course title goes here......."
+              class="w-full rounded-md resize-none bg-[#2563eb] text-[#cbd5e1] text-[14px] font-light px-4 py-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+      ></textarea>
+      <!--img_courses-->
+      <div class="grid mt-6">
+        <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">* IMAGE</label>
+        <div id="image-upload-container" class="image-upload-container border border-dashed border-gray-300 rounded-md bg-gray-100 h-72 cursor-pointer">
+          <div id="no-image-overlay" class="no-image-overlay flex flex-col items-center justify-center h-full text-gray-400"
+               th:classappend="${course.image != null and !course.image.isEmpty() ? 'hidden' : ''}">
+            <i class="fas fa-camera text-lg mb-1"></i>
+            <span>Click to upload image</span>
+          </div>
+          <img id="image-preview"
+               th:src="${course.image != null and !course.image.isEmpty() ? course.image : '#'}"
+               alt="Image preview"
+               th:classappend="${course.image != null and !course.image.isEmpty() ? '' : 'hidden'}"
+               class="image-preview w-full h-full object-contain">
+          <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+        </div>
+        <p id="file-name-display" class="text-sm text-gray-500 mt-2 hidden"></p>
+        <input type="hidden" id="courseImage" name="image" th:field="*{image}">
+      </div>
+      <!-- Form fields row -->
+      <div class="flex flex-wrap gap-4 mt-6">
+        <!-- Category -->
+        <div class="flex-1 min-w-[180px]">
+          <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+            * CATEGORY
+          </label>
+          <select id="category-select" class="w-full border border-[#cbd5e1] rounded-md px-3 py-2 text-[15px] text-[#1e293b] font-normal focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" th:field="*{category}">
+            <option value="Web Development" class="flex items-center space-x-2">
+              Web Development
+            </option>
+            <option value="Data Science" class="flex items-center space-x-2">
+              Data Science
+            </option>
+            <option value="Mobile Development" class="flex items-center space-x-2">
+              Mobile Development
+            </option>
+            <option value="Programming Languages" class="flex items-center space-x-2">
+              Programming Languages
+            </option>
+            <option value="Game Development" class="flex items-center space-x-2">
+              Game Development
+            </option>
+            <option value="Database Design & Development" class="flex items-center space-x-2">
+              Database Design & Development
+            </option>
+            <option value="Software Testing" class="flex items-center space-x-2">
+              Software Testing
+            </option>
+            <option value="Software Engineering" class="flex items-center space-x-2">
+              Software Engineering
+            </option>
+            <option value="Software Development Tools" class="flex items-center space-x-2">
+              Software Development Tools
+            </option>
+          </select>
+        </div>
+
+        <!-- Topic -->
+        <div class="flex-1 min-w-[180px]">
+          <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+            * TOPIC
+          </label>
+          <select id="topic-select" class="w-full border border-[#cbd5e1] rounded-md px-3 py-2 text-[15px] text-[#1e293b] font-normal focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" th:field="*{topic}">
+
+          </select>
+        </div>
+
+        <!-- Price -->
+        <div class="flex-1 min-w-[180px]">
+          <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+            * PRICE
+          </label>
+          <div class="flex items-center border border-[#cbd5e1] rounded-md overflow-hidden">
+            <div class="bg-[#ddd6fe] text-[#7c3aed] text-[14px] font-semibold px-3 py-2">
+              $
+            </div>
+            <input
+                    required=""
+                    th:field="*{price}"
+                    type="number"
+                    value=""
+                    class="w-full px-3 py-2 text-[14px] font-semibold text-[#1e293b] focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- Level -->
+      <div class="flex flex-wrap items-center gap-3 mt-6">
+        <label class="text-[9px] font-semibold text-[#64748b] tracking-wide mr-3">* LEVEL</label>
+        <div class="flex items-center space-x-2">
+          <input type="radio" id="all" name="level" value="All Levels" class="hidden peer" checked th:field="*{level}"/>
+          <label for="all" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+            <span>All Level</span>
+          </label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="radio" id="beginner" name="level" value="Beginner Level" class="hidden peer" th:field="*{level}"/>
+          <label for="beginner" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+            <span>Beginner</span>
+          </label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="radio" id="intermediate" name="level" value="Intermediate Level" class="hidden peer" th:field="*{level}"/>
+          <label for="intermediate" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+            <span>Intermediate</span>
+          </label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="radio" id="expert" name="level" value="Expert Level" class="hidden peer" th:field="*{level}"/>
+          <label for="expert" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+            <span>Expert</span>
+          </label>
+        </div>
+      </div>
+      <!-- Description -->
+      <div class="mt-6">
+        <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+          * DESCRIPTION
+        </label>
+        <textarea
+                required=""
+                th:field="*{description}"
+                rows="3"
+                class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+        ></textarea>
+      </div>
+      <!-- What students will learn -->
+      <div class="mt-6">
+        <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+          * WHAT STUDENTS WILL LEARN
+          <i class="fas fa-info-circle text-[#64748b] ml-1 text-[10px] align-middle"></i>
+        </label>
+        <input
+                required=""
+                th:field="*{content}"
+                type="text"
+                class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+        />
+      </div>
+      <!--      REQUIREMENT-->
+      <div class="mt-6">
+        <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+          * REQUIREMENT
+        </label>
+        <textarea
+                required=""
+                th:field="*{requirement}"
+                rows="3"
+                class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end items-center space-y-3 mt-6">
+        <button class="text-xs text-indigo-600 border border-indigo-600 rounded-full px-3 py-1 flex items-center space-x-1 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-600" type="submit">
+          <span> Create </span>
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+<script>
+  const dropdownButton = document.querySelector('.relative button');
+  const dropdownMenu = document.querySelector('.relative div');
+
+  dropdownButton.addEventListener('click', () => {
+    dropdownMenu.classList.toggle('hidden');
+  });
+
+  // Đóng dropdown khi click ra ngoài
+  document.addEventListener('click', (event) => {
+    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+      dropdownMenu.classList.add('hidden');
+    }
+  });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const createCourseForm = document.getElementById('createCourseForm');
+    const imageUploadContainer = document.getElementById('image-upload-container');
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const noImageOverlay = document.getElementById('no-image-overlay');
+    const imagePreview = document.getElementById('image-preview');
+    const courseImageInput = document.getElementById('courseImage'); // Đã đổi tên biến này
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    // Các phần tử cho Category và Topic
+    const categorySelect = document.getElementById('category-select');
+    const topicSelect = document.getElementById('topic-select');
+
+    // -- Logic xem trước ảnh --
+    imageUploadContainer.addEventListener('click', function() {
+        imageUploadInput.click();
+    });
+
+    imageUploadInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                noImageOverlay.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            fileNameDisplay.textContent = `File đã chọn: ${file.name}`;
+            fileNameDisplay.classList.remove('hidden');
+
+            // Xóa giá trị input ẩn khi người dùng chọn file mới
+            // Điều này quan trọng nếu họ chọn một file, sau đó hủy, hoặc chọn file khác
+            courseImageInput.value = '';
+
+        } else {
+            // Không có file nào được chọn, hoặc người dùng đã hủy chọn file
+            // Kiểm tra nếu imagePreview đã có src từ database thì giữ nguyên
+            if (imagePreview.src === '#' || imagePreview.src === window.location.href) { // Kiểm tra nếu src là rỗng hoặc đường dẫn hiện tại
+                imagePreview.classList.add('hidden');
+                noImageOverlay.classList.remove('hidden');
+            }
+            fileNameDisplay.classList.add('hidden');
+            fileNameDisplay.textContent = '';
+        }
+    });
+
+    // -- Logic cho Category và Topic (ĐÃ BỔ SUNG LẠI) --
+    const topicsByCategory = {
+        'Web Development': ['JavaScript', 'React JS', 'Angular', 'Next.js', 'CSS', 'Typescript', 'ASP.NET Core', 'HTML'],
+        'Data Science': ['Machine Learning', 'Artificial Intelligence (AI)', 'Large Language Models (LLM)', 'Python', 'AI Agents', 'Deep Learning', 'Generative AI (GenAI)', 'LangChain'],
+        'Mobile Development': ['Google Flutter', 'React Native', 'Android Development', 'iOS Development', 'Dart (programming language)', 'Swift', 'Kotlin', 'SwiftUI', 'Mobile App Development'],
+        'Programming Languages': ['Python', 'Java', 'C++', 'C#', 'React JS', 'Go', 'C', 'Spring Framework', 'JavaScript'],
+        'Game Development': ['Unity', 'Unreal Engine', 'C#', 'Game Design', 'Godot', 'Game Development Fundamentals', '2D Game Development', '3D Game Development'],
+        'Database Design & Development': ['SQL', 'MySQL', 'SQL Server','PostgreSQL', 'MongoDB'],
+        'Software Testing': ['Microsoft Playwright', 'Selenium WebDriver', 'Java', 'Automation Testing', 'Postman', 'Selenium Testing Framework', 'API Testing'],
+        'Software Engineering': ['Data Structures', 'Certified Kubernetes Application Developer (CKAD)', 'Software Architecture', 'Coding Interview', 'Algorithms', 'Spring Framework', 'Microservices', 'Node.Js', 'Back End Web Development'],
+        'Software Development Tools': ['Git', 'Docker', 'Kubernetes', 'GitHub', 'CI/CD', 'Confluence', 'Prompt Engineering', 'GitHub Copilot', 'JIRA'],
+    };
+
+    function updateTopics() {
+        const selectedCategory = categorySelect.value;
+        const topics = topicsByCategory[selectedCategory] || [];
+        topicSelect.innerHTML = ''; // Clear existing options
+
+        if (topics.length === 0) {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Chọn chủ đề";
+            topicSelect.appendChild(defaultOption);
+            topicSelect.disabled = true; // Vô hiệu hóa nếu không có chủ đề
+        } else {
+            topicSelect.disabled = false;
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Call on load and on category change
+    updateTopics(); // Khởi tạo topic khi trang tải
+    categorySelect.addEventListener('change', updateTopics);
+
+    // --- Logic Tải ảnh lên Cloudinary khi SUBMIT FORM ---
+    createCourseForm.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Ngăn chặn form submit mặc định
+
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true; // Vô hiệu hóa nút submit
+        submitButton.textContent = 'Đang tạo khóa học...';
+
+        const file = imageUploadInput.files[0];
+
+        // Kiểm tra xem người dùng có chọn file mới không
+        // HOẶC nếu courseImageInput.value (ảnh cũ từ DB) không rỗng
+        // Nếu không có file mới và cũng không có ảnh cũ, cảnh báo người dùng.
+        if (!file && !courseImageInput.value) {
+            fileNameDisplay.textContent = 'Vui lòng tải lên một ảnh cho khóa học.';
+            fileNameDisplay.style.color = 'red';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Create'; // Reset text
+            return;
+        }
+
+        // Nếu có file ảnh MỚI được chọn, tải lên Cloudinary trước
+        if (file) {
+            fileNameDisplay.textContent = 'Đang tải ảnh lên Cloudinary...';
+            fileNameDisplay.style.color = 'blue';
+
+            try {
+                // Lấy chữ ký từ backend của bạn
+                const publicId = `course_picture_${Date.now()}`; // Tạo public ID duy nhất
+                const signatureResponse = await fetch(`/api/cloudinary/course-upload?folder=course_images&publicId=${publicId}`, {
+                    method: 'GET'
+                });
+
+                if (!signatureResponse.ok) {
+                    const errorText = await signatureResponse.text();
+                    throw new Error(`Lỗi khi lấy chữ ký: ${errorText}`);
+                }
+                const signatureData = await signatureResponse.json();
+
+                // Tải file trực tiếp lên Cloudinary
+                const cloudinaryFormData = new FormData();
+                cloudinaryFormData.append('file', file);
+                cloudinaryFormData.append('api_key', signatureData.api_key);
+                cloudinaryFormData.append('timestamp', signatureData.timestamp);
+                cloudinaryFormData.append('signature', signatureData.signature);
+                cloudinaryFormData.append('folder', 'course_images');
+                cloudinaryFormData.append('public_id', publicId);
+                cloudinaryFormData.append('resource_type', 'image'); // Đảm bảo Cloudinary xử lý là ảnh
+
+                const cloudinaryUploadUrl = `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/image/upload`;
+
+                const cloudinaryResponse = await fetch(cloudinaryUploadUrl, {
+                    method: 'POST',
+                    body: cloudinaryFormData
+                });
+
+                if (cloudinaryResponse.ok) {
+                    const cloudinaryData = await cloudinaryResponse.json();
+                    const newImageUrl = cloudinaryData.secure_url;
+
+                    // Cập nhật URL ảnh vào input ẩn của form
+                    courseImageInput.value = newImageUrl;
+                    fileNameDisplay.textContent = 'Ảnh đã tải lên Cloudinary thành công.';
+                    fileNameDisplay.style.color = 'green';
+
+                } else {
+                    const errorCloudinaryData = await cloudinaryResponse.json();
+                    throw new Error('Lỗi tải ảnh lên Cloudinary: ' + (errorCloudinaryData.error.message || 'Không xác định'));
+                }
+            } catch (error) {
+                console.error('Lỗi trong quá trình tải ảnh lên Cloudinary:', error);
+                fileNameDisplay.textContent = 'Lỗi tải ảnh lên Cloudinary: ' + error.message;
+                fileNameDisplay.style.color = 'red';
+                submitButton.disabled = false; // Bật lại nút nếu có lỗi
+                submitButton.textContent = 'Create'; // Reset text
+                return; // Dừng việc submit form nếu có lỗi upload ảnh
+            }
+        }
+        // Nếu không có file mới được chọn, hoặc đã tải lên thành công, thì submit form
+        // Form sẽ được submit với giá trị image đã được cập nhật (nếu có)
+        // hoặc giá trị ban đầu nếu không có ảnh mới/ảnh đã tồn tại từ trước
+        createCourseForm.submit();
+    });
+});
+</script>
+</body>
+</html>

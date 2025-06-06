@@ -1,0 +1,432 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>
+        Huge LMS Dashboard
+    </title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-white text-gray-900">
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/sidebar_lecturer :: sidebar_lecturer}"></aside>
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+        <header th:replace="~{fragments/header_lecturer :: header_lecturer}"></header>
+        <div class="flex items-center space-x-6 border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                <button id="course-info-tab" class="whitespace-nowrap border-b-2 border-indigo-500 font-medium text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        aria-controls="course-info-panel"
+                        aria-selected="true">Information
+                </button>
+                <button id="course-videos-tab" class="whitespace-nowrap border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        aria-controls="course-videos-panel"
+                        aria-selected="false">
+                    Videos
+                </button>
+            </nav>
+        </div>
+        <div id="course-info-panel" class="mt-4">
+            <form class="mx-auto" th:action="@{/updateCourses/{courseId}(courseId=${courseId})}" method="post" th:object="${updateCourse}">
+                <h2 class="font-semibold text-[14px] mb-4">Update Course</h2>
+                <!-- Title input -->
+                <textarea
+                        required=""
+                        th:field="${getCourseById.title}"
+                        rows="2"
+                        placeholder="Your course title goes here......."
+                        class="w-full rounded-md resize-none bg-[#2563eb] text-[#cbd5e1] text-[14px] font-light px-4 py-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                ></textarea>
+                <!--img_courses-->
+                <div class="grid mt-6">
+                    <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">* IMAGE</label>
+                    <div id="image-upload-container" class="image-upload-container border border-dashed border-gray-300 rounded-md bg-gray-100 h-72">
+                        <div id="no-image-overlay" class="no-image-overlay">
+                            <i class="fas fa-camera text-lg mb-1"></i>
+                            <span>No image yet</span>
+                        </div>
+                        <img id="image-preview"  th:if="${not #strings.isEmpty(getCourseById.image)}" th:src="${getCourseById.image}"  alt="Image preview" class="hidden image-preview" >
+                        <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+                    </div>
+                    <input type="hidden" id="imagePath" name="imagePath" th:value="${getCourseById.image}"  >
+                </div>
+                <!-- Form fields row -->
+                <div class="flex flex-wrap gap-4 mt-6">
+                    <!-- Category -->
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+                            * CATEGORY
+                        </label>
+                        <select id="category-select" class="w-full border border-[#cbd5e1] rounded-md px-3 py-2 text-[15px] text-[#1e293b] font-normal focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" th:field="${getCourseById.category}">
+                            <option value="Web Development" class="flex items-center space-x-2">
+                                Web Development
+                            </option>
+                            <option value="Data Science" class="flex items-center space-x-2">
+                                Data Science
+                            </option>
+                            <option value="Mobile Development" class="flex items-center space-x-2">
+                                Mobile Development
+                            </option>
+                            <option value="Programming Languages" class="flex items-center space-x-2">
+                                Programming Languages
+                            </option>
+                            <option value="Game Development" class="flex items-center space-x-2">
+                                Game Development
+                            </option>
+                            <option value="Database Design & Development" class="flex items-center space-x-2">
+                                Database Design & Development
+                            </option>
+                            <option value="Software Testing" class="flex items-center space-x-2">
+                                Software Testing
+                            </option>
+                            <option value="Software Engineering" class="flex items-center space-x-2">
+                                Software Engineering
+                            </option>
+                            <option value="Software Development Tools" class="flex items-center space-x-2">
+                                Software Development Tools
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Topic -->
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+                            * TOPIC
+                        </label>
+                        <select id="topic-select" class="w-full border border-[#cbd5e1] rounded-md px-3 py-2 text-[15px] text-[#1e293b] font-normal focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" th:field="${getCourseById.topic}">
+                        </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">
+                            * PRICE
+                        </label>
+                        <div class="flex items-center border border-[#cbd5e1] rounded-md overflow-hidden">
+                            <div class="bg-[#ddd6fe] text-[#7c3aed] text-[14px] font-semibold px-3 py-2">$</div>
+                            <input
+                                    required=""
+                                    th:field="${getCourseById.price}"
+                                    type="number"
+                                    value=""
+                                    class="w-full px-3 py-2 text-[14px] font-semibold text-[#1e293b] focus:outline-none"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <!-- Level -->
+                <div class="flex flex-wrap items-center gap-3 mt-6">
+                    <label class="text-[9px] font-semibold text-[#64748b] tracking-wide mr-3">* LEVEL</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="radio" id="all" name="level" value="all" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <label for="all" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+                            <span>All Level</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="radio" id="beginner" name="level" value="beginner" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <label for="beginner" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+                            <span>Beginner</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="radio" id="intermediate" name="level" value="intermediate" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <label for="intermediate" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+                            <span>Intermediate</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="radio" id="expert" name="level" value="expert" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <label for="expert" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
+                            <span>Expert</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Description -->
+                <div class="mt-6">
+                    <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+                        * DESCRIPTION
+                    </label>
+                    <textarea
+                            required=""
+                            th:field="${getCourseById.description}"
+                            rows="6"
+                            class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+                    ></textarea>
+                </div>
+                <!-- What students will learn -->
+                <div class="mt-6">
+                    <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+                        * WHAT STUDENTS WILL LEARN
+                        <i class="fas fa-info-circle text-[#64748b] ml-1 text-[10px] align-middle"></i>
+                    </label>
+                    <input
+                            required=""
+                            th:field="${getCourseById.content}"
+                            type="text"
+                            class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+                    />
+                </div>
+                <!-- REQUIREMENT -->
+                <div class="mt-6">
+                    <label class="block text-[9px] font-semibold text-[#64748b] tracking-wide mb-1">
+                        * REQUIREMENT
+                    </label>
+                    <textarea
+                            required=""
+                            th:field="${getCourseById.requirement}"
+                            rows="4"
+                            class="w-full rounded-md border border-[#cbd5e1] px-3 py-2 text-[11px] text-[#1e293b] font-normal focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+                    ></textarea>
+                </div>
+
+                <div class="flex justify-end items-center space-y-3 mt-6">
+                    <button class="text-xs text-indigo-600 border border-indigo-600 rounded-full px-3 py-1 flex items-center space-x-1 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-600" type="submit">
+                        <span> Save </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="course-videos-panel" class="mt-4 hidden">
+            <div class="ml-auto flex items-center space-x-4 justify-end">
+                <a class="mr-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md px-4 py-2 focus:outline-none" th:href="@{/uploadVideo/{courseId}(courseId=${courseId})}">
+                    + VIDEO
+                </a>
+            </div>
+            <div th:if="${listVideoByCourses.isEmpty()}">
+                <p>This course does not exist video.</p>
+            </div>
+            <div class="overflow-x-auto border border-gray-200 rounded-md">
+                <div class="relative overflow-y-auto max-h-96">
+                    <table th:unless="${listVideoByCourses.isEmpty()}" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-white sticky top-0 z-10"> <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                TITLE
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                VIDEO_URL
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                DURATION
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                DESCRIPTION
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                UPLOAD AT
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                                ACTION
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100 text-sm"> <tr th:each="listVideoByCourse : ${listVideoByCourses}">
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${listVideoByCourse.title}"></td>
+                            <td th:text="${listVideoByCourse.videoUrl}" class="px-6 py-4 whitespace-nowrap text-gray-500 video_url hover:cursor-pointer"></td>
+                            <td th:text="${listVideoByCourse.duration}" class="px-6 py-4 whitespace-nowrap text-gray-500 "></td>
+                            <td th:text="${listVideoByCourse.description}" class="px-6 py-4 whitespace-nowrap text-gray-500 "></td>
+                            <td th:text="${listVideoByCourse.uploadedAt}" class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
+                            <td class="py-3 pr-4 text-center">
+                                <a aria-label="Edit 1" class="text-blue-800 hover:text-blue-600" th:href="@{/updateVideo/{videoId}(videoId=${listVideoByCourse.videoId})}">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a aria-label="Delete 1" class="text-red-800 hover:text-red-600 ml-2" th:href="@{/deleteVideo/{videoId}(videoId=${listVideoByCourse.videoId})}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const dropdownButton = document.querySelector('.relative button');
+    const dropdownMenu = document.querySelector('.relative div');
+
+    dropdownButton.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', (event) => {
+      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    const imageUploadContainer = document.getElementById('image-upload-container');
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const imagePreview = document.getElementById('image-preview');
+    const noImageOverlay = document.getElementById('no-image-overlay');
+    const imagePathInput = document.getElementById('imagePath'); // Lấy tham chiếu đến input ẩn từ HTML
+
+    imageUploadContainer.addEventListener('click', () => {
+        imageUploadInput.click();
+    });
+
+    imageUploadInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Hiển thị ảnh dưới dạng Data URL
+            imagePreview.src = e.target.result;
+            imagePreview.classList.remove('hidden');
+            noImageOverlay.classList.add('hidden');
+
+            // Lưu tên tệp vào hidden input (hoặc bạn có thể xây dựng đường dẫn tương đối ở đây
+            // nếu bạn có logic phía server để lưu tệp với tên này vào thư mục 'images')
+            imagePathInput.value = 'images/' + file.name;
+        }
+        reader.readAsDataURL(file); // Đọc tệp dưới dạng Data URL
+    } else {
+        imagePreview.src = '#';
+        imagePreview.classList.add('hidden');
+        noImageOverlay.classList.remove('hidden');
+        imagePathInput.value = ''; // Xóa giá trị nếu không có ảnh nào được chọn
+    }
+});
+    document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('category-select');
+    const topicSelect = document.getElementById('topic-select');
+
+    // Dữ liệu mẫu cho các chủ đề tương ứng với từng danh mục
+    const topicsByCategory = {
+        'Web Development': ['JavaScript', 'React JS', 'Angular', 'Next.js', 'CSS', 'Typescript', 'ASP.NET Core', 'HTML'],
+        'Data Science': ['Machine Learning', 'Artificial Intelligence (AI)', 'Large Language Models (LLM)', 'Python', 'AI Agents', 'Deep Learning', 'Generative AI (GenAI)', 'LangChain'],
+        'Mobile Development': ['Google Flutter', 'React Native', 'Android Development', 'iOS Development', 'Dart (programming language)', 'Swift', 'Kotlin', 'SwiftUI', 'Mobile App Development'],
+        'Programming Languages': ['Python', 'Java', 'C++', 'C#', 'React JS', 'Go', 'C', 'Spring Framework', 'JavaScript'],
+        'Game Development': ['Unity', 'Unreal Engine', 'C#', 'Game Design', 'Godot', 'Game Development Fundamentals', '2D Game Development', '3D Game Development'],
+        'Database Design & Development': ['SQL', 'MySQL', 'SQL Server','PostgreSQL', 'MongoDB'],
+        'Software Testing': ['Microsoft Playwright', 'Selenium WebDriver', 'Java', 'Automation Testing', 'Postman', 'Selenium Testing Framework', 'API Testing'],
+        'Software Engineering': ['Data Structures', 'Certified Kubernetes Application Developer (CKAD)', 'Software Architecture', 'Coding Interview', 'Algorithms', 'Spring Framework', 'Microservices', 'Node.Js', 'Back End Web Development'],
+        'Software Development Tools': ['Git', 'Docker', 'Kubernetes', 'GitHub', 'CI/CD', 'Confluence', 'Prompt Engineering', 'GitHub Copilot', 'JIRA'],
+    };
+
+    // Hàm để cập nhật các option của select "Topic"
+    function updateTopicOptions(selectedCategory) {
+         // Xóa tất cả các option hiện có trong select "Topic"
+        topicSelect.innerHTML = '';
+
+    // Nếu một danh mục được chọn và có dữ liệu chủ đề cho nó
+    if (selectedCategory && topicsByCategory.hasOwnProperty(selectedCategory)) {
+        const topics = topicsByCategory[selectedCategory];
+
+        // Thêm các option mới vào select "Topic"
+        topics.forEach(topic => {
+            const option = document.createElement('option');
+            option.value = topic;
+            option.textContent = topic;
+            topicSelect.appendChild(option);
+        });
+    } else {
+        // Nếu không có danh mục nào được chọn hoặc không có chủ đề, thêm một option mặc định
+        const defaultOption = document.createElement('option');
+        defaultOption.textContent = 'Vui lòng chọn danh mục trước';
+        topicSelect.appendChild(defaultOption);
+        }
+    }
+
+    // Gọi hàm updateTopicOptions lần đầu tiên để thiết lập trạng thái ban đầu
+    updateTopicOptions(categorySelect.value);
+
+    // Lắng nghe sự kiện 'change' trên select "CATEGORY"
+    categorySelect.addEventListener('change', function() {
+      const selectedCategory = this.value;
+      updateTopicOptions(selectedCategory);
+      });
+    });
+
+    const courseInfoTab = document.getElementById('course-info-tab');
+    const courseVideosTab = document.getElementById('course-videos-tab');
+    const courseInfoPanel = document.getElementById('course-info-panel');
+    const courseVideosPanel = document.getElementById('course-videos-panel');
+
+    courseInfoTab.addEventListener('click', () => {
+      courseInfoTab.classList.add('border-indigo-500', 'text-indigo-600');
+      courseInfoTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      courseVideosTab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      courseVideosTab.classList.remove('border-indigo-500', 'text-indigo-600');
+
+      courseInfoPanel.classList.remove('hidden');
+      courseVideosPanel.classList.add('hidden');
+    });
+
+    courseVideosTab.addEventListener('click', () => {
+      courseVideosTab.classList.add('border-indigo-500', 'text-indigo-600');
+      courseVideosTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      courseInfoTab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+      courseInfoTab.classList.remove('border-indigo-500', 'text-indigo-600');
+
+      courseVideosPanel.classList.remove('hidden');
+      courseInfoPanel.classList.add('hidden');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const videoUrlElements = document.querySelectorAll('.video_url'); // Chọn tất cả các ô chứa videoUrl
+
+    videoUrlElements.forEach(function(element) {
+        element.addEventListener('click', function() {
+        const videoUrl = this.textContent.trim();
+        if (videoUrl) {
+        // Tạo một phần tử video mới
+            const videoPlayer = document.createElement('video');
+            videoPlayer.src = videoUrl;
+            videoPlayer.controls = true; // Hiển thị các nút điều khiển video
+            videoPlayer.autoplay = true; // Tự động phát video (tùy chọn)
+            videoPlayer.style.width = '100%';
+            videoPlayer.style.height = '100%';
+            videoPlayer.style.position = 'fixed';
+            videoPlayer.style.top = '0';
+            videoPlayer.style.left = '0';
+            videoPlayer.style.zIndex = '9999'; // Đảm bảo video hiển thị trên cùng
+
+        // Tạo một nút đóng
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Đóng';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '20px';
+            closeButton.style.right = '20px';
+            closeButton.style.padding = '10px 15px';
+            closeButton.style.backgroundColor = '#333';
+            closeButton.style.color = '#fff';
+            closeButton.style.border = 'none';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.zIndex = '10000';
+
+            // Thêm sự kiện đóng video
+        closeButton.addEventListener('click', function() {
+            document.body.removeChild(videoPlayer);
+            document.body.removeChild(overlay);
+            document.body.removeChild(closeButton);
+        });
+
+        // Tạo một lớp phủ mờ (tùy chọn)
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.zIndex = '9998';
+
+        // Thêm video và nút đóng vào body
+        document.body.appendChild(overlay);
+        document.body.appendChild(videoPlayer);
+        document.body.appendChild(closeButton);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<aside class="w-64  border-r border-gray-200 flex flex-col" th:fragment="sidebar_lecturer">
+    <a class="flex items-center gap-2 px-6 py-5 border-b border-gray-200" href="/lecturerPage">
+        <img alt="Logo with a purple accent" height="50" src="https://t4.ftcdn.net/jpg/01/11/94/71/360_F_111947179_ZIlKuzFxiOSJ7Ctl6PSQDMHA91RKVKDv.jpg" width="50"/>
+        <span class="font-semibold text-gray-700 text-lg select-none">
+      LMS
+     </span>
+    </a>
+    <nav class="flex flex-col mt-6 space-y-1 px-2">
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="/lecturerPage">
+            <i class="fas fa-th-large text-gray-700 text-base">
+            </i>
+            My Courses
+        </a>
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="/createCourses">
+            <i class="fas fa-book-open text-gray-500 text-base">
+            </i>
+            Create
+        </a>
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="#">
+            <i class="fas fa-tasks text-gray-500 text-base">
+            </i>
+            Assignments
+        </a>
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="#">
+            <i class="fas fa-bullhorn text-gray-500 text-base">
+            </i>
+            Announcement
+        </a>
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="#">
+            <i class="fas fa-user-graduate text-gray-500 text-base">
+            </i>
+            Students
+        </a>
+        <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm" href="#">
+            <i class="fas fa-cog text-gray-500 text-base">
+            </i>
+            Settings
+        </a>
+    </nav>
+</aside>
+</html>

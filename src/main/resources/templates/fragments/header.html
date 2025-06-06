@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Udemy Header</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+<header class="flex items-center justify-center p-2 border-b" th:fragment="header">
+    <a class="flex items-center space-x-4 mx-4 " href="/">
+        <img alt="Logo with a purple accent" height="50" src="https://t4.ftcdn.net/jpg/01/11/94/71/360_F_111947179_ZIlKuzFxiOSJ7Ctl6PSQDMHA91RKVKDv.jpg" width="50"/>
+    </a>
+    <div class="flex items-center mx-4" style="width: 30rem">
+        <form action="/search_courses" method="get" class="w-full flex items-center mb-0">
+            <div class="relative w-full">
+                <input class="w-full py-2 pl-10 pr-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-600"
+                       placeholder="Search any course ..."
+                       type="text"
+                       name="search" th:value="${searchTerm != null ? searchTerm : ''}" /> <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+            </div>
+            <button type="submit" class="hidden">Tìm kiếm</button>
+        </form>
+    </div>
+    <nav>
+        <ul class="hidden sm:flex space-x-6 text-sm text-gray-700 font-normal mx-4">
+            <li>
+                <a class="hover:underline" href="/"> Home </a>
+            </li>
+            <li>
+                <a class="hover:underline" href="#"> About </a>
+            </li>
+            <li>
+                <a class="hover:underline" href="/listCourses"> Courses </a>
+            </li>
+            <li>
+                <a class="hover:underline" href="#"> Lecturer </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="flex items-center space-x-4 mx-4">
+        <th:block th:if="${isAuthenticated}">
+            <a class="text-xl text-gray-900 hover:text-gray-700" href="/cart">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+            <div class="relative">
+                <button type="button">
+                    <img th:if="${user_account}" th:src="${user_account.picture}" alt="User Photo" class="w-8 h-8 rounded-full"/>
+                </button>
+                <div class="z-50 absolute hidden top-12 left-0 w-[280px] bg-white shadow-md border border-gray-200 rounded-md font-mono-custom text-[10px] font-semibold">
+                    <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-black" th:text="${user_account.firstname} + ' ' + ${user_account.lastname}"></span>
+                            <span class="text-gray-600 uppercase tracking-widest mt-0.5" th:text="${user_account.gmail}"></span>
+                        </div>
+                        <div>
+                            <span class="bg-[#e6ff00] text-[8px] font-extrabold uppercase px-2 py-0.5 rounded select-none" th:text="${user_account.role}"></span>
+                        </div>
+                    </div>
+                    <ul class="divide-y divide-gray-200">
+                        <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                            <a href="/profile">
+                                <i class="far fa-user-circle text-[12px]"></i>
+                                <span> Cài đặt</span>
+                            </a>
+                        </li>
+                        <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                            <a href="/myCourse">
+                                <i class="fas fa-chart-line text-[12px]"></i>
+                                <span> Khóa học đã mua</span>
+                            </a>
+                        </li>
+                        <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                            <a href="/change_password">
+                                <i class="fas fa-lock text-[12px]"></i>
+                                <span> Đổi mật khẩu</span>
+                            </a>
+                        </li>
+                        <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                            <a href="/logout">
+                                <i class="fas fa-sign-out-alt text-[12px]"></i>
+                                <span> Đăng xuất</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </th:block>
+        <th:block th:unless="${isAuthenticated}">
+            <a href="/login" class="hidden sm:inline-block border border-green-600 text-green-600 rounded-full px-4 py-1.5 text-sm font-semibold hover:bg-green-600 hover:text-white transition">
+                Sign in
+            </a>
+            <a href="/register" class="hidden sm:inline-block border border-green-600 text-green-600 rounded-full px-4 py-1.5 text-sm font-semibold hover:bg-green-600 hover:text-white transition">
+                Sign up
+            </a>
+        </th:block>
+    </div>
+</header>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+    ZenEd Footer
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&amp;display=swap" rel="stylesheet"/>
+  <style>
+    body {
+       font-family: 'Inter', sans-serif;
+     }
+  </style>
+</head>
+<footer class="bg-[#f9f8e8] text-[#4a4a4a]" th:fragment="footer" >
+  <div class="max-w-7xl mx-auto px-6 sm:px-10 pt-10 sm:pt-16 relative">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-10 sm:gap-0">
+      <!-- Left section -->
+      <div class="flex flex-col max-w-xs sm:max-w-[280px] space-y-4">
+        <p class="text-sm leading-relaxed">
+          Education theme designed for learning, teaching, engaging, and empowering learners
+        </p>
+        <form class="w-full">
+          <label class="sr-only" for="email">
+            Your email
+          </label>
+          <div class="flex items-center border border-[#d9d9c7] rounded-full overflow-hidden max-w-md">
+            <input class="flex-grow px-4 py-2 text-sm text-[#4a4a4a] placeholder-[#4a4a4a]/60 focus:outline-none bg-transparent" id="email" placeholder="Your email" type="email"/>
+            <button aria-label="Submit email" class="bg-[#0f3d0f] w-10 h-10 flex items-center justify-center text-white rounded-full ml-1 mr-1" type="submit">
+              <i class="fas fa-arrow-right">
+              </i>
+            </button>
+          </div>
+        </form>
+        <div class="flex space-x-4 text-[#4a4a4a] text-lg">
+          <a aria-label="Facebook" class="hover:text-[#d96f5a]" href="#">
+            <i class="fab fa-facebook-f">
+            </i>
+          </a>
+          <a aria-label="Twitter" class="hover:text-[#1da1f2]" href="#">
+            <i class="fab fa-twitter">
+            </i>
+          </a>
+          <a aria-label="Instagram" class="hover:text-[#833ab4]" href="#">
+            <i class="fab fa-instagram">
+            </i>
+          </a>
+          <a aria-label="LinkedIn" class="hover:text-[#0077b5]" href="#">
+            <i class="fab fa-linkedin-in">
+            </i>
+          </a>
+          <a aria-label="YouTube" class="hover:text-[#ff0000]" href="#">
+            <i class="fab fa-youtube">
+            </i>
+          </a>
+        </div>
+      </div>
+      <!-- Middle section -->
+      <nav class="flex flex-col space-y-3 text-base font-normal max-w-xs sm:max-w-[180px]">
+        <a class="text-[#4a4a4a] hover:text-[#0f3d0f]" href="#">
+          About
+        </a>
+        <a class="text-[#4a4a4a] hover:text-[#0f3d0f]" href="#">
+          Courses
+        </a>
+        <a class="text-[#4a4a4a] hover:text-[#0f3d0f]" href="#">
+          News &amp; Blogs
+        </a>
+        <a class="text-[#4a4a4a] hover:text-[#0f3d0f]" href="#">
+          Become an Instructor
+        </a>
+      </nav>
+      <!-- Right section -->
+      <div class="flex flex-col max-w-xs sm:max-w-[280px] space-y-4">
+        <div class="flex flex-col space-y-2 text-base font-normal">
+          <div class="flex items-center space-x-2 text-[#4a4a4a]">
+            <i class="fas fa-phone-alt">
+            </i>
+            <span>
+          +670 735 73 758
+        </span>
+          </div>
+          <div class="flex items-center space-x-2 text-[#4a4a4a]">
+            <i class="far fa-envelope">
+            </i>
+            <span>
+          hello@designmonks.co
+        </span>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <a aria-label="Download on the App Store" href="#">
+            <img alt="Download on the App Store black badge" class="h-10 w-auto" height="40" src="data:image/png;base64,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" width="120"/>
+          </a>
+          <a aria-label="Get it on Google Play" href="#">
+            <img alt="Get it on Google Play black badge" class="h-10 w-auto" height="40" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN4seAXx7stmGot-Nvoe15b2dqeQSgE61QiA&s" width="140"/>
+          </a>
+        </div>
+      </div>
+    </div>
+    <hr class="border-[#f0e9a7] border-t mt-10"/>
+    <div class="flex flex-col sm:flex-row justify-between text-xs text-[#4a4a4a] mt-4 max-w-7xl">
+      <div class="flex space-x-2 justify-center sm:justify-start mb-2 sm:mb-0">
+        <a class="hover:underline" href="#">
+          Terms and Conditions
+        </a>
+        <span>
+        |
+      </span>
+        <a class="hover:underline" href="#">
+          Privacy Policy
+        </a>
+      </div>
+      <div class="text-center sm:text-right">
+        Copyright © 2024 MONKS Templates | All Rights Reserved
+      </div>
+    </div>
+  </div>
+</footer>
+</html>

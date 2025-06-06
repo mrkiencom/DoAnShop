@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Sign Up Page</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="bg-white p-6">
+<div class="max-w-md mx-auto">
+    <h1 class="text-green-600 text-lg font-normal mb-2">Thanh toán thành công</h1>
+    <img class="w-full border border-gray-300 text-sm mb-2" src="https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg">
+    <a class="mt-4 bg-blue-600 text-white text-xs font-normal px-3 py-1 rounded" href="/">Về trang chủ</a>
+</div>
+</body>
+<script>
+    const dropdownButton = document.querySelector('.relative button');
+    const dropdownMenu = document.querySelector('.relative div');
+
+    dropdownButton.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', (event) => {
+      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+</script>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>
