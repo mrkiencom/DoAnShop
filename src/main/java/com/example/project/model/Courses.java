@@ -180,7 +180,7 @@ public class Courses {
     }
 
     public Users getLecturer() {
-        return lecturer;
+        return lecturer ;
     }
 
     public void setLecturer(Users lecturer) {

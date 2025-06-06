@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
@@ -26,19 +26,51 @@ public class AuthenticationController {
     UserService userService;
 
     @GetMapping("/login")
-    public String login(){
+    public String login() {
         return "login";
     }
 
     @GetMapping("/register")
-    public String registerPage(Model model){
+    public String registerPage(final Model model) {
         model.addAttribute("user", new Users());
         return "signup";
     }
 
+    @PostMapping("/send-email-reset-password")
+    public String resetPassword(final Model model, @ModelAttribute("email") final String email) {
+        authenticationService.sendMailToResetPassword(email);
+        return "linkResetSendToEmail";
+    }
+
+    @GetMapping("/reset-password")
+    public String toResetPasswordPage() {
+        return "resetPassword";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @RequestParam final String token,
+            @RequestParam final String newPassword,
+            final Model model
+    ) {
+        final boolean success = authenticationService.changePassWord(newPassword, token);
+        if (success) {
+            model.addAttribute("message", "success!");
+        } else {
+            model.addAttribute("message", "failed");
+        }
+
+        return "ResetPasswordAfter";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword() {
+        return "forgotPassword";
+    }
+
     @PostMapping("/register")
-    public String registerUserAccount(@ModelAttribute("user") Users user, Model model) {
-        boolean registrationResult = authenticationService.registerNewUserAccount(user);
+    public String registerUserAccount(@ModelAttribute("user") final Users user, final Model model) {
+        final boolean registrationResult = authenticationService.registerNewUserAccount(user);
         if (registrationResult) {
             return "redirect:/login?registrationSuccess";
         } else {
@@ -46,26 +78,27 @@ public class AuthenticationController {
             return "signup";
         }
     }
+
     @GetMapping("/adminPage")
-    public String adminPage(){
+    public String adminPage() {
         return "adminPage";
     }
 
     @PostMapping("/change_password")
-    public String changePassword(Model model, @ModelAttribute("changePasswordDto") Users updateUser) {
+    public String changePassword(final Model model, @ModelAttribute("changePasswordDto") final Users updateUser) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -74,10 +107,9 @@ public class AuthenticationController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername();
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername();
 
                 user = authenticationService.getInforUser(username);
 
@@ -87,8 +119,8 @@ public class AuthenticationController {
             }
         }
 
-        Users existingUser = userService.getUserById(updateUser.getId());
-        boolean checkChange = authenticationService.changeUserPassword(existingUser, updateUser.getPassword());
+        final Users existingUser = userService.getUserById(updateUser.getId());
+        final boolean checkChange = authenticationService.changeUserPassword(existingUser, updateUser.getPassword());
 
         if (checkChange) {
             model.addAttribute("messageChangePassword", "Mật khẩu của bạn đã được đổi thành công!");

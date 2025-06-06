@@ -1,11 +1,21 @@
 package com.example.project.model;
 
-import jakarta.persistence.*;
-import java.util.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 @Entity
+@Getter
+@Setter
 public class Users {
-    @Id
+    @Id()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String username;
     private String password;
@@ -22,7 +32,7 @@ public class Users {
     public Users() {
     }
 
-    public Users(String username, String password, String gmail,String picture, String role, String firstname, String lastname) {
+    public Users(final String username, final String password, final String gmail, final String picture, final String role, final String firstname, final String lastname) {
         this.username = username;
         this.password = password;
         this.gmail = gmail;
@@ -30,79 +40,6 @@ public class Users {
         this.role = role;
         this.firstname = firstname;
         this.lastname = lastname;
-    }
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getGmail() {
-        return gmail;
-    }
-
-    public void setGmail(String gmail) {
-        this.gmail = gmail;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public List<Courses> getCreatedCourses() {
-        return createdCourses;
-    }
-
-    public void setCreatedCourses(List<Courses> createdCourses) {
-        this.createdCourses = createdCourses;
     }
 
     @Override

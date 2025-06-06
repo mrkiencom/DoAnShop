@@ -76,7 +76,7 @@
             <img th:src="${course.image}" alt="Course Image" class="w-full h-36 object-cover rounded-t-lg">
             <div class="p-4">
                 <h3 th:text="${course.title}" class="text-lg font-semibold text-gray-800 truncate hover:underline"></h3>
-                <p th:text="${course.lecturer.firstname} + ' '+ ${course.lecturer.lastname}" class="text-sm text-gray-600"></p>
+                <p th:text="${course.lecturer?.firstname} + ' '+ ${course.lecturer?.lastname}" class="text-sm text-gray-600"></p>
                 <p class="text-gray-700 text-sm leading-snug mt-1 mb-1 overflow-hidden text-ellipsis line-clamp-3" th:text="${course.description}"></p>
                 <p th:text="${course.price} + ' ₫'" class="text-lg font-bold text-gray-800 mt-2"></p>
             </div>

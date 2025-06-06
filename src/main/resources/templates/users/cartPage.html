@@ -36,8 +36,8 @@
                         <img th:src="${cart.course.image}" alt="Course thumbnail showing a woman holding a phone with iOS app icons on screen" class="w-40 h-24 object-cover flex-shrink-0 rounded-sm" height="90" width="160"/>
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-900 text-base leading-tight mb-2" th:text="${cart.course.title}"></h3>
-                            <p class="text-xs text-gray-700 mb-2" th:text="'By ' + ${cart.course.lecturer.firstname} + ' ' + ${cart.course.lecturer.lastname} + ', ' + ${cart.course.category} + ' and ' + ${cart.course.topic}">></p>
-                            <div class="text-xs text-gray-600 mb-2" th:text="'• ' + ${cart.course.level}">
+                            <p class="text-xs text-gray-700 mb-2" th:text="'By ' + ${cart?.course?.lecturer?.firstname} + ' ' + ${cart.course?.lecturer?.lastname} + ', ' + ${cart.course?.category} + ' and ' + ${cart.course?.topic}">></p>
+                            <div class="text-xs text-gray-600 mb-2" th:text="'• ' + ${cart.course?.level}">
                             </div>
                             <div class="text-xs text-gray-600 mb-2">
                                 <i class="fas fa-sync-alt text-gray-900"></i>

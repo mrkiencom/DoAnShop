@@ -54,7 +54,7 @@
                     </nav>
                     <h1 th:text="${courseDetail.title}" class="text-3xl md:text-4xl font-extrabold leading-tight mb-4"></h1>
                     <p class="text-sm mb-6">Created by
-                        <a class=" hover:underline font-semibold" href="#" th:text="${courseDetail.lecturer.firstname} + ' '+ ${courseDetail.lecturer.lastname}"></a>
+                        <a class=" hover:underline font-semibold" href="#" th:text="${courseDetail.lecturer?.firstname} + ' '+ ${courseDetail.lecturer?.lastname}"></a>
                     </p>
                     <div class="flex flex-wrap items-center gap-6 text-sm text-gray-900">
                         <div class="flex items-center gap-1">
@@ -168,7 +168,7 @@
                         <a th:href="@{/courseDetail/{id}(id=${course.courseId})}">
                             <h3 class="text-lg font-semibold text-gray-800 truncate" th:text="${course.title}"></h3>
                         </a>
-                        <p class="text-sm text-gray-600" th:text="${courseDetail.lecturer.firstname} + ' '+ ${courseDetail.lecturer.lastname}"></p>
+                        <p class="text-sm text-gray-600" th:text="${courseDetail?.lecturer?.firstname} + ' '+ ${courseDetail?.lecturer?.lastname}"></p>
                         <p class="text-sm text-gray-600 mt-2" th:text="${course.category}"></p>
 
                         <p class="text-lg font-bold text-gray-800 mt-2" th:text="${courseDetail.price} + ' ₫'"></p>

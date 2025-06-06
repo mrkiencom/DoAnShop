@@ -23,23 +23,23 @@ public class SecurityConfig {
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
                 .csrf(custumizer -> custumizer.disable())
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/register","/login","/", "/listCourses", "/courseDetail/**", "/search_courses").permitAll();
+                    registry.requestMatchers("/register", "/login", "/", "/listCourses", "/courseDetail/**", "/search_courses", "/forgot-password", "reset-password", "send-email-reset-password").permitAll();
                     registry.anyRequest().authenticated(); // Đặt rule này ở cuối
                 })
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(customAuthenticationSuccessHandler)// Đường dẫn đến trang login tùy chỉnh của bạn
                         .permitAll())
-                .oauth2Login(oauth2Login ->{
+                .oauth2Login(oauth2Login -> {
                     oauth2Login.loginPage("/login")
                             .successHandler(((request, response, authentication) -> response.sendRedirect("/")));
                 });
 
- //               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        //               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
@@ -50,8 +50,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    public AuthenticationProvider authenticationProvider() {
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         provider.setUserDetailsService(userDetailService);
         return provider;

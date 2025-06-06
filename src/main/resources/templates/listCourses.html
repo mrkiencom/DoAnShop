@@ -59,7 +59,7 @@
                     <img th:alt="${course.title + ' image'}" class="w-full object-cover mb-2 rounded-xl" height="150" th:src="${course.image}" width="400"/>
                     <h3 class="font-bold text-gray-900 text-lg leading-tight mb-1 hover:underline" th:text="${course.title}"></h3>
                     <p class="text-gray-700 text-sm leading-snug mb-1 overflow-hidden text-ellipsis line-clamp-3" th:text="${course.description}"></p>
-                    <p th:text="${course.lecturer.firstname} + ' '+ ${course.lecturer.lastname}" class="text-gray-400 text-xs mb-3"></p>
+                    <p th:text="${course?.lecturer?.firstname} + ' '+ ${course?.lecturer?.lastname}" class="text-gray-400 text-xs mb-3"></p>
                     <div class="flex flex-wrap items-center gap-2 mb-3">
                         <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]" th:text="${course.category}"></span>
                         <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]" th:text="${course.topic}"></span>
