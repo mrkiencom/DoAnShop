@@ -8,6 +8,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -24,7 +25,9 @@ public class Users {
     private String role;
     private String firstname;
     private String lastname;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime toLecturerAt;
+    
     // Quan hệ một-nhiều với bảng Courses (một giảng viên có nhiều khóa học)
     @OneToMany(mappedBy = "lecturer")
     private List<Courses> createdCourses;

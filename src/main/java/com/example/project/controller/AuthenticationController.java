@@ -4,7 +4,8 @@ import com.example.project.model.UserPrincipal;
 import com.example.project.model.Users;
 import com.example.project.service.AuthenticationService;
 import com.example.project.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.project.service.model.admin.AdminService;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -17,13 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
+@AllArgsConstructor
 public class AuthenticationController {
 
-    @Autowired
-    AuthenticationService authenticationService;
-
-    @Autowired
-    UserService userService;
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
+    private final AdminService adminService;
 
     @GetMapping("/login")
     public String login() {
@@ -80,8 +80,11 @@ public class AuthenticationController {
     }
 
     @GetMapping("/adminPage")
-    public String adminPage() {
-        return "adminPage";
+    public String adminPage(final Model model) {
+        final var dashboard = adminService.getDashboard();
+        model.addAttribute("dashboard", dashboard);
+
+        return "admins/adminPage";
     }
 
     @PostMapping("/change_password")

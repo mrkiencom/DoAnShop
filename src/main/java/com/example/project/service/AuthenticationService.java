@@ -38,6 +38,7 @@ public class AuthenticationService {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setPicture("/images/default_user.jpg");
         newUser.setRole("user");
+        newUser.setCreatedAt(LocalDateTime.now());
 
         userRepository.save(newUser);
         return true;
