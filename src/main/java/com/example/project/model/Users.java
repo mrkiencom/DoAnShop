@@ -1,5 +1,6 @@
 package com.example.project.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +28,10 @@ public class Users {
     private String lastname;
     private LocalDateTime createdAt;
     private LocalDateTime toLecturerAt;
-    
+
+    @Column(name = "is_active", nullable = true)
+    private boolean isActive;
+
     // Quan hệ một-nhiều với bảng Courses (một giảng viên có nhiều khóa học)
     @OneToMany(mappedBy = "lecturer")
     private List<Courses> createdCourses;

@@ -83,8 +83,9 @@ public class AuthenticationController {
     public String adminPage(final Model model) {
         final var dashboard = adminService.getDashboard();
         model.addAttribute("dashboard", dashboard);
+        model.addAttribute("contentTemplate", "admins/dashboard");
 
-        return "admins/adminPage";
+        return "admins/layout";
     }
 
     @PostMapping("/change_password")

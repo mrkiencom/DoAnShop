@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        .active-tab {
-            color: #a04a44;
-            border-bottom: 2px solid #a04a44;
-            font-weight: 600;
-        }
-
-        .inactive-tab {
-            color: #9ca3af; /* tương đương text-gray-400 */
-            border-bottom: none;
-            font-weight: 400;
-        }
-
-        #userContainer {
-            display: block; /* hoặc flex nếu cần */
-            width: 100%;
-        }
-
-        #userList, #chartContent {
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-<main class="flex-1 p-8 flex flex-col gap-8 overflow-hidden">
+<div th:fragment="content">
     <header>
         <h1 class="text-gray-400 font-normal text-lg select-none">
             Dashboard
@@ -96,8 +67,11 @@
         </div>
     </section>
 
+    <div style="width: 10px; height: 20px">
+
+    </div>
     <!-- Bottom cards -->
-    <section class=" flex flex-col sm:flex-row gap-6 overflow-hidden">
+    <section class=" flex flex-col sm:flex-row gap-8 overflow-hidden">
         <!-- Registered Users -->
         <div th:fragment="usersListAndCount"
              class="flex-1 bg-white rounded-2xl p-6 shadow-inner max-w-[600px] min-w-[280px] flex flex-col">
@@ -108,7 +82,7 @@
                     <i class="fas fa-user-friends"></i>
                 </div>
                 <span class="text-[#a04a44] font-semibold text-lg select-none"
-                      th:text="${dashboard.users.size()}">0</span>
+                      th:text="${dashboard.users?.size()}">0</span>
                 <span class="text-gray-700 text-sm select-none">
               users registered so far
         </span>
@@ -126,11 +100,11 @@
                 <div class="ml-auto relative">
                     <select id="timeRangeSelect"
                             class="border border-gray-300 rounded-md text-xs py-1 px-2 cursor-pointer">
-                        <option value="lastMonth" th:selected="${timeRangeUser == 'lastMonth'}">Last
-                            Month
-                        </option>
                         <option value="lastWeek" th:selected="${timeRangeUser == 'lastWeek'}">Last
                             Week
+                        </option>
+                        <option value="lastMonth" th:selected="${timeRangeUser == 'lastMonth'}">Last
+                            Month
                         </option>
                         <option value="lastYear" th:selected="${timeRangeUser == 'lastYear'}">Last
                             Year
@@ -142,7 +116,7 @@
             <!-- List Users -->
             <div id="userContainer">
                 <div id="userList" th:fragment="userListFragment"
-                     class="flex flex-col gap-4 overflow-y-auto scrollbar-thin max-h-[180px] pr-2">
+                     class="flex flex-col gap-4 overflow-y-auto scrollbar-thin max-h-[280px] pr-2">
                     <div th:each="user : ${dashboard.users}" class="flex items-center gap-3">
                         <img th:src="${user.picture}" alt="Portrait of [[${user.fullName}]]"
                              class="rounded-full w-10 h-10 object-cover" width="40" height="40"/>
@@ -176,7 +150,7 @@
                     </i>
                 </div>
                 <span class="text-[#a04a44] font-semibold text-lg select-none"
-                      th:text="${dashboard.courses.size()}">0
+                      th:text="${dashboard.courses?.size()}">0
        </span>
                 <span class="text-gray-700 text-sm select-none">
         Count of courses
@@ -249,13 +223,39 @@
         </div>
     </section>
 
+    <!-- Script: ĐỂ Ở CUỐI fragment -->
     <script>
         let selectedValue = document.getElementById("timeRangeSelect").value;
 
-        document.getElementById("timeRangeSelect").addEventListener("change", function () {
-            selectedValue = this.value;
-            showUsers();
-        });
+        function bindTabButtons() {
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(t => {
+                        t.classList.remove('active-tab');
+                        t.classList.add('inactive-tab');
+                    });
+
+                    tab.classList.add('active-tab');
+                    tab.classList.remove('inactive-tab');
+
+                    if (tab.id === 'usersTab') {
+                        showUsers();
+                    } else if (tab.id === 'chartTab') {
+                        showChart();
+                    }
+                });
+            });
+        }
+
+        function bindTimeRangeSelect() {
+            const selectElement = document.getElementById("timeRangeSelect");
+            if (selectElement) {
+                selectElement.addEventListener("change", function () {
+                    selectedValue = this.value;
+                    showUsers();
+                });
+            }
+        }
 
         function showUsers() {
             if (usersChartInstance) {
@@ -269,19 +269,25 @@
                     const tempDiv = document.createElement("div");
                     tempDiv.innerHTML = html;
 
-                    const newCount = tempDiv.querySelector("#usersCount");
-                    document.getElementById("usersCount").outerHTML = newCount.outerHTML;
+                    // Lấy đúng .users-container
+                    const newFragment = tempDiv.querySelector('.users-container');
+                    const container = document.querySelector('.users-container');
 
-                    const newList = tempDiv.querySelector("#userList");
-                    document.getElementById("userList").outerHTML = newList.outerHTML;
+                    if (container && newFragment) {
+                        container.outerHTML = newFragment.outerHTML;
 
-                    document.getElementById('userCountValue').style.display = 'inline';
-                    document.getElementById('userCountLabel').textContent = 'Count of Registered Users';
-                    document.getElementById('userListHeader').style.display = 'flex';
+                        // Re-bind events
+                        bindTabButtons();
+                        bindTimeRangeSelect();
+                    }
 
-                    document.getElementById('chartContent').style.display = 'none';
-                    document.getElementById('userList').style.display = 'block';
-
+                    // Show userList, hide chart
+                    const userList = document.getElementById('userList');
+                    const chartContent = document.getElementById('chartContent');
+                    if (userList && chartContent) {
+                        userList.style.display = 'block';
+                        chartContent.style.display = 'none';
+                    }
                 });
         }
 
@@ -292,47 +298,26 @@
                     renderUsersChart(data.labels, data.data);
                 });
 
-            document.getElementById('userList').style.display = 'none';
-            document.getElementById('chartContent').style.display = 'block';
-
-            document.getElementById('userCountValue').style.display = 'none';
-            document.getElementById('userCountLabel').textContent = 'Chart for Users';
-            document.getElementById('userListHeader').style.display = 'flex';
+            const userList = document.getElementById('userList');
+            const chartContent = document.getElementById('chartContent');
+            if (userList && chartContent) {
+                userList.style.display = 'none';
+                chartContent.style.display = 'block';
+            }
         }
-
-        document.querySelectorAll('.tab-button').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Xóa active khỏi tất cả
-                document.querySelectorAll('.tab-button').forEach(t => {
-                    t.classList.remove('active-tab');
-                    t.classList.add('inactive-tab');
-                });
-                // Thêm active cho tab hiện tại
-                tab.classList.add('active-tab');
-                tab.classList.remove('inactive-tab');
-
-                // Logic hiển thị nội dung tương ứng
-                if (tab.id === 'usersTab') {
-                    showUsers();
-                } else if (tab.id === 'chartTab') {
-                    showChart();
-                }
-            });
-        });
 
         let usersChartInstance = null;
 
         function renderUsersChart(labels, data) {
             const ctx = document.getElementById('usersChart').getContext('2d');
 
-            // Destroy old chart if exists
             if (usersChartInstance) {
                 usersChartInstance.destroy();
                 usersChartInstance = null;
             }
 
             usersChartInstance = new Chart(ctx, {
-                type: 'bar', // hoặc 'line' tùy ý
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -349,20 +334,17 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            fetch('/adminPage/card-count', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
+            fetch("/adminPage/card-count")
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById("learnerCount").innerText = data.learner;
                     document.getElementById("lecturerCount").innerText = data.lecturer;
                     document.getElementById("courseCount").innerText = data.courses;
                 });
+
+            // Initial binding
+            bindTabButtons();
+            bindTimeRangeSelect();
         });
     </script>
-</main>
-</body>
-</html>
+</div>

@@ -4,6 +4,8 @@ import com.example.project.model.Users;
 import com.example.project.repo.CourseRepo;
 import com.example.project.repo.UserRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -21,8 +23,12 @@ public class AdminService {
     private static final String LECTURER_ROLE = "lecturer";
     private static final String LEARNER_ROLE = "learner";
 
+    private static final String FILTER_ALL = "all";
+    private static final String FILTER_ACTIVE = "active";
+    private static final String FILTER_UNACTIVE = "unactive";
+
     public Dashboard getDashboard() {
-        final var users = findOnlyUsers().stream().map(this::buildUserInfo).toList();
+        final var users = getUsers("timeRageUser").getUsers();
         final var courses = courseRepo.findAll();
 
         return Dashboard.builder()
@@ -40,15 +46,14 @@ public class AdminService {
                 .fullName(user.getFirstname() + ' ' + user.getLastname())
                 .gmail(user.getGmail())
                 .picture(user.getPicture())
-                .role(user.getToLecturerAt() == null ? "learner" : "lecturer")
+                .role(user.getRole())
+                .status(user.isActive())
+                .createdAt(user.getCreatedAt().toLocalDate())
                 .build();
     }
 
     public Dashboard getUsers(final String timeRageUser) {
         final var users = switch (timeRageUser) {
-            case "lastWeek" -> userRepo.findUserByTimeRage((LocalDateTime.now()
-                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                    .minusWeeks(1)));
             case "lastMonth" -> userRepo.findUserByTimeRage(LocalDateTime.now()
                     .withDayOfMonth(1)
                     .withHour(0)
@@ -58,7 +63,9 @@ public class AdminService {
             case "lastYear" -> userRepo.findUserByTimeRage(LocalDate.now()
                     .withDayOfMonth(1)
                     .atStartOfDay());
-            default -> userRepo.findAll();
+            default -> userRepo.findUserByTimeRage((LocalDateTime.now()
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    .minusWeeks(1)));
         };
 
         return Dashboard.builder()
@@ -83,6 +90,30 @@ public class AdminService {
                 .lecturers(lecturer.size())
                 .courses(course.size())
                 .learners(learner.size())
+                .build();
+    }
+
+    public Page<UserInfo> filterUsers(final String filter, final String status, final String text, final Pageable pageable) {
+
+        return userRepo.filterUsers(
+                filter.isEmpty() ? null : filter,
+                status.isEmpty() ? null : status,
+                text.isEmpty() ? null : text,
+                pageable).map(this::buildUserInfo);
+    }
+
+    public UserCount countUser() {
+        final var users = userRepo.findAll().stream().map(this::buildUserInfo).toList();
+
+        final var learner = users.stream().filter(u -> u.role.equals(LEARNER_ROLE) || u.role.equals("user")).toList();
+        final var lecturer = users.stream().filter(u -> u.role.equals(LECTURER_ROLE)).toList();
+        final var admin = users.stream().filter(u -> u.role.equals("admin")).toList();
+
+        return UserCount.builder()
+                .all(users.size())
+                .learner(learner.size())
+                .lecturer(lecturer.size())
+                .admin(admin.size())
                 .build();
     }
 }

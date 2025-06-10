@@ -1,6 +1,8 @@
 package com.example.project.repo;
 
 import com.example.project.model.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -35,4 +37,21 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
                 select u from Users u where u.role <> 'admin'
             """)
     List<Users> findOnlyUsers();
+
+    @Query("""
+                select u from Users u where
+                (:filter is null or u.role = :filter)
+                and (
+                    :text is null 
+                    or lower(concat(u.firstname, ' ', u.lastname)) like lower(concat('%', :text, '%'))
+                    or lower(u.gmail) like lower(concat('%', :text, '%'))
+                    or u.role = :text
+                )
+                and (
+                    :status is null 
+                    or (:status = 'active' and u.isActive = true)
+                    or (:status = 'unactive' and u.isActive = false)
+                )
+            """)
+    Page<Users> filterUsers(String filter, String status, String text, Pageable pageable);
 }
