@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -107,5 +108,15 @@ public class AdminController {
         model.addAttribute("status", status);
 
         return "admins/users::listUserAfterClickButton";
+    }
+
+    @PostMapping("/adminPage/user/change-active")
+    @ResponseBody
+    public Map<String, Object> searchUsers(
+            @RequestParam(value = "id", required = false, defaultValue = "") final int id,
+            final Model model) {
+        final Map<String, Object> result = new HashMap<>();
+        result.put("userInfo", adminService.changeActive(id));
+        return result;
     }
 }

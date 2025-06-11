@@ -1,5 +1,6 @@
 package com.example.project.service.model.admin;
 
+import com.example.project.exception.NotFoundException;
 import com.example.project.model.Users;
 import com.example.project.repo.CourseRepo;
 import com.example.project.repo.UserRepo;
@@ -43,6 +44,7 @@ public class AdminService {
 
     public UserInfo buildUserInfo(final Users user) {
         return UserInfo.builder()
+                .id(user.getId())
                 .fullName(user.getFirstname() + ' ' + user.getLastname())
                 .gmail(user.getGmail())
                 .picture(user.getPicture())
@@ -83,7 +85,7 @@ public class AdminService {
                 .map(this::buildUserInfo).toList();
         final var course = courseRepo.findAll();
 
-        final var learner = user.stream().filter(u -> u.role.equals(LEARNER_ROLE)).toList();
+        final var learner = user.stream().filter(u -> u.role.equals(LEARNER_ROLE) || u.role.equals("user")).toList();
         final var lecturer = user.stream().filter(u -> u.role.equals(LECTURER_ROLE)).toList();
 
         return CardCount.builder()
@@ -115,5 +117,12 @@ public class AdminService {
                 .lecturer(lecturer.size())
                 .admin(admin.size())
                 .build();
+    }
+
+    public UserInfo changeActive(final int userId) {
+        final var user = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Cannot found user with id:" + String.valueOf(userId)));
+        user.setActive(!user.isActive());
+        return buildUserInfo(userRepo.save(user));
     }
 }

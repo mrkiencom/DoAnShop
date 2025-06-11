@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class UserInfo {
+    int id;
     String fullName;
     String role;
     String picture;

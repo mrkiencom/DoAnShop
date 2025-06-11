@@ -10,32 +10,35 @@
     <!-- FILTER TABS -->
     <section class="mb-6 flex flex-wrap gap-6 text-sm font-normal text-gray-700 w-[900px]">
         <button type="button" aria-current="true"
-                class="flex items-center gap-2 font-semibold border-b-2 border-gray-900 pb-1"
-                onclick="loadUsers('','','')"
-        >
+                class="user-filter-btn flex items-center gap-2 font-semibold border-b-2 border-gray-900 pb-1"
+                onclick="clickToLoadUser(this,'','','')">
             <span>All</span>
-            <span th:text="${countUser.all}" class=" bg-gray-800 text-white rounded-md px-2.5 py-0.5 text-xs
-                  font-semibold select-none">168</span>
+            <span th:text="${countUser.all}"
+                  class="bg-gray-800 text-white rounded-md px-2.5 py-0.5 text-xs font-semibold select-none"></span>
         </button>
-        <button type="button" class="flex items-center gap-2 text-gray-700 hover:text-gray-900"
-                onclick="loadUsers('learner','','')">
+        <button type="button"
+                class="user-filter-btn flex items-center gap-2 text-gray-700 hover:text-gray-900"
+                onclick="clickToLoadUser(this,'learner','','')">
             <span>Learner</span>
             <span th:text="${countUser.learner}"
-                  class="bg-green-100 text-green-700 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none">142</span>
+                  class="bg-green-100 text-green-700 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none"></span>
         </button>
-        <button type="button" class="flex items-center gap-2 text-gray-700 hover:text-gray-900"
-                onclick="loadUsers('lecturer','','')">
+        <button type="button"
+                class="user-filter-btn flex items-center gap-2 text-gray-700 hover:text-gray-900"
+                onclick="clickToLoadUser(this,'lecturer','','')">
             <span>Lecturer</span>
             <span th:text="${countUser.lecturer}"
-                  class="bg-yellow-100 text-yellow-600 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none">24</span>
+                  class="bg-yellow-100 text-yellow-600 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none"></span>
         </button>
-        <button type="button" class="flex items-center gap-2 text-gray-700 hover:text-gray-900"
-                onclick="loadUsers('admin','','')">
+        <button type="button"
+                class="user-filter-btn flex items-center gap-2 text-gray-700 hover:text-gray-900"
+                onclick="clickToLoadUser(this,'admin','','')">
             <span>Admin</span>
             <span th:text="${countUser.admin}"
-                  class="bg-red-100 text-red-600 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none">2</span>
+                  class="bg-red-100 text-red-600 rounded-md px-2.5 py-0.5 text-xs font-semibold select-none"></span>
         </button>
     </section>
+
 
     <div th:fragment="listUserAfterClickButton">
         <!-- SEARCH + FILTER -->
@@ -47,11 +50,41 @@
                        aria-label="Search customers"
                        th:attr="onkeyup=|loadUsers('${filter}', '${status}', this.value)|"/>
             </div>
-            <button type="button"
-                    class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-gray-400 text-sm hover:text-gray-600 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                <i class="fas fa-filter"></i>
-                Filter
-            </button>
+            <div class="relative inline-block text-left"
+                 id="userDataContainer"
+                 th:attr="data-filter=${filter}, data-text=${text}, data-status=${status}">
+                <button id="statusFilterBtn" type="button"
+                        class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-gray-400 text-sm hover:text-gray-600 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <i class="fas fa-filter"></i>
+                    <span th:text="${status != '' ? status : 'Filter'}">Filter</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+
+                <div id="statusDropdown"
+                     class="hidden absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <ul class="py-1 text-sm text-gray-700">
+                        <li>
+                            <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    onclick="applyStatusFilter('active')">
+                                Active
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    onclick="applyStatusFilter('inactive')">
+                                Inactive
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    onclick="applyStatusFilter('')">
+                                All
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
         </section>
 
 
@@ -88,13 +121,25 @@
                         <td class="p-3" th:text="${user.role}">Role</td>
                         <td class="p-3" th:text="${user.createdAt}">Created At</td>
                         <td class="p-3">
-                    <span th:classappend="${user.status} ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
+                    <span th:id="'status-' + ${user.id}"
+                          th:classappend="${user.status} ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
                           class="rounded-md px-2 py-0.5 text-xs font-semibold select-none"
-                          th:text="${user.status} ? 'Active' : 'Unactive'">
+                          th:text="${user.status} ? 'Active' : 'Inactive'">
                     </span>
-                        </td>
-                        <td class="p-3 text-center cursor-pointer text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-ellipsis-v"></i>
+                        <td class="relative p-3 text-center text-gray-400 hover:text-gray-600">
+                            <!-- Dấu ba chấm -->
+                            <i class="fas fa-ellipsis-v cursor-pointer" onclick="toggleMenu(this)"></i>
+
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 mt-2 w-36 bg-white shadow-md rounded-lg z-50 hidden">
+                                <ul class="text-left text-sm text-gray-700">
+                                    <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        th:attr="data-id=${user.id}, data-active=${user.status}"
+                                        onclick="changeStatus(this)"
+                                        th:text="${user.status} ? 'Deactivate' : 'Active' ">
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
@@ -107,18 +152,29 @@
 
         <footer class="flex items-center justify-end space-x-6 text-xs text-gray-600 font-normal select-none px-4 py-3">
             <div th:text="${usersPage.number * usersPage.size + 1} + '-' + (${usersPage.number + 1}) * ${usersPage.size} + ' of ' + ${usersPage.totalElements}"></div>
+
             <button type="button"
                     aria-label="Previous page"
-                    class="text-gray-400 hover:text-gray-600 [[${usersPage.first} ? 'disabled opacity-50 cursor-not-allowed' : '']]"
-                    th:onclick="'window.location.href=\'?page=' + (${currentPage} - 1) + '&size=' + ${pageSize} + '\';'"
+                    class="pagination-btn text-gray-400 hover:text-gray-600"
+                    th:classappend="${usersPage.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                    th:attr="data-page=(${currentPage} - 1),
+                     data-size=${pageSize},
+                     data-filter=${filter},
+                     data-text=${text},
+                     data-status=${status}"
                     th:disabled="${usersPage.first}">
                 <i class="fas fa-chevron-left"></i>
             </button>
 
             <button type="button"
                     aria-label="Next page"
-                    class="text-gray-400 hover:text-gray-600 [[${usersPage.last} ? 'disabled opacity-50 cursor-not-allowed' : '']]"
-                    th:onclick="'window.location.href=\'?page=' + (${currentPage} + 1) + '&size=' + ${pageSize} + '\';'"
+                    class="pagination-btn text-gray-400 hover:text-gray-600"
+                    th:classappend="${usersPage.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                    th:attr="data-page=(${currentPage} + 1),
+                     data-size=${pageSize},
+                     data-filter=${filter},
+                     data-text=${text},
+                     data-status=${status}"
                     th:disabled="${usersPage.last}">
                 <i class="fas fa-chevron-right"></i>
             </button>
@@ -128,8 +184,22 @@
 
 
     <script>
-        function loadUsers(filter, status, text) {
-            fetch(`/adminPage/fetch-user?filter=${filter}&status=${status}&text=${text}&page=0&size=7`)
+        function clickToLoadUser(clickedBtn, filter, status, text) {
+            document.querySelectorAll('.user-filter-btn').forEach(btn => {
+                btn.className = 'user-filter-btn flex items-center gap-2 text-gray-700 hover:text-gray-900';
+            });
+            // Set style active cho nút được click
+            clickedBtn.className = 'user-filter-btn flex items-center gap-2 font-semibold border-b-2 border-gray-900 pb-1';
+            loadUsers(filter, status, text);
+        }
+
+        function loadUsers(filter, status, text, page = 0, size = 7) {
+            filter = String(filter ?? "");
+            status = String(status ?? "");
+            text = String(text ?? "");
+            console.log({filter, status, text, page, size});
+
+            fetch(`/adminPage/fetch-user?filter=${encodeURIComponent(filter)}&status=${encodeURIComponent(status)}&text=${encodeURIComponent(text)}&page=${page}&size=${size}`)
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
@@ -141,28 +211,112 @@
                     const tableTbody = document.querySelector('table tbody');
                     const footer = document.querySelector('footer');
 
-                    // Update tbody
-                    if (newTbody) {
-                        tableTbody.innerHTML = newTbody.innerHTML;
-                    } else {
-                        tableTbody.innerHTML = '';
-                    }
+                    if (newTbody) tableTbody.innerHTML = newTbody.innerHTML;
+                    if (newFooter) footer.innerHTML = newFooter.innerHTML;
 
-                    // Update footer
-                    if (newFooter) {
-                        footer.innerHTML = newFooter.innerHTML;
-                    } else {
-                        footer.innerHTML = '';
+                    const container = document.getElementById("userDataContainer");
+                    if (container) {
+                        container.dataset.filter = filter;
+                        container.dataset.status = status;
+                        container.dataset.text = text;
                     }
                 });
         }
 
-        function performSearch() {
-            const text = document.getElementById('searchText').value;
-            const filter = '${filter}';
-            const status = '${status}';
-            console.log({filter, status, text})
+        document.body.addEventListener("click", (e) => {
+            const btn = e.target.closest(".pagination-btn");
+            if (btn) {
+                const page = parseInt(btn.dataset.page);
+                const size = parseInt(btn.dataset.size);
+                const filter = btn.dataset.filter || '';
+                const status = btn.dataset.status || '';
+                const text = btn.dataset.text || '';
+                loadUsers(filter, status, text, page, size);
+            }
+        });
+
+
+        function toggleMenu(icon) {
+            document.querySelectorAll('td .absolute').forEach(menu => {
+                if (menu !== icon.nextElementSibling) {
+                    menu.classList.add('hidden');
+                }
+            });
+            const menu = icon.nextElementSibling;
+            menu.classList.toggle('hidden');
+        }
+
+        function changeStatus(element) {
+            const userId = element.getAttribute("data-id");
+
+            fetch("/adminPage/user/change-active?id=" + encodeURIComponent(userId), {
+                method: "POST"
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Request failed");
+                    return response.json();
+                })
+                .then(data => {
+                    const statusCell = document.querySelector(`#status-${userId}`);
+                    const isActive = data.userInfo.status;
+                    console.log(data)
+                    if (statusCell) {
+                        // ✅ Cập nhật nội dung văn bản
+                        statusCell.textContent = isActive ? "Active" : "Inactive";
+
+                        // ✅ Reset toàn bộ class liên quan
+                        statusCell.classList.remove(
+                            "bg-green-100", "text-green-700",
+                            "bg-red-100", "text-red-600"
+                        );
+
+                        // ✅ Thêm lại class tương ứng
+                        if (isActive) {
+                            statusCell.classList.add("bg-green-100", "text-green-700");
+                        } else {
+                            statusCell.classList.add("bg-red-100", "text-red-600");
+                        }
+                    }
+
+                    // ✅ Cập nhật text trong menu (toggle)
+                    element.textContent = isActive ? "Deactivate" : "Active";
+
+                    // ✅ Ẩn menu
+                    const menu = element.closest("div");
+                    if (menu) {
+                        menu.classList.add("hidden");
+                    }
+
+                    alert("Trạng thái đã được thay đổi");
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Có lỗi xảy ra");
+                });
+        }
+
+
+        // Đóng menu nếu click ra ngoài
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('td')) {
+                document.querySelectorAll('td .absolute').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+
+        document.getElementById("statusFilterBtn").addEventListener("click", function () {
+            const dropdown = document.getElementById("statusDropdown");
+            dropdown.classList.toggle("hidden");
+        });
+
+        // Gọi filter khi chọn status
+        function applyStatusFilter(status) {
+            const container = document.getElementById("userDataContainer");
+            const filter = container.dataset.filter || '';
+            const text = document.getElementById("searchText").value || '';
             loadUsers(filter, status, text);
+            document.getElementById("statusDropdown").classList.add("hidden");
         }
     </script>
 

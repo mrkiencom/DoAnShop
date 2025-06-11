@@ -40,7 +40,9 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
 
     @Query("""
                 select u from Users u where
-                (:filter is null or u.role = :filter)
+                (:filter is null 
+                or u.role = :filter 
+                or :filter = 'learner' and (u.role = 'user' or u.role = 'learner'))
                 and (
                     :text is null 
                     or lower(concat(u.firstname, ' ', u.lastname)) like lower(concat('%', :text, '%'))
@@ -50,7 +52,7 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
                 and (
                     :status is null 
                     or (:status = 'active' and u.isActive = true)
-                    or (:status = 'unactive' and u.isActive = false)
+                    or (:status = 'inactive' and u.isActive = false)
                 )
             """)
     Page<Users> filterUsers(String filter, String status, String text, Pageable pageable);

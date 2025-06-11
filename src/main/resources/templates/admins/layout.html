@@ -66,39 +66,40 @@
        ZON
       </span>
             </div>
-            <nav class="flex flex-col gap-6 text-white text-sm font-medium">
-                <a class="flex items-center gap-3 bg-white bg-opacity-20 rounded-2xl px-4 py-3"
+            <nav class="flex flex-col gap-4 text-white text-sm font-medium">
+                <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
+               hover:scale-105 hover:shadow-lg"
                    href="/adminPage/dashboard">
-                    <i class="fas fa-th-large text-white text-base">
-                    </i>
+                    <i class="fas fa-th-large text-white text-base"></i>
                     Dashboard
                 </a>
-                <a class="flex items-center gap-3 hover:text-white transition-colors" href="/adminPage/userPage">
-                    <i class="fas fa-cogs text-white text-base">
-                    </i>
-                    Learner
+                <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
+               hover:scale-105 hover:shadow-lg"
+                   href="/adminPage/userPage">
+                    <i class="fas fa-user text-white text-base"></i>
+                    Users
                 </a>
-                <a class="flex items-center gap-3 hover:text-white transition-colors" href="#">
-                    <i class="fas fa-th text-white text-base">
-                    </i>
-                    Lecturer
-                </a>
-                <a class="flex items-center gap-3 hover:text-white transition-colors" href="#">
-                    <i class="fas fa-comment-dots text-white text-base">
-                    </i>
+                <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
+               hover:scale-105 hover:shadow-lg"
+                   href="#">
+                    <i class="fas fa-graduation-cap text-white text-base"></i>
                     Course
                 </a>
-                <a class="flex items-center gap-3 hover:text-white transition-colors" href="#">
-                    <i class="fas fa-users text-white text-base">
-                    </i>
-                    Workspace
+                <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
+               hover:scale-105 hover:shadow-lg"
+                   href="#">
+                    <i class="fas fa-users text-white text-base"></i>
+                    Request
                 </a>
-                <a class="flex items-center gap-3 hover:text-white transition-colors" href="#">
-                    <i class="fas fa-credit-card text-white text-base">
-                    </i>
+                <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
+               hover:scale-105 hover:shadow-lg"
+                   href="#">
+                    <i class="fas fa-credit-card text-white text-base"></i>
                     Revenue
                 </a>
             </nav>
+
+
         </div>
         <div>
             <a class="flex items-center gap-2 text-white text-sm font-medium hover:text-white/80 transition-colors"
@@ -114,7 +115,27 @@
         <div th:replace="${contentTemplate} :: content"></div>
     </main>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentPath = window.location.pathname;
+        const links = document.querySelectorAll(".sidebar-link");
+        console.log(currentPath)
+        links.forEach(link => {
+            const href = link.getAttribute("href");
+            if (currentPath === '/adminPage') {
+                currentPath = "/adminPage/dashboard";
+            }
+            // Nếu đúng path thì gắn class highlight
+            if (currentPath === href || currentPath.startsWith(href)) {
+                link.classList.add("bg-white", "bg-opacity-20", "rounded-2xl", "px-4", "py-3");
+                link.classList.remove("transition-colors");
 
-
+            } else {
+                link.classList.remove("bg-white", "bg-opacity-20", "rounded-2xl", "px-4", "py-3");
+                link.classList.add("transition-colors");
+            }
+        });
+    });
+</script>
 </body>
 </html>
