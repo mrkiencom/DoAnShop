@@ -1,5 +1,6 @@
 package com.example.project.service;
 
+import com.example.project.MailProperties;
 import com.example.project.model.PasswordResetToken;
 import com.example.project.model.Users;
 import com.example.project.repo.PasswordResetTokenRepo;
@@ -20,6 +21,7 @@ public class AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final PasswordResetTokenRepo passwordResetTokenRepo;
+    private final MailProperties mailProperties;
 
     public boolean registerNewUserAccount(final Users user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -85,7 +87,7 @@ public class AuthenticationService {
 
     public void sendMailToResetPassword(final String gmail) {
         final var token = genToken(gmail);
-        final String link = "http://localhost:8080/reset-password?token=" + token;
+        final String link = "http://" + mailProperties.getDoman() + "/reset-password?token=" + token;
         final String htmlContent = """
                 <html lang="en">
                  <head>
