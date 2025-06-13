@@ -29,7 +29,7 @@ public class Users {
     private LocalDateTime createdAt;
     private LocalDateTime toLecturerAt;
 
-    @Column(name = "is_active", nullable = true)
+    @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
     // Quan hệ một-nhiều với bảng Courses (một giảng viên có nhiều khóa học)
