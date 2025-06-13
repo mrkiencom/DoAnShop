@@ -6,15 +6,15 @@ import com.example.project.model.Users;
 import com.example.project.model.Videos;
 import com.example.project.service.AuthenticationService;
 import com.example.project.service.LecturerService;
+import com.example.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Date;
 import java.util.List;
@@ -24,18 +24,48 @@ public class LecturerController {
 
     @Autowired
     AuthenticationService authenticationService;
+
     @Autowired
     LecturerService lecturerService;
+
+    @Autowired
+    UserService userService;
 
     @PostMapping("/createCourses")
     public String createCourses(@ModelAttribute("course") Courses course, Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
-        course.setLecturer(user);
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+        course.setLecturer(lecturer);
 
         Integer id_course = lecturerService.createCourses(course);
         model.addAttribute("new_id_create_course", id_course);
@@ -44,19 +74,42 @@ public class LecturerController {
     }
 
     @GetMapping("/uploadVideo/{courseId}")
-    public String uploadVideo(Model model,@PathVariable Integer courseId){
+    public String uploadVideo(Model model, @PathVariable Integer courseId,
+                              @RequestParam(value = "createCourseSuccess", required = false) boolean createCourseSuccess){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
         model.addAttribute("courseId", courseId);
+        model.addAttribute("createCourseSuccess", createCourseSuccess);
 
         model.addAttribute("video", new Videos());
 
@@ -64,27 +117,50 @@ public class LecturerController {
     }
 
     @PostMapping("/uploadVideo/{courseId}")
-    public String createVideos(@PathVariable Integer courseId, @ModelAttribute("video") Videos video, Model model){
+    public String createVideos(@PathVariable Integer courseId, @ModelAttribute("video") Videos video
+            , Model model, RedirectAttributes redirectAttributes){
         Courses course = lecturerService.getCourseById(courseId);
         lecturerService.uploadVideo(video, course);
-        return "redirect:/lecturerPage";
+        redirectAttributes.addFlashAttribute("uploadVideoSuccess", true);
+        return "redirect:/uploadVideo/" + courseId;
     }
 
     @GetMapping("/lecturerPage")
     public String lecturerPage(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
 
-        List<Courses> courses = lecturerService.getCoursesByLecturer(user.getId());
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
         model.addAttribute("courses", courses);
 
         return "lecturers/lecturerPage";
@@ -93,16 +169,37 @@ public class LecturerController {
     @GetMapping("/createCourses")
     public String createCourses(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
 
         model.addAttribute("course", new Courses());
         return "lecturers/createCourses";
@@ -111,16 +208,37 @@ public class LecturerController {
     @GetMapping("/updateCourses/{courseId}")
     public String getCourseById(@PathVariable Integer courseId, Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
 
         Courses getCourseById = lecturerService.getCourseById(courseId);
         model.addAttribute("getCourseById", getCourseById);
@@ -137,14 +255,37 @@ public class LecturerController {
     public String processUpdateCourse(@PathVariable Integer courseId, @ModelAttribute("updateCourse") Courses updatedCourse, Model model) {
         // Lấy thông tin giảng viên (tương tự như trên)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
-        Users user = authenticationService.getInforUser(username);
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
 
         Courses existingCourse = lecturerService.getCourseById(courseId);
 
@@ -170,18 +311,39 @@ public class LecturerController {
         lecturerService.deleteCourseById(courseId);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
 
-        List<Courses> courses = lecturerService.getCoursesByLecturer(user.getId());
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
         model.addAttribute("courses", courses);
         return "redirect:/lecturerPage";
     }
@@ -189,16 +351,37 @@ public class LecturerController {
     @GetMapping("/updateVideo/{videoId}")
     public String getVideoById(@PathVariable Integer videoId, Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
 
         Videos getVideoById = lecturerService.getVideoById(videoId);
         model.addAttribute("getVideoById", getVideoById);
@@ -212,14 +395,37 @@ public class LecturerController {
     public String processUpdateVideo(@PathVariable Integer videoId, @ModelAttribute("updateVideo") Videos updatedVideo, Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
-        Users user = authenticationService.getInforUser(username);
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
 
         Videos existingVideo = lecturerService.getVideoById(videoId);
 
@@ -240,19 +446,210 @@ public class LecturerController {
         lecturerService.deleteVideoById(videoId);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-        UserPrincipal userDetails = (UserPrincipal) principal;
-        String username = userDetails.getUsername();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
 
-        Users user = authenticationService.getInforUser(username);
+        Users lecturer = new Users();
 
-        model.addAttribute("name_lecturer", user.getFirstname() + " " + user.getLastname());
-        model.addAttribute("email_lecturer", user.getGmail());
-        model.addAttribute("picture_lecturer", user.getPicture());
-        model.addAttribute("role_name_lecturer", user.getRole());
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
 
-        List<Courses> courses = lecturerService.getCoursesByLecturer(user.getId());
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
         model.addAttribute("courses", courses);
         return "redirect:/lecturerPage";
+    }
+
+    @GetMapping("/image_lecturer")
+    public String getImage(Model model) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        return "lecturers/updateImage";
+    }
+
+    @GetMapping("/profile_lecturer")
+    public String getInformation(Model model) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        model.addAttribute("updateProfileLecturer", new Users());
+
+        return "lecturers/profileLecturer";
+    }
+
+    @PostMapping("/profile_lecturer")
+    public String updateInformation(Model model, @ModelAttribute("updateProfileLecturer") Users informationUser) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        Users existingUser = userService.getUserById(informationUser.getId());
+
+        existingUser.setFirstname(informationUser.getFirstname());
+        existingUser.setLastname(informationUser.getLastname());
+        existingUser.setGmail(informationUser.getGmail());
+
+        userService.saveUser(existingUser);
+
+        model.addAttribute("messageSuccessfully", "Cập nhật thành công!");
+
+        return "lecturers/profileLecturer";
+    }
+
+    @GetMapping("/changePassword_lecturer")
+    public String changePasswordPage(Model model) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users lecturer = new Users();
+
+        if (isAuthenticated) {
+            Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                lecturer = authenticationService.getInforUserByGmail(gmail);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+            else if (principal instanceof UserPrincipal) {
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
+                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                lecturer = authenticationService.getInforUser(username);
+
+                if (lecturer != null) {
+                    model.addAttribute("lecturer_account", lecturer);
+                }
+            }
+        }
+
+        model.addAttribute("changePasswordLecturer", new Users());
+
+        return "lecturers/changePasswordLecturer";
     }
 }

@@ -128,10 +128,10 @@ public class AuthenticationController {
 
         if (checkChange) {
             model.addAttribute("messageChangePassword", "Mật khẩu của bạn đã được đổi thành công!");
-            return "changePassword";
+            return "users/changePassword";
         } else {
             model.addAttribute("messageChangePassword", "Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại.");
-            return "changePassword";
+            return "users/changePassword";
         }
     }
 }

@@ -125,34 +125,24 @@ public class CloudinarySignatureController {
     }
 
     @GetMapping("/video-upload")
-    public ResponseEntity<Map<String, String>> signUpload(
-            @RequestParam(required = false, defaultValue = "default") String folder,
-            @RequestParam(required = false) String publicId,
-            @RequestParam(required = false, defaultValue = "image") String resourceType // Thêm tham số này
+    public ResponseEntity<Map<String, String>> signUploadVideo(
+            @RequestParam(name = "folder", defaultValue = "course_videos") String folder,
+            @RequestParam(name = "publicId", required = false) String publicId,
+            @RequestParam(name = "resourceType", defaultValue = "video") String resourceType
     ) throws NoSuchAlgorithmException {
-
         long timestamp = System.currentTimeMillis() / 1000L;
 
         Map<String, Object> params = new HashMap<>();
-        params.put("timestamp", timestamp);
         params.put("folder", folder);
         if (publicId != null && !publicId.isEmpty()) {
             params.put("public_id", publicId);
         }
-        params.put("resource_type", resourceType); // Thêm vào params để ký
+        params.put("timestamp", timestamp);
 
-        // Thêm các tham số upload video đặc biệt nếu cần (ví dụ: eager transformations)
-        // if ("video".equals(resourceType)) {
-        //     params.put("eager", "w_640,h_360,c_fill/mp4,fl_keep_iptc");
-        //     params.put("eager_async", "true");
-        //     params.put("eager_notification_url", "https://your.app/cloudinary-webhook"); // Nếu bạn cần webhook
-        // }
-
-
+        // 🛠 Không ký resource_type ở đây!
         StringBuilder stringToSign = new StringBuilder();
-        // Sắp xếp theo key, bao gồm resource_type
         params.entrySet().stream()
-                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .sorted(Map.Entry.comparingByKey())
                 .forEach(entry -> {
                     if (stringToSign.length() > 0) {
                         stringToSign.append("&");
@@ -160,10 +150,11 @@ public class CloudinarySignatureController {
                     stringToSign.append(entry.getKey()).append("=").append(entry.getValue());
                 });
 
-        stringToSign.append(apiSecret); // Nối API Secret vào cuối
+        System.out.println("DEBUG: String to Sign = " + stringToSign.toString());
 
+        // ✅ Ký với API secret
+        stringToSign.append(apiSecret);
         MessageDigest crypt = MessageDigest.getInstance("SHA-1");
-        crypt.reset();
         crypt.update(stringToSign.toString().getBytes());
         String signature = byteToHex(crypt.digest());
 
@@ -172,7 +163,9 @@ public class CloudinarySignatureController {
         response.put("timestamp", String.valueOf(timestamp));
         response.put("api_key", apiKey);
         response.put("cloud_name", cloudName);
-        response.put("resource_type", resourceType); // Trả về resource_type để frontend biết URL upload
+        response.put("resource_type", resourceType); // vẫn trả về để frontend biết dùng
+        response.put("folder", folder);
+        response.put("public_id", publicId);
 
         return ResponseEntity.ok(response);
     }

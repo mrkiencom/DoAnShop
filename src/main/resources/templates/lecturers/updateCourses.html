@@ -31,7 +31,7 @@
             </nav>
         </div>
         <div id="course-info-panel" class="mt-4">
-            <form class="mx-auto" th:action="@{/updateCourses/{courseId}(courseId=${courseId})}" method="post" th:object="${updateCourse}">
+            <form id="createCourseForm" class="mx-auto" th:action="@{/updateCourses/{courseId}(courseId=${courseId})}" method="post" th:object="${updateCourse}">
                 <h2 class="font-semibold text-[14px] mb-4">Update Course</h2>
                 <!-- Title input -->
                 <textarea
@@ -44,15 +44,23 @@
                 <!--img_courses-->
                 <div class="grid mt-6">
                     <label class="block text-[9px] font-semibold text-[#64748b] mb-1 tracking-wide">* IMAGE</label>
-                    <div id="image-upload-container" class="image-upload-container border border-dashed border-gray-300 rounded-md bg-gray-100 h-72">
-                        <div id="no-image-overlay" class="no-image-overlay">
+                    <div id="image-upload-container" class="image-upload-container border border-dashed border-gray-300 rounded-md bg-gray-100 h-72 cursor-pointer">
+                        <img id="image-preview"
+                             th:src="${getCourseById.image}"
+                             alt="Image preview"
+                             th:classappend="${getCourseById.image != null and !getCourseById.image.isEmpty() ? '' : 'hidden'}"
+                             class="image-preview w-full h-full object-contain">
+
+                        <div id="no-image-overlay"
+                             class="no-image-overlay flex flex-col items-center justify-center h-full text-gray-400"
+                             th:classappend="${getCourseById.image != null and !getCourseById.image.isEmpty() ? 'hidden' : ''}">
                             <i class="fas fa-camera text-lg mb-1"></i>
-                            <span>No image yet</span>
+                            <span>Click to upload image</span>
                         </div>
-                        <img id="image-preview"  th:if="${not #strings.isEmpty(getCourseById.image)}" th:src="${getCourseById.image}"  alt="Image preview" class="hidden image-preview" >
                         <input type="file" id="image-upload-input" class="hidden" accept="image/*">
                     </div>
-                    <input type="hidden" id="imagePath" name="imagePath" th:value="${getCourseById.image}"  >
+                    <p id="file-name-display" class="text-sm text-gray-500 mt-2 hidden"></p>
+                    <input type="hidden" id="courseImage" name="image" th:field="*{image}">
                 </div>
                 <!-- Form fields row -->
                 <div class="flex flex-wrap gap-4 mt-6">
@@ -122,25 +130,25 @@
                 <div class="flex flex-wrap items-center gap-3 mt-6">
                     <label class="text-[9px] font-semibold text-[#64748b] tracking-wide mr-3">* LEVEL</label>
                     <div class="flex items-center space-x-2">
-                        <input type="radio" id="all" name="level" value="all" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <input type="radio" id="all" name="level" value="All Levels" class="hidden peer" th:field="${getCourseById.level}"/>
                         <label for="all" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
                             <span>All Level</span>
                         </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <input type="radio" id="beginner" name="level" value="beginner" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <input type="radio" id="beginner" name="level" value="Beginner Level" class="hidden peer" th:field="${getCourseById.level}"/>
                         <label for="beginner" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
                             <span>Beginner</span>
                         </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <input type="radio" id="intermediate" name="level" value="intermediate" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <input type="radio" id="intermediate" name="level" value="Intermediate Level" class="hidden peer" th:field="${getCourseById.level}"/>
                         <label for="intermediate" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
                             <span>Intermediate</span>
                         </label>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <input type="radio" id="expert" name="level" value="expert" class="hidden peer" th:field="${getCourseById.level}"/>
+                        <input type="radio" id="expert" name="level" value="Expert Level" class="hidden peer" th:field="${getCourseById.level}"/>
                         <label for="expert" class="flex items-center space-x-2 border border-[#cbd5e1] rounded-md px-4 py-1 text-[11px] font-normal text-[#64748b] bg-white cursor-pointer peer-checked:border-[#3b82f6] peer-checked:bg-[#3b82f6] peer-checked:text-white">
                             <span>Expert</span>
                         </label>
@@ -205,7 +213,7 @@
                 <div class="relative overflow-y-auto max-h-96">
                     <table th:unless="${listVideoByCourses.isEmpty()}" class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-white sticky top-0 z-10"> <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider " scope="col">
                                 TITLE
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider" scope="col">
@@ -226,10 +234,10 @@
                         </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100 text-sm"> <tr th:each="listVideoByCourse : ${listVideoByCourses}">
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${listVideoByCourse.title}"></td>
-                            <td th:text="${listVideoByCourse.videoUrl}" class="px-6 py-4 whitespace-nowrap text-gray-500 video_url hover:cursor-pointer"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-500 block truncate w-48" th:text="${listVideoByCourse.title}"></td>
+                            <td th:text="${listVideoByCourse.videoUrl}"  class="px-6 py-4 text-gray-500 hover:cursor-pointer truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">></td>
                             <td th:text="${listVideoByCourse.duration}" class="px-6 py-4 whitespace-nowrap text-gray-500 "></td>
-                            <td th:text="${listVideoByCourse.description}" class="px-6 py-4 whitespace-nowrap text-gray-500 "></td>
+                            <td th:text="${listVideoByCourse.description}" class="px-6 py-4 whitespace-nowrap text-gray-500 block truncate w-48"></td>
                             <td th:text="${listVideoByCourse.uploadedAt}" class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
                             <td class="py-3 pr-4 text-center">
                                 <a aria-label="Edit 1" class="text-blue-800 hover:text-blue-600" th:href="@{/updateVideo/{videoId}(videoId=${listVideoByCourse.videoId})}">
@@ -262,38 +270,49 @@
       }
     });
 
+    const createCourseForm = document.getElementById('createCourseForm');
     const imageUploadContainer = document.getElementById('image-upload-container');
     const imageUploadInput = document.getElementById('image-upload-input');
-    const imagePreview = document.getElementById('image-preview');
     const noImageOverlay = document.getElementById('no-image-overlay');
-    const imagePathInput = document.getElementById('imagePath'); // Lấy tham chiếu đến input ẩn từ HTML
+    const imagePreview = document.getElementById('image-preview');
+    const courseImageInput = document.getElementById('courseImage'); // Đã đổi tên biến này
+    const fileNameDisplay = document.getElementById('file-name-display');
 
-    imageUploadContainer.addEventListener('click', () => {
+    // -- Logic xem trước ảnh --
+    imageUploadContainer.addEventListener('click', function() {
         imageUploadInput.click();
     });
 
-    imageUploadInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Hiển thị ảnh dưới dạng Data URL
-            imagePreview.src = e.target.result;
-            imagePreview.classList.remove('hidden');
-            noImageOverlay.classList.add('hidden');
+    imageUploadInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
 
-            // Lưu tên tệp vào hidden input (hoặc bạn có thể xây dựng đường dẫn tương đối ở đây
-            // nếu bạn có logic phía server để lưu tệp với tên này vào thư mục 'images')
-            imagePathInput.value = 'images/' + file.name;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                noImageOverlay.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            fileNameDisplay.textContent = `File đã chọn: ${file.name}`;
+            fileNameDisplay.classList.remove('hidden');
+
+            // Xóa giá trị input ẩn khi người dùng chọn file mới
+            // Điều này quan trọng nếu họ chọn một file, sau đó hủy, hoặc chọn file khác
+            courseImageInput.value = '';
+
+        } else {
+            // Không có file nào được chọn, hoặc người dùng đã hủy chọn file
+            // Kiểm tra nếu imagePreview đã có src từ database thì giữ nguyên
+            if (imagePreview.src === '#' || imagePreview.src === window.location.href) { // Kiểm tra nếu src là rỗng hoặc đường dẫn hiện tại
+                imagePreview.classList.add('hidden');
+                noImageOverlay.classList.remove('hidden');
+            }
+            fileNameDisplay.classList.add('hidden');
+            fileNameDisplay.textContent = '';
         }
-        reader.readAsDataURL(file); // Đọc tệp dưới dạng Data URL
-    } else {
-        imagePreview.src = '#';
-        imagePreview.classList.add('hidden');
-        noImageOverlay.classList.remove('hidden');
-        imagePathInput.value = ''; // Xóa giá trị nếu không có ảnh nào được chọn
-    }
-});
+    });
     document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.getElementById('category-select');
     const topicSelect = document.getElementById('topic-select');
@@ -375,57 +394,139 @@
 
     videoUrlElements.forEach(function(element) {
         element.addEventListener('click', function() {
-        const videoUrl = this.textContent.trim();
-        if (videoUrl) {
-        // Tạo một phần tử video mới
-            const videoPlayer = document.createElement('video');
-            videoPlayer.src = videoUrl;
-            videoPlayer.controls = true; // Hiển thị các nút điều khiển video
-            videoPlayer.autoplay = true; // Tự động phát video (tùy chọn)
-            videoPlayer.style.width = '100%';
-            videoPlayer.style.height = '100%';
-            videoPlayer.style.position = 'fixed';
-            videoPlayer.style.top = '0';
-            videoPlayer.style.left = '0';
-            videoPlayer.style.zIndex = '9999'; // Đảm bảo video hiển thị trên cùng
+            const videoUrl = this.textContent.trim();
+            if (videoUrl) {
+                // Tạo một phần tử video mới
+                const videoPlayer = document.createElement('video');
+                videoPlayer.src = videoUrl;
+                videoPlayer.controls = true; // Hiển thị các nút điều khiển video
+                videoPlayer.autoplay = true; // Tự động phát video (tùy chọn)
+                videoPlayer.style.width = '100%';
+                videoPlayer.style.height = '100%';
+                videoPlayer.style.position = 'fixed';
+                videoPlayer.style.top = '0';
+                videoPlayer.style.left = '0';
+                videoPlayer.style.zIndex = '9999'; // Đảm bảo video hiển thị trên cùng
 
-        // Tạo một nút đóng
-            const closeButton = document.createElement('button');
-            closeButton.textContent = 'Đóng';
-            closeButton.style.position = 'absolute';
-            closeButton.style.top = '20px';
-            closeButton.style.right = '20px';
-            closeButton.style.padding = '10px 15px';
-            closeButton.style.backgroundColor = '#333';
-            closeButton.style.color = '#fff';
-            closeButton.style.border = 'none';
-            closeButton.style.cursor = 'pointer';
-            closeButton.style.zIndex = '10000';
+                // Tạo một nút đóng
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Đóng';
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '20px';
+                closeButton.style.right = '20px';
+                closeButton.style.padding = '10px 15px';
+                closeButton.style.backgroundColor = '#333';
+                closeButton.style.color = '#fff';
+                closeButton.style.border = 'none';
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.zIndex = '10000';
 
-            // Thêm sự kiện đóng video
-        closeButton.addEventListener('click', function() {
-            document.body.removeChild(videoPlayer);
-            document.body.removeChild(overlay);
-            document.body.removeChild(closeButton);
+                // Thêm sự kiện đóng video
+                closeButton.addEventListener('click', function() {
+                    document.body.removeChild(videoPlayer);
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(closeButton);
+                });
+
+                // Tạo một lớp phủ mờ (tùy chọn)
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                overlay.style.zIndex = '9998';
+
+                // Thêm video và nút đóng vào body
+                document.body.appendChild(overlay);
+                document.body.appendChild(videoPlayer);
+                document.body.appendChild(closeButton);
+            }
         });
-
-        // Tạo một lớp phủ mờ (tùy chọn)
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        overlay.style.zIndex = '9998';
-
-        // Thêm video và nút đóng vào body
-        document.body.appendChild(overlay);
-        document.body.appendChild(videoPlayer);
-        document.body.appendChild(closeButton);
-      }
     });
-  });
+    createCourseForm.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Ngăn chặn form submit mặc định
+
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true; // Vô hiệu hóa nút submit
+        submitButton.textContent = 'Đang tạo khóa học...';
+
+        const file = imageUploadInput.files[0];
+
+        // Kiểm tra xem người dùng có chọn file mới không
+        // HOẶC nếu courseImageInput.value (ảnh cũ từ DB) không rỗng
+        // Nếu không có file mới và cũng không có ảnh cũ, cảnh báo người dùng.
+        if (!file && !courseImageInput.value) {
+            fileNameDisplay.textContent = 'Vui lòng tải lên một ảnh cho khóa học.';
+            fileNameDisplay.style.color = 'red';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Create'; // Reset text
+            return;
+        }
+
+        // Nếu có file ảnh MỚI được chọn, tải lên Cloudinary trước
+        if (file) {
+            fileNameDisplay.textContent = 'Đang tải ảnh lên Cloudinary...';
+            fileNameDisplay.style.color = 'blue';
+
+            try {
+                // Lấy chữ ký từ backend của bạn
+                const publicId = `course_picture_${Date.now()}`; // Tạo public ID duy nhất
+                const signatureResponse = await fetch(`/api/cloudinary/course-upload?folder=course_images&publicId=${publicId}`, {
+                    method: 'GET'
+                });
+
+                if (!signatureResponse.ok) {
+                    const errorText = await signatureResponse.text();
+                    throw new Error(`Lỗi khi lấy chữ ký: ${errorText}`);
+                }
+                const signatureData = await signatureResponse.json();
+
+                // Tải file trực tiếp lên Cloudinary
+                const cloudinaryFormData = new FormData();
+                cloudinaryFormData.append('file', file);
+                cloudinaryFormData.append('api_key', signatureData.api_key);
+                cloudinaryFormData.append('timestamp', signatureData.timestamp);
+                cloudinaryFormData.append('signature', signatureData.signature);
+                cloudinaryFormData.append('folder', 'course_images');
+                cloudinaryFormData.append('public_id', publicId);
+                cloudinaryFormData.append('resource_type', 'image'); // Đảm bảo Cloudinary xử lý là ảnh
+
+                const cloudinaryUploadUrl = `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/image/upload`;
+
+                const cloudinaryResponse = await fetch(cloudinaryUploadUrl, {
+                    method: 'POST',
+                    body: cloudinaryFormData
+                });
+
+                if (cloudinaryResponse.ok) {
+                    const cloudinaryData = await cloudinaryResponse.json();
+                    const newImageUrl = cloudinaryData.secure_url;
+
+                    // Cập nhật URL ảnh vào input ẩn của form
+                    courseImageInput.value = newImageUrl;
+                    fileNameDisplay.textContent = 'Ảnh đã tải lên Cloudinary thành công.';
+                    fileNameDisplay.style.color = 'green';
+
+                } else {
+                    const errorCloudinaryData = await cloudinaryResponse.json();
+                    throw new Error('Lỗi tải ảnh lên Cloudinary: ' + (errorCloudinaryData.error.message || 'Không xác định'));
+                }
+            } catch (error) {
+                console.error('Lỗi trong quá trình tải ảnh lên Cloudinary:', error);
+                fileNameDisplay.textContent = 'Lỗi tải ảnh lên Cloudinary: ' + error.message;
+                fileNameDisplay.style.color = 'red';
+                submitButton.disabled = false; // Bật lại nút nếu có lỗi
+                submitButton.textContent = 'Create'; // Reset text
+                return; // Dừng việc submit form nếu có lỗi upload ảnh
+            }
+        }
+        // Nếu không có file mới được chọn, hoặc đã tải lên thành công, thì submit form
+        // Form sẽ được submit với giá trị image đã được cập nhật (nếu có)
+        // hoặc giá trị ban đầu nếu không có ảnh mới/ảnh đã tồn tại từ trước
+        createCourseForm.submit();
+    });
 });
 </script>
 </body>

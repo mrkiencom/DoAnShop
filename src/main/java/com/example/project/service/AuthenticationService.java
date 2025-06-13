@@ -87,7 +87,7 @@ public class AuthenticationService {
 
     public void sendMailToResetPassword(final String gmail) {
         final var token = genToken(gmail);
-        final String link = "http://" + mailProperties.getDoman() + "/reset-password?token=" + token;
+        final String link = "http://" + mailProperties.getDomain() + "/reset-password?token=" + token;
         final String htmlContent = """
                 <html lang="en">
                  <head>

@@ -1,0 +1,190 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+    Huge LMS Dashboard
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-white text-gray-900">
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside th:replace="~{fragments/sidebar_lecturer :: sidebar_lecturer}"></aside>
+  <!-- Main content -->
+  <main class="flex-1 p-6">
+    <header th:replace="~{fragments/header_lecturer :: header_lecturer}"></header>
+    <header class="border-b border-gray-300 pb-4 mb-6 text-center">
+      <h2 class="text-xl font-semibold text-gray-900">Ảnh</h2>
+      <p class="text-sm text-gray-700 mt-1">Thêm một bức ảnh đẹp của bạn cho hồ sơ.</p>
+    </header>
+    <form id="userProfileForm" class="max-w-4xl mx-auto">
+      <input type="hidden" id="userId" th:value="${lecturer_account.id}"/>
+      <div>
+        <label class="block font-semibold text-gray-900 text-sm leading-5 mb-2">
+          Xem trước hình ảnh
+        </label>
+        <div class="border border-gray-300 p-4 flex justify-center items-center" style="min-height: 200px;">
+          <img id="userPicturePreview"
+               alt="Placeholder image of a user profile icon inside a circle on a light gray background"
+               height="200"
+               th:src="${lecturer_account.picture != null and !lecturer_account.picture.isEmpty() ? lecturer_account.picture : '/images/default_profile_picture.png'}"
+               width="400"/>
+        </div>
+      </div>
+      <div class="mt-6">
+        <label class="block font-semibold text-gray-900 text-sm leading-5 mb-2" for="file-upload">
+          Thêm/Thay đổi hình ảnh
+        </label>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <input aria-describedby="file-upload-description" class="border border-gray-300 rounded-md px-4 py-2 flex-1" id="file-upload" type="file" accept="image/*,video/*"/>
+          <button type="button" id="uploadImageButton" class="border border-green-700 text-green-700 font-semibold rounded-md px-4 py-2 hover:bg-green-700 hover:text-white transition-colors">
+            Tải hình ảnh lên
+          </button>
+        </div>
+        <div id="imageUploadMessage" class="mt-2 text-sm"></div>
+      </div>
+    </form>
+  </main>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const uploadImageButton = document.getElementById('uploadImageButton');
+  const fileUploadInput = document.getElementById('file-upload');
+  const userPicturePreview = document.getElementById('userPicturePreview');
+  const imageUploadMessage = document.getElementById('imageUploadMessage');
+  const userId = document.getElementById('userId').value; // Lấy ID người dùng từ input ẩn
+
+  // Đặt ảnh mặc định nếu không có ảnh từ database
+  if (userPicturePreview.src.includes('null') || userPicturePreview.src.includes('undefined') || userPicturePreview.src.trim() === '') {
+      userPicturePreview.src = '/images/default_profile_picture.png'; // Đặt đường dẫn ảnh mặc định
+  }
+
+
+  if (!userId) {
+      console.error("User ID not found. Cannot proceed with image upload.");
+      imageUploadMessage.textContent = "Lỗi: Không tìm thấy ID người dùng.";
+      imageUploadMessage.style.color = 'red';
+      uploadImageButton.disabled = true;
+  }
+
+  uploadImageButton.addEventListener('click', async function() {
+      if (fileUploadInput.files.length === 0) {
+          imageUploadMessage.textContent = 'Vui lòng chọn một tệp để tải lên.';
+          imageUploadMessage.style.color = 'red';
+          return;
+      }
+
+      const file = fileUploadInput.files[0];
+      const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      const allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/webm']; // Thêm webm cho video
+
+      const isImage = allowedImageTypes.includes(file.type);
+      const isVideo = allowedVideoTypes.includes(file.type);
+
+      if (!isImage && !isVideo) {
+          imageUploadMessage.textContent = 'Định dạng tệp không được hỗ trợ. Vui lòng chọn ảnh (JPEG, PNG, GIF) hoặc video (MP4, MOV, WebM).';
+          imageUploadMessage.style.color = 'red';
+          return;
+      }
+
+      imageUploadMessage.textContent = 'Đang tải lên...';
+      imageUploadMessage.style.color = 'blue';
+      this.disabled = true;
+
+      try {
+          // Bước 1: Lấy chữ ký từ backend của bạn
+          const signatureResponse = await fetch(`/api/cloudinary/sign-upload?folder=user_profiles/${userId}&publicId=profile_picture_${userId}`, {
+              method: 'GET'
+          });
+
+          if (!signatureResponse.ok) {
+              const errorText = await signatureResponse.text();
+              throw new Error(`Lỗi khi lấy chữ ký: ${errorText}`);
+          }
+          const signatureData = await signatureResponse.json();
+
+          // Bước 2: Tải file trực tiếp lên Cloudinary
+          const cloudinaryFormData = new FormData();
+          cloudinaryFormData.append('file', file);
+          cloudinaryFormData.append('api_key', signatureData.api_key);
+          cloudinaryFormData.append('timestamp', signatureData.timestamp);
+          cloudinaryFormData.append('signature', signatureData.signature);
+          cloudinaryFormData.append('folder', `user_profiles/${userId}`); // Tùy chọn: Thư mục trên Cloudinary
+          cloudinaryFormData.append('public_id', `profile_picture_${userId}`); // Tùy chọn: Đặt tên cho file trên Cloudinary
+
+          // Xác định loại tài nguyên để Cloudinary xử lý đúng (image hoặc video)
+          cloudinaryFormData.append('resource_type', isVideo ? 'video' : 'image');
+
+          // URL tải lên của Cloudinary (thay your_cloud_name bằng cloud_name của bạn)
+          const cloudinaryUploadUrl = `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/${isVideo ? 'video' : 'image'}/upload`;
+
+          const cloudinaryResponse = await fetch(cloudinaryUploadUrl, {
+              method: 'POST',
+              body: cloudinaryFormData
+          });
+
+          if (cloudinaryResponse.ok) {
+              const cloudinaryData = await cloudinaryResponse.json();
+              const newMediaUrl = cloudinaryData.secure_url; // Lấy URL an toàn từ Cloudinary
+
+              // Bước 3: Gửi URL Cloudinary về backend của bạn để lưu vào database
+              // Endpoint này sẽ lưu newMediaUrl vào trường picture của lecturer_account trong DB
+              const updateDbResponse = await fetch(`/api/users/${userId}/update-picture-url`, {
+                  method: 'PATCH', // Hoặc PUT tùy thuộc vào API của bạn
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ pictureUrl: newMediaUrl })
+              });
+
+              if (updateDbResponse.ok) {
+                  imageUploadMessage.textContent = 'Tải lên thành công và cập nhật hồ sơ!';
+                  imageUploadMessage.style.color = 'green';
+                  userPicturePreview.src = newMediaUrl; // Cập nhật ảnh xem trước
+                  fileUploadInput.value = ''; // Xóa file đã chọn
+              } else {
+                  const errorDbData = await updateDbResponse.json();
+                  imageUploadMessage.textContent = 'Tải lên Cloudinary thành công, nhưng lỗi cập nhật DB: ' + (errorDbData.message || 'Không xác định');
+                  imageUploadMessage.style.color = 'orange'; // Màu cảnh báo
+              }
+
+          } else {
+              const errorCloudinaryData = await cloudinaryResponse.json();
+              imageUploadMessage.textContent = 'Lỗi tải lên Cloudinary: ' + (errorCloudinaryData.error.message || 'Không xác định');
+              imageUploadMessage.style.color = 'red';
+          }
+      } catch (error) {
+          console.error('Lỗi mạng hoặc lỗi khác:', error);
+          imageUploadMessage.textContent = 'Đã xảy ra lỗi không mong muốn khi tải lên.';
+          imageUploadMessage.style.color = 'red';
+      } finally {
+          this.disabled = false;
+      }
+  });
+
+  document.getElementById('userProfileForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Logic lưu thông tin người dùng (không phải ảnh) sẽ được thực hiện ở đây!');
+  });
+});
+
+  const dropdownButton = document.querySelector('.relative button');
+  const dropdownMenu = document.querySelector('.relative div');
+
+  dropdownButton.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('hidden');
+  });
+
+  // Đóng dropdown khi click ra ngoài
+  document.addEventListener('click', (event) => {
+      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+           dropdownMenu.classList.add('hidden');
+      }
+  });
+</script>
+</body>
+</html>
