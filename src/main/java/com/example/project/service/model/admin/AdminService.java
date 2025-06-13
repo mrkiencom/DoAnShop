@@ -24,10 +24,6 @@ public class AdminService {
     private static final String LECTURER_ROLE = "lecturer";
     private static final String LEARNER_ROLE = "learner";
 
-    private static final String FILTER_ALL = "all";
-    private static final String FILTER_ACTIVE = "active";
-    private static final String FILTER_UNACTIVE = "unactive";
-
     public Dashboard getDashboard() {
         final var users = getUsers("timeRageUser").getUsers();
         final var courses = courseRepo.findAll();

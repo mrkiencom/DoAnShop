@@ -58,8 +58,8 @@
                 <div class="border-t border-gray-300 flex-grow">
                 </div>
             </div>
-            <form class="flex flex-col max-w-xs w-full space-y-4 text-xs text-gray-700" th:action="@{/register}"
-                  method="post" th:object="${user}">
+            <form class="flex flex-col max-w-xs w-full space-y-4 text-xs text-gray-700" th:action="@{/register} "
+                  method="post" th:object="${user}" id="submit">
                 <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Username"
                        required="" type="text" th:field="*{username}"/>
                 <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Password"
@@ -81,6 +81,10 @@
                     Sign up
                 </button>
             </form>
+            <div id="loadingOverlay"
+                 class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+            </div>
             <p class="text-[10px] text-gray-600 mt-6 max-w-xs w-full text-center select-none">
                 Do have an account?
                 <a class="font-semibold underline decoration-2 decoration-black underline-offset-4" href="/login">
@@ -90,6 +94,12 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById("submit").addEventListener("submit", function () {
+        document.getElementById("loadingOverlay").classList.remove("hidden");
+        document.getElementById("loginButton").disabled = true;
+    });
+</script>
 </body>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </html>

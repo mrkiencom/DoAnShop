@@ -25,7 +25,7 @@ public class EmailService {
             final MimeMessage message = mailSender.createMimeMessage();
             final MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            final String senderName = "ZOS";
+            final String senderName = "ZES";
             final String fromEmail = mail.getUsername();
 
 

@@ -41,6 +41,7 @@ public class AuthenticationService {
         newUser.setPicture("/images/default_user.jpg");
         newUser.setRole("user");
         newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setActive(true);
 
         userRepository.save(newUser);
         return true;
@@ -87,7 +88,7 @@ public class AuthenticationService {
 
     public void sendMailToResetPassword(final String gmail) {
         final var token = genToken(gmail);
-        final String link = "http://" + mailProperties.getDomain() + "/reset-password?token=" + token;
+        final String link = mailProperties.getDomain() + "/reset-password?token=" + token;
         final String htmlContent = """
                 <html lang="en">
                  <head>
