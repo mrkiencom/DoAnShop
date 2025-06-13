@@ -2,9 +2,9 @@ package com.example.project.controller;
 
 import com.example.project.model.UserPrincipal;
 import com.example.project.model.Users;
+import com.example.project.service.AdminService;
 import com.example.project.service.AuthenticationService;
 import com.example.project.service.UserService;
-import com.example.project.service.model.admin.AdminService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

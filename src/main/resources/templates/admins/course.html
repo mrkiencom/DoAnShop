@@ -1,0 +1,313 @@
+<div class="max-w-7xl w-[900px] mx-auto flex flex-col min-h-screen" th:fragment="content">
+    <h1 class="text-2xl font-extrabold mb-8">Course</h1>
+
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-6 w-[900px]">
+        <div class="flex items-center w-full sm:w-[calc(100%-96px)] bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-600">
+            <i class="fas fa-search text-gray-400 mr-3"></i>
+            <input id="searchText"
+                   type="search"
+                   name="text"
+                   placeholder="Search..."
+                   class="w-full text-sm text-gray-500 placeholder-gray-400 focus:outline-none"
+                   th:value="${text}"
+                   aria-label="Search customers"
+                   onkeyup="loadCourse(
+            this.value,
+            document.getElementById('status').value,
+            document.getElementById('level').value,
+            document.getElementById('category').value,
+            document.getElementById('subcategory').value
+            )"/>
+
+
+        </div>
+    </div>
+
+    <nav class="flex items-center space-x-8 mb-6 text-gray-800 text-base font-medium">
+        <select id="category" name="category"
+                onchange="loadCourse(
+            document.getElementById('searchText').value,
+            document.getElementById('status').value,
+            document.getElementById('level').value,
+            this.value,
+            document.getElementById('subcategory').value
+        )"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <option value="" disabled
+                    th:selected="${category == null or category == ''}">
+                Category
+            </option>
+
+            <!-- Danh sách categories -->
+            <option th:each="cat : ${allCategories}"
+                    th:value="${cat}"
+                    th:text="${cat}"
+                    th:selected="${cat == category}">
+            </option>
+        </select>
+        <select id="subcategory" name="subcategory"
+                onchange="loadCourse(
+            document.getElementById('searchText').value,
+            '${status}', '${level}',
+            document.getElementById('category').value,
+            this.value
+        )"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <option value="" disabled
+                    th:selected="${topic == null or topic == ''}">
+                Subcategory
+            </option>
+
+            <!-- Danh sách topics -->
+            <option th:each="top : ${allTopics}"
+                    th:value="${top}"
+                    th:text="${top}"
+                    th:selected="${top == topic}">
+            </option>
+        </select>
+        <select id="level" name="level"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                onchange="loadCourse(
+            document.getElementById('searchText').value,
+            document.getElementById('status').value,
+            this.value,
+            document.getElementById('category').value,
+            document.getElementById('subcategory').value
+        )">
+            <!-- Placeholder -->
+            <option value="" disabled
+                    th:selected="${level == null or level == ''}">
+                Level
+            </option>
+
+            <!-- Danh sách levels -->
+            <option th:each="lvl : ${allLevel}"
+                    th:value="${lvl}"
+                    th:text="${lvl}"
+                    th:selected="${lvl == level}">
+            </option>
+        </select>
+        <select id="status" name="status"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                onchange="loadCourse(
+            document.getElementById('searchText').value,
+            this.value,
+            document.getElementById('level').value,
+            document.getElementById('category').value,
+            document.getElementById('subcategory').value
+        )">
+            <!-- Placeholder -->
+            <option value="" disabled
+                    th:selected="${status == null or status == ''}">
+                Status
+            </option>
+
+            <!-- Danh sách status -->
+            <option th:each="s : ${AllStatus}"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${s == status}">
+            </option>
+        </select>
+        <button type="button"
+                onclick="clearFilters()"
+                class="ml-2 text-gray-400 hover:text-red-500 text-lg focus:outline-none"
+                aria-label="Clear filters">
+            &times;
+        </button>
+
+    </nav>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+            <tr>
+                <th class="p-3 w-[25%] text-left text-xs font-semibold text-gray-700">Title</th>
+                <th class="p-3 w-[25%] text-left text-xs font-semibold text-gray-700">Description</th>
+                <th class="p-3 w-[8%] text-left text-xs font-semibold text-gray-700">Plan</th>
+                <th class="p-3 w-[8%] py-3 text-left text-xs font-semibold text-gray-700">Level</th>
+                <th class="p-3 w-[15%] text-left text-xs font-semibold text-gray-700">Category</th>
+                <th class="p-3 w-[15%] text-left text-xs font-semibold text-gray-700">Lecturer</th>
+                <th class="p-3 w-[4%]"></th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 text-sm font-normal text-gray-900">
+            <tr th:each="course : ${courses.content}" class="hover:bg-gray-50 h-[52px]">
+                <td class="p-3">
+                    <p class="truncate max-w-[200px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.title}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="truncate max-w-[200px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.description}"
+                       th:attr="title=${course.description}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.is_paid == true ? 'Paid' : 'Free'}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.level}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="truncate max-w-[150px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.category}"
+                       th:attr="title=${course.category}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="truncate max-w-[150px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${course.lecturer}"
+                       th:attr="title=${course.lecturer}"></p>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-400 text-lg cursor-pointer">
+                    <i class="fas fa-ellipsis-v"></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="flex items-center justify-end space-x-6 text-xs text-gray-600 font-normal select-none px-4 py-3">
+        <div th:text="${courses.number * courses.size + 1} + '-' + (${courses.number + 1} * ${courses.size} > ${courses.totalElements} ? ${courses.totalElements} : (${courses.number + 1} * ${courses.size})) + ' of ' + ${courses.totalElements}">
+        </div>
+
+
+        <button
+                type="button"
+                aria-label="Previous page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${courses.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${courses.number - 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-level=${level},
+           data-category=${category},
+           data-topic=${topic}"
+                th:disabled="${courses.first}">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button
+                type="button"
+                aria-label="Next page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${courses.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${courses.number + 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-level=${level},
+           data-category=${category},
+           data-topic=${topic}"
+                th:disabled="${courses.last}">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </footer>
+    <script>
+        function loadCourse(text, status, level, category, topic) {
+            const url = `/adminPage/course-page?text=${encodeURIComponent(text)}`
+                + `&status=${encodeURIComponent(status)}`
+                + `&level=${encodeURIComponent(level)}`
+                + `&category=${encodeURIComponent(category)}`
+                + `&topic=${encodeURIComponent(topic)}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Cập nhật bảng
+                    const newTable = doc.querySelector('table');
+                    const oldTable = document.querySelector('table');
+                    if (newTable && oldTable) {
+                        oldTable.replaceWith(newTable);
+                    }
+
+                    // Cập nhật phân trang
+                    const newFooter = doc.querySelector('footer');
+                    const oldFooter = document.querySelector('footer');
+                    if (newFooter && oldFooter) {
+                        oldFooter.replaceWith(newFooter);
+                    }
+
+                    setupPagination(); // Gắn lại sự kiện cho nút chuyển trang
+                })
+                .catch(error => {
+                    console.error("Error loading courses:", error);
+                });
+        }
+
+        function clearFilters() {
+            document.getElementById('searchText').value = '';
+            document.getElementById('status').value = '';
+            document.getElementById('level').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('subcategory').value = '';
+            loadCourse('', '', '', '', '');
+        }
+
+        function setupPagination() {
+            document.querySelectorAll('.pagination-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    if (this.disabled) return;
+
+                    const page = this.getAttribute('data-page');
+                    const size = this.getAttribute('data-size') || 5;
+
+                    const text = document.getElementById('searchText').value;
+                    const status = document.getElementById('status').value;
+                    const level = document.getElementById('level').value;
+                    const category = document.getElementById('category').value;
+                    const topic = document.getElementById('subcategory').value;
+
+                    const url = `/adminPage/course-page?page=${page}&size=${size}`
+                        + `&text=${encodeURIComponent(text)}`
+                        + `&status=${encodeURIComponent(status)}`
+                        + `&level=${encodeURIComponent(level)}`
+                        + `&category=${encodeURIComponent(category)}`
+                        + `&topic=${encodeURIComponent(topic)}`;
+
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            const newTable = doc.querySelector('table');
+                            const oldTable = document.querySelector('table');
+                            if (newTable && oldTable) {
+                                oldTable.replaceWith(newTable);
+                            }
+
+                            const newFooter = doc.querySelector('footer');
+                            const oldFooter = document.querySelector('footer');
+                            if (newFooter && oldFooter) {
+                                oldFooter.replaceWith(newFooter);
+                            }
+
+                            setupPagination(); // Gắn lại sự kiện sau khi load trang mới
+                        })
+                        .catch(error => {
+                            console.error("Error on pagination:", error);
+                        });
+                });
+            });
+        }
+
+        // Gọi khi trang load lần đầu
+        document.addEventListener("DOMContentLoaded", function () {
+            setupPagination();
+        });
+    </script>
+
+</div>
+
+

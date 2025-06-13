@@ -8,4 +8,17 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CourseInfo {
+    Integer courseId;
+    String title;
+    String category;
+    String topic;
+    Integer price;
+    String level;
+    String content;
+    String requirement;
+    String description;
+    String image;
+    String status;
+    String lecturer;
+    boolean is_paid;
 }

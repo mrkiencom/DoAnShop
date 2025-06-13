@@ -38,4 +38,19 @@ public interface CourseRepo extends JpaRepository<Courses, Integer> {
             "WHERE c.status = 'Published' " +
             "AND (:courseName IS NULL OR :courseName = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :courseName, '%')))")
     Page<Courses> findCoursesByNameAndStatus(@Param("courseName") String courseName, Pageable pageable);
+
+    @Query("""
+            select c from Courses c left join c.lecturer l where
+            (:text = '' or  lower(c.description ) like lower(concat('%', :text,'%'))
+                            or  lower(c.content ) like lower(concat('%', :text,'%'))  
+                            or lower(c.title ) like lower(concat('%', :text,'%'))
+                            or  lower(c.requirement ) like lower(concat('%', :text,'%'))   
+                            or   lower(c.topic ) like lower(concat('%', :text,'%'))
+                            or   lower(concat(l.firstname,' ',l.lastname)) like lower(concat('%', :text,'%')))
+            and (:status = '' or c.status = :status)               
+            and (:level  = '' or c.level = :level)               
+            and (:category = '' or c.category = :category)               
+            and (:topic = '' or c.topic = :topic)
+            """)
+    Page<Courses> findAllBy(String text, String status, String level, String category, String topic, Pageable pageable);
 }

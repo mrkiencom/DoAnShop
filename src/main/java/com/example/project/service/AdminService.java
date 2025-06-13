@@ -1,9 +1,16 @@
-package com.example.project.service.model.admin;
+package com.example.project.service;
 
 import com.example.project.exception.NotFoundException;
+import com.example.project.model.Courses;
 import com.example.project.model.Users;
 import com.example.project.repo.CourseRepo;
 import com.example.project.repo.UserRepo;
+import com.example.project.service.model.admin.CardCount;
+import com.example.project.service.model.admin.Chart;
+import com.example.project.service.model.admin.CourseInfo;
+import com.example.project.service.model.admin.Dashboard;
+import com.example.project.service.model.admin.UserCount;
+import com.example.project.service.model.admin.UserInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,10 +39,6 @@ public class AdminService {
                 .users(users)
                 .courses(courses)
                 .build();
-    }
-
-    public List<Users> findOnlyUsers() {
-        return userRepo.findOnlyUsers();
     }
 
     public UserInfo buildUserInfo(final Users user) {
@@ -81,8 +84,8 @@ public class AdminService {
                 .map(this::buildUserInfo).toList();
         final var course = courseRepo.findAll();
 
-        final var learner = user.stream().filter(u -> u.role.equals(LEARNER_ROLE) || u.role.equals("user")).toList();
-        final var lecturer = user.stream().filter(u -> u.role.equals(LECTURER_ROLE)).toList();
+        final var learner = user.stream().filter(u -> u.getRole().equals(LEARNER_ROLE) || u.getRole().equals("user")).toList();
+        final var lecturer = user.stream().filter(u -> u.getRole().equals(LECTURER_ROLE)).toList();
 
         return CardCount.builder()
                 .lecturers(lecturer.size())
@@ -103,9 +106,9 @@ public class AdminService {
     public UserCount countUser() {
         final var users = userRepo.findAll().stream().map(this::buildUserInfo).toList();
 
-        final var learner = users.stream().filter(u -> u.role.equals(LEARNER_ROLE) || u.role.equals("user")).toList();
-        final var lecturer = users.stream().filter(u -> u.role.equals(LECTURER_ROLE)).toList();
-        final var admin = users.stream().filter(u -> u.role.equals("admin")).toList();
+        final var learner = users.stream().filter(u -> u.getRole().equals(LEARNER_ROLE) || u.getRole().equals("user")).toList();
+        final var lecturer = users.stream().filter(u -> u.getRole().equals(LECTURER_ROLE)).toList();
+        final var admin = users.stream().filter(u -> u.getRole().equals("admin")).toList();
 
         return UserCount.builder()
                 .all(users.size())
@@ -120,5 +123,29 @@ public class AdminService {
                 .orElseThrow(() -> new NotFoundException("Cannot found user with id:" + String.valueOf(userId)));
         user.setActive(!user.isActive());
         return buildUserInfo(userRepo.save(user));
+    }
+
+    public Page<CourseInfo> getCourse(final String text, final String status, final String level, final String category, final String topic, final Pageable page) {
+        final var course = courseRepo.findAllBy(text, status, level, category, topic, page);
+        return course.map(this::buildCourseInfo);
+    }
+
+    public CourseInfo buildCourseInfo(final Courses course) {
+        return CourseInfo.builder()
+                .courseId(course.getCourseId())
+                .image(course.getImage())
+                .price(course.getPrice())
+                .category(course.getCategory())
+                .content(course.getContent())
+                .description(course.getDescription())
+                .is_paid(course.isIs_paid())
+                .title(course.getTitle())
+                .lecturer(course.getLecturer() != null
+                        ? course.getLecturer().getFirstname() + ' ' + course.getLecturer().getFirstname()
+                        : "")
+                .level(course.getLevel())
+                .requirement(course.getRequirement())
+                .topic(course.getTopic())
+                .build();
     }
 }

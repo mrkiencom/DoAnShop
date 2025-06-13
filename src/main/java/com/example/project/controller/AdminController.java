@@ -1,6 +1,6 @@
 package com.example.project.controller;
 
-import com.example.project.service.model.admin.AdminService;
+import com.example.project.service.AdminService;
 import com.example.project.service.model.admin.UserInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -118,5 +119,55 @@ public class AdminController {
         final Map<String, Object> result = new HashMap<>();
         result.put("userInfo", adminService.changeActive(id));
         return result;
+    }
+
+    @GetMapping("/adminPage/course-page")
+    public String getCourse(@RequestParam(value = "text", required = false, defaultValue = "") final String text,
+                            @RequestParam(value = "status", required = false, defaultValue = "") final String status,
+                            @RequestParam(value = "level", required = false, defaultValue = "") final String level,
+                            @RequestParam(value = "category", required = false, defaultValue = "") final String category,
+                            @RequestParam(value = "topic", required = false, defaultValue = "") final String topic,
+                            @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
+                            @RequestParam(value = "size", required = false, defaultValue = "5") final int size,
+                            final Model model) {
+        final Pageable pageable = PageRequest.of(page, size);
+        final var courses = adminService.getCourse(text, status, level, category, topic, pageable);
+
+        model.addAttribute("courses", courses);
+        model.addAttribute("text", text);
+        model.addAttribute("status", status);
+        model.addAttribute("level", level);
+        model.addAttribute("category", category);
+        model.addAttribute("topic", topic);
+        model.addAttribute("contentTemplate", "admins/course");
+        model.addAttribute("allCategories", List.of(
+                "Web Development",
+                "Data Science",
+                "Mobile Development",
+                "Programming Languages",
+                "Game Development",
+                "Database Design & Development",
+                "Software Testing",
+                "Software Engineering",
+                "Software Development Tools"
+        ));
+
+        model.addAttribute("allTopics", List.of(
+                "Machine Learning",
+                "Artificial Intelligence (AI)",
+                "Large Language Models (LLM)",
+                "Python",
+                "AI Agents",
+                "Deep Learning",
+                "Generative AI (GenAI)",
+                "LangChain"
+        ));
+        model.addAttribute("allLevel", List.of(
+                "All Levels", "Beginner", "Intermediate", "expect"
+        ));
+        model.addAttribute("AllStatus", List.of(
+                "Waiting", "Approved"
+        ));
+        return "admins/layout";
     }
 }
