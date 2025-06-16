@@ -133,7 +133,7 @@ public class AdminController {
                             @RequestParam(value = "category", required = false, defaultValue = "") final String category,
                             @RequestParam(value = "topic", required = false, defaultValue = "") final String topic,
                             @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
-                            @RequestParam(value = "size", required = false, defaultValue = "5") final int size,
+                            @RequestParam(value = "size", required = false, defaultValue = "6") final int size,
                             final Model model) {
         final Pageable pageable = PageRequest.of(page, size);
         final var courses = adminService.getCourse(text, status, level, category, topic, pageable);
@@ -188,7 +188,7 @@ public class AdminController {
                              @RequestParam(value = "status", required = false, defaultValue = "") final String status,
                              @RequestParam(value = "type", required = false, defaultValue = "") final String type,
                              @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
-                             @RequestParam(value = "size", required = false, defaultValue = "5") final int size,
+                             @RequestParam(value = "size", required = false, defaultValue = "6") final int size,
                              final Model model) {
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 

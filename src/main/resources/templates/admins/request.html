@@ -1,74 +1,65 @@
-<div class="max-w-7xl w-[900px] mx-auto flex flex-col min-h-screen" th:fragment="content">
+<div class="mx-auto flex flex-col min-h-screen px-6 w-full max-w-screen-2xl" th:fragment="content">
     <h1 class="text-2xl font-extrabold mb-8">All Requests</h1>
 
 
-    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-6 w-[900px]">
-        <div class="flex items-center w-full sm:w-[calc(100%-96px)] bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-600">
-            <i class="fas fa-search text-gray-400 mr-3"></i>
+    <div class="flex flex-wrap items-center gap-3 mb-6 w-full max-w-full">
+
+        <!-- Ô tìm kiếm -->
+        <div class="flex items-center bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 flex-1 min-w-[250px]">
+            <i class="fas fa-search text-gray-400 mr-2"></i>
             <input id="searchText"
                    type="search"
                    name="text"
                    placeholder="Search..."
-                   class="w-full text-sm text-gray-500 placeholder-gray-400 focus:outline-none"
+                   class="w-full text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
                    th:value="${text}"
                    aria-label="Search customers"
                    onkeyup="loadRequest(
-            this.value,
-            document.getElementById('status').value,
-            document.getElementById('type').value,
-            )"/>
+                   this.value,
+                   document.getElementById('status').value,
+                   document.getElementById('type').value
+               )"/>
         </div>
-    </div>
 
-    <nav class="flex items-center space-x-8 mb-6 text-gray-800 text-base font-medium">
+        <!-- Type -->
         <select id="type" name="type"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="min-w-[140px] text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 onchange="loadRequest(
-            document.getElementById('searchText').value,
-            document.getElementById('status').value,
-            this.value
-        )">
-            <!-- Placeholder -->
-            <option value="" disabled
-                    th:selected="${type == null or type == ''}">
-                Type
-            </option>
-
-            <!-- Danh sách types -->
+                document.getElementById('searchText').value,
+                document.getElementById('status').value,
+                this.value
+            )">
+            <option value="" disabled th:selected="${type == null or type == ''}">Type</option>
             <option th:each="t : ${allTypes}"
                     th:value="${t}"
                     th:text="${t}"
-                    th:selected="${t == type}">
-            </option>
+                    th:selected="${t == type}"></option>
         </select>
-        <select id="status" name="status"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                onchange="loadRequest(
-            document.getElementById('searchText').value,
-            this.value,
-            document.getElementById('type').value
-        )">
-            <!-- Placeholder -->
-            <option value="" disabled
-                    th:selected="${status == null or status == ''}">
-                Status
-            </option>
 
-            <!-- Danh sách status -->
+        <!-- Status -->
+        <select id="status" name="status"
+                class="min-w-[140px] text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                onchange="loadRequest(
+                document.getElementById('searchText').value,
+                this.value,
+                document.getElementById('type').value
+            )">
+            <option value="" disabled th:selected="${status == null or status == ''}">Status</option>
             <option th:each="s : ${AllStatus}"
                     th:value="${s}"
                     th:text="${s}"
-                    th:selected="${s == status}">
-            </option>
+                    th:selected="${s == status}"></option>
         </select>
+
+        <!-- Nút clear -->
         <button type="button"
                 onclick="clearFilters()"
-                class="ml-2 text-gray-400 hover:text-red-500 text-lg focus:outline-none"
+                class="text-gray-400 hover:text-red-500 text-xl focus:outline-none transition duration-150"
                 aria-label="Clear filters">
             &times;
         </button>
+    </div>
 
-    </nav>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200">
         <table class="min-w-full divide-y divide-gray-200">
@@ -89,11 +80,11 @@
                 th:onclick="'window.location.href=\'/adminPage/request-detail?id=' + ${request.id} + '\';'">
 
                 <td class="p-3">
-                    <p class="truncate max-w-[200px] font-semibold text-gray-400 text-xs select-text"
+                    <p class="truncate max-w-[180px] font-semibold text-gray-400 text-xs select-text"
                        th:text="${request.submissionName}"></p>
                 </td>
                 <td class="p-3">
-                    <p class="truncate max-w-[300px] font-semibold text-gray-400 text-xs select-text"
+                    <p class="truncate max-w-[320px] font-semibold text-gray-400 text-xs select-text"
                        th:text="${request.message}"
                        th:attr="title=${request.message}"></p>
                 </td>

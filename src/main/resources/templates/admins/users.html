@@ -1,4 +1,4 @@
-<div class="max-w-7xl w-[900px] mx-auto flex flex-col min-h-screen" th:fragment="content">
+<div class="mx-auto flex flex-col min-h-screen px-6 w-full max-w-screen-2xl" th:fragment="content">
 
     <!-- HEADER -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -8,7 +8,7 @@
     </header>
 
     <!-- FILTER TABS -->
-    <section class="mb-6 flex flex-wrap gap-6 text-sm font-normal text-gray-700 w-[900px]">
+    <section class="mb-6 flex flex-wrap gap-6 text-sm font-normal text-gray-700 ">
         <button type="button" aria-current="true"
                 class="user-filter-btn flex items-center gap-2 font-semibold border-b-2 border-gray-900 pb-1"
                 onclick="clickToLoadUser(this,'','','')">
@@ -43,7 +43,7 @@
     <div th:fragment="listUserAfterClickButton">
         <!-- SEARCH + FILTER -->
         <section class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center w-full sm:w-[calc(100%-96px)] bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-600">
+            <div class="flex items-center w-full  bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-600">
                 <i class="fas fa-search text-gray-400 mr-3"></i>
                 <input id="searchText" type="search" placeholder="Search..."
                        class="w-full text-sm text-gray-500 placeholder-gray-400 focus:outline-none"
@@ -88,7 +88,7 @@
         </section>
 
 
-        <div class="w-[900px] mx-auto border border-gray-200 rounded-lg overflow-hidden">
+        <div class=" mx-auto border border-gray-200 rounded-lg overflow-hidden">
             <!-- TABLE SECTION -->
             <section class="overflow-auto">
                 <table class="w-full table-fixed border-collapse">
@@ -144,33 +144,33 @@
         </div>
 
         <footer class="flex items-center justify-end space-x-6 text-xs text-gray-600 font-normal select-none px-4 py-3">
-            <div th:text="${usersPage.number * usersPage.size + 1} + '-' + (${usersPage.number + 1}) * ${usersPage.size} + ' of ' + ${usersPage.totalElements}"></div>
+            <div th:text="${usersPage.number * usersPage.size + 1} + '-' + (${usersPage.number + 1} * ${usersPage.size} > ${usersPage.totalElements} ? ${usersPage.totalElements} : (${usersPage.number + 1} * ${usersPage.size})) + ' of ' + ${usersPage.totalElements}">
 
-            <button type="button"
-                    aria-label="Previous page"
-                    class="pagination-btn text-gray-400 hover:text-gray-600"
-                    th:classappend="${usersPage.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
-                    th:attr="data-page=(${currentPage} - 1),
+                <button type="button"
+                        aria-label="Previous page"
+                        class="pagination-btn text-gray-400 hover:text-gray-600"
+                        th:classappend="${usersPage.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                        th:attr="data-page=(${currentPage} - 1),
                      data-size=${pageSize},
                      data-filter=${filter},
                      data-text=${text},
                      data-status=${status}"
-                    th:disabled="${usersPage.first}">
-                <i class="fas fa-chevron-left"></i>
-            </button>
+                        th:disabled="${usersPage.first}">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
 
-            <button type="button"
-                    aria-label="Next page"
-                    class="pagination-btn text-gray-400 hover:text-gray-600"
-                    th:classappend="${usersPage.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
-                    th:attr="data-page=(${currentPage} + 1),
+                <button type="button"
+                        aria-label="Next page"
+                        class="pagination-btn text-gray-400 hover:text-gray-600"
+                        th:classappend="${usersPage.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                        th:attr="data-page=(${currentPage} + 1),
                      data-size=${pageSize},
                      data-filter=${filter},
                      data-text=${text},
                      data-status=${status}"
-                    th:disabled="${usersPage.last}">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+                        th:disabled="${usersPage.last}">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
         </footer>
 
     </div>
