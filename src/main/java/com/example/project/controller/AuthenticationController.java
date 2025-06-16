@@ -4,6 +4,7 @@ import com.example.project.model.UserPrincipal;
 import com.example.project.model.Users;
 import com.example.project.service.AdminService;
 import com.example.project.service.AuthenticationService;
+import com.example.project.service.RequestService;
 import com.example.project.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final AdminService adminService;
+    private final RequestService requestService;
 
     @GetMapping("/login")
     public String login() {
@@ -82,9 +84,11 @@ public class AuthenticationController {
     @GetMapping("/adminPage")
     public String adminPage(final Model model) {
         final var dashboard = adminService.getDashboard();
+        final var list = requestService.getLimitRequestBell();
+
         model.addAttribute("dashboard", dashboard);
         model.addAttribute("contentTemplate", "admins/dashboard");
-
+        model.addAttribute("listRequestBell", list);
         return "admins/layout";
     }
 

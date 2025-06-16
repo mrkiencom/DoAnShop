@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>
+        Request to lecturer
+    </title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .grid_custome {
+            width: 1200px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .fullscreen-overlay {
+            /* Sử dụng visibility và opacity để chuyển đổi mượt mà */
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
+
+        .fullscreen-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Thêm style cho video để đảm bảo nó vừa với overlay */
+        .fullscreen-overlay video {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain; /* Đảm bảo video vừa vặn mà không bị cắt */
+        }
+    </style>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="bg-white text-gray-900">
+<!-- Main content -->
+<div class="flex ">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-10 md:py-14 flex flex-col md:flex-row gap-10">
+        <!-- Left content -->
+        <th:block th:if="${id != null and message == null}">
+            <form action="/submit-request" method="post"
+                  class="bg-white shadow-md rounded-md p-6 w-full max-w-2xl mx-auto">
+                <h2 class="text-2xl font-extrabold mb-4 text-gray-900">Yêu cầu trở thành giảng viên</h2>
+
+                <!-- Hidden input để gửi ID -->
+                <input type="hidden" name="id" th:value="${id}"/>
+
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Tại sao bạn muốn trở thành giảng viên?
+                </label>
+                <textarea id="description" name="description" rows="6"
+                          class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="Hãy chia sẻ ngắn gọn lý do bạn muốn trở thành giảng viên..."></textarea>
+
+                <button type="submit"
+                        class="mt-4 bg-green-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-700 transition">
+                    Gửi yêu cầu
+                </button>
+            </form>
+        </th:block>
+        <th:block th:if="${message != null}">
+            <div class="text-center p-8 bg-white rounded-xl shadow-lg" th:if="${message == 'successful' }">
+                <h1 class="text-3xl font-bold text-green-600 mb-4">Thành công!</h1>
+                <p class="text-gray-700 mb-6">Yêu cầu của bạn đã được gửi. Chúng tôi sẽ phản hồi sớm nhất.</p>
+                <a href="/" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-lg">Quay
+                    về trang chủ</a>
+            </div>
+            <div class="text-center p-8 bg-white rounded-xl shadow-lg" th:if="${message == 'failed' }">
+                <h1 class="text-3xl font-bold text-red-600 mb-4">Không thành công!</h1>
+                <p class="text-gray-700 mb-6">Yêu cầu của bạn đã không được gửi. Có vẻ đã gặp một sự cố gì đó, chúng tôi
+                    sẽ phản hồi sớm nhất.</p>
+                <a href="/" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-lg">Quay
+                    về trang chủ</a>
+            </div>
+        </th:block>
+
+
+    </div>
+</div>
+</body>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</html>

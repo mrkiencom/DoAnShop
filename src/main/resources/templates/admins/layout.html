@@ -7,6 +7,8 @@
     </title>
     <script src="https://cdn.tailwindcss.com">
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
@@ -49,6 +51,25 @@
         #userList, #chartContent {
             width: 100%;
         }
+
+        #notificationContent a:hover {
+            background-color: #f3f4f6; /* Tailwind: bg-gray-100 */
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.6;
+            }
+        }
+
+        .unread-dot {
+            animation: pulse-dot 1.2s infinite;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-tr from-[#dbe5ff] to-[#f0f4ff] flex items-center justify-center p-6">
@@ -87,7 +108,7 @@
                 </a>
                 <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
                hover:scale-105 hover:shadow-lg"
-                   href="#">
+                   href="/adminPage/request-page">
                     <i class="fas fa-users text-white text-base"></i>
                     Request
                 </a>
@@ -111,31 +132,129 @@
         </div>
     </aside>
     <!-- Main content -->
-    <main class="flex-1 p-8 flex flex-col gap-8 overflow-hidden">
+
+    <main class="flex-1 p-8 flex flex-col gap-8 overflow-visible">
+        <!-- Notification Bell -->
+        <!-- Notification Bell -->
+        <div class="flex justify-end mb-4 relative" th:if="${listRequestBell != null}">
+            <button id="notificationBtn" class="text-gray-700 hover:text-gray-900 focus:outline-none relative">
+                <i class="fas fa-bell text-2xl"></i>
+            </button>
+            <span id="bellDot"
+                  class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full unread-dot hidden">
+  </span>
+            <!-- Notification List -->
+            <div id="notificationList"
+                 class="absolute top-full right-0 mt-2 w-[350px] max-h-[400px] overflow-y-auto bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
+                <div class="p-4 border-b font-semibold text-gray-700">Thông báo gần đây</div>
+
+                <div id="notificationContent">
+                    <a th:href="@{'/adminPage/request-detail'(id=${noti.id})}"
+                       th:each="noti : ${listRequestBell}"
+                       class="block px-4 py-2 border-b text-sm text-gray-800 hover:bg-gray-100 rounded unread">
+                        <div class="flex items-start gap-2">
+                            <!-- 🔴 Dấu chấm đỏ nhỏ, chỉ hiện khi chưa đọc -->
+                            <div class="w-2 h-2 mt-2 bg-red-500 rounded-full unread-dot"></div>
+
+                            <!-- Nội dung thông báo -->
+                            <div class="flex flex-col">
+                        <span><strong th:text="${noti.getSubmissionName}">Sender</strong>:
+                            <span th:text="${noti.message}">Message content...</span></span>
+                                <span class="text-xs text-gray-400" th:text="${noti.timestamp}">2025-06-15T15:30</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div th:replace="${contentTemplate} :: content"></div>
     </main>
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        let notificationCount = 0;
         let currentPath = window.location.pathname;
         const links = document.querySelectorAll(".sidebar-link");
-        console.log(currentPath)
+        const bellDot = document.getElementById("bellDot");
+
+        console.log(currentPath);
         links.forEach(link => {
             const href = link.getAttribute("href");
             if (currentPath === '/adminPage') {
                 currentPath = "/adminPage/dashboard";
             }
-            // Nếu đúng path thì gắn class highlight
             if (currentPath === href || currentPath.startsWith(href)) {
                 link.classList.add("bg-white", "bg-opacity-20", "rounded-2xl", "px-4", "py-3");
                 link.classList.remove("transition-colors");
-
             } else {
                 link.classList.remove("bg-white", "bg-opacity-20", "rounded-2xl", "px-4", "py-3");
                 link.classList.add("transition-colors");
             }
         });
+
+        const listContainer = document.getElementById("notificationContent");
+        const notificationListWrapper = document.getElementById("notificationList");
+
+        // Hiện dot nếu có thông báo chưa đọc
+        const initialUnread = document.querySelectorAll(".unread").length;
+        if (initialUnread > 0 && bellDot) {
+            bellDot.classList.remove("hidden");
+        }
+
+        const bell = document.getElementById("notificationBtn");
+        if (bell) {
+            bell.addEventListener("click", () => {
+                notificationListWrapper.classList.toggle("hidden");
+
+                // Ẩn dot trên chuông
+                notificationCount = 0;
+                if (bellDot) bellDot.classList.add("hidden");
+
+                // Xoá dot đỏ ở từng item
+                const unreadItems = listContainer.querySelectorAll(".unread");
+                unreadItems.forEach(item => {
+                    item.classList.remove("unread");
+                    const dot = item.querySelector(".unread-dot");
+                    if (dot) dot.remove();
+                });
+            });
+        }
+
+        // Kết nối WebSocket
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/admin/notifications', function (message) {
+                notificationCount++;
+
+                // Hiện dot trên chuông nếu có thông báo mới
+                if (bellDot) bellDot.classList.remove("hidden");
+
+                const data = JSON.parse(message.body);
+                console.log(data);
+
+                const item = document.createElement("a");
+                item.href = `/adminPage/request-detail?id=${data.requestId}`;
+                item.className = "block px-4 py-2 border-b text-sm text-gray-800 hover:bg-gray-100 rounded unread";
+                item.innerHTML = `
+                <div class="flex items-start gap-2">
+                    <span class="inline-block w-2 h-2 bg-red-500 rounded-full mt-2 unread-dot"></span>
+                    <div>
+                        <strong>${data.sender}</strong>: <span>${data.message}</span>
+                        <div class="text-xs text-gray-400">${data.timestamp}</div>
+                    </div>
+                </div>
+            `;
+
+                listContainer.prepend(item);
+            });
+        });
     });
+
+
 </script>
 </body>
 </html>

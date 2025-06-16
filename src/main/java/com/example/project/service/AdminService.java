@@ -2,13 +2,16 @@ package com.example.project.service;
 
 import com.example.project.exception.NotFoundException;
 import com.example.project.model.Courses;
+import com.example.project.model.Requests;
 import com.example.project.model.Users;
 import com.example.project.repo.CourseRepo;
+import com.example.project.repo.RequestRepo;
 import com.example.project.repo.UserRepo;
 import com.example.project.service.model.admin.CardCount;
 import com.example.project.service.model.admin.Chart;
 import com.example.project.service.model.admin.CourseInfo;
 import com.example.project.service.model.admin.Dashboard;
+import com.example.project.service.model.admin.RequestInfo;
 import com.example.project.service.model.admin.UserCount;
 import com.example.project.service.model.admin.UserInfo;
 import lombok.AllArgsConstructor;
@@ -27,6 +30,7 @@ import java.util.List;
 public class AdminService {
     private final UserRepo userRepo;
     private final CourseRepo courseRepo;
+    private final RequestRepo requestRepo;
 
     private static final String LECTURER_ROLE = "lecturer";
     private static final String LEARNER_ROLE = "learner";
@@ -147,5 +151,57 @@ public class AdminService {
                 .requirement(course.getRequirement())
                 .topic(course.getTopic())
                 .build();
+    }
+
+    private RequestInfo buildRequest(final Requests request) {
+        return RequestInfo.builder()
+                .id(request.getId())
+                .senderId(request.getUser().getId())
+                .submissionName(request.getSubmissionName())
+                .sender(request.getUser().getUsername())
+                .message(request.getDescription())
+                .type(request.getType())
+                .status(request.getStatus())
+                .timestamp(request.getCreatedAt())
+                .doneDate(request.getDoneDate())
+                .build();
+    }
+
+    public Page<RequestInfo> getRequests(final String text, final String type, final String status, final Pageable pageable) {
+        return requestRepo.getRequests(text, type, status, pageable).map(this::buildRequest);
+    }
+
+    public RequestInfo getRequestById(final int id) {
+        return requestRepo.findById(id).map(this::buildRequest).orElse(null);
+    }
+
+    public RequestInfo handleRequest(final int id, final boolean approve) {
+        final var request = requestRepo.findById(id).orElseThrow();
+
+        if (request.getDoneDate() != null) {
+            return null;
+        }
+
+        final var type = request.getType();
+
+        final var status = approve ? "Approved" : "Denied";
+
+        if (type.equals("To Lecturer")) {
+            final var user = request.getUser();
+            if (approve) {
+                user.setRole("lecturer");
+                userRepo.save(user);
+            }
+        } else {
+            final var course = courseRepo.findById(request.getSubmissionId()).orElseThrow();
+            course.setStatus(approve ? "Approved" : "Denied");
+        }
+
+        request.setStatus(status);
+        request.setDoneDate(LocalDateTime.now());
+
+        requestRepo.save(request);
+
+        return buildRequest(request);
     }
 }

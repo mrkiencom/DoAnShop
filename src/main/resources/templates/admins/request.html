@@ -1,0 +1,257 @@
+<div class="max-w-7xl w-[900px] mx-auto flex flex-col min-h-screen" th:fragment="content">
+    <h1 class="text-2xl font-extrabold mb-8">All Requests</h1>
+
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-6 w-[900px]">
+        <div class="flex items-center w-full sm:w-[calc(100%-96px)] bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-600">
+            <i class="fas fa-search text-gray-400 mr-3"></i>
+            <input id="searchText"
+                   type="search"
+                   name="text"
+                   placeholder="Search..."
+                   class="w-full text-sm text-gray-500 placeholder-gray-400 focus:outline-none"
+                   th:value="${text}"
+                   aria-label="Search customers"
+                   onkeyup="loadRequest(
+            this.value,
+            document.getElementById('status').value,
+            document.getElementById('type').value,
+            )"/>
+        </div>
+    </div>
+
+    <nav class="flex items-center space-x-8 mb-6 text-gray-800 text-base font-medium">
+        <select id="type" name="type"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                onchange="loadRequest(
+            document.getElementById('searchText').value,
+            document.getElementById('status').value,
+            this.value
+        )">
+            <!-- Placeholder -->
+            <option value="" disabled
+                    th:selected="${type == null or type == ''}">
+                Type
+            </option>
+
+            <!-- Danh sách types -->
+            <option th:each="t : ${allTypes}"
+                    th:value="${t}"
+                    th:text="${t}"
+                    th:selected="${t == type}">
+            </option>
+        </select>
+        <select id="status" name="status"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                onchange="loadRequest(
+            document.getElementById('searchText').value,
+            this.value,
+            document.getElementById('type').value
+        )">
+            <!-- Placeholder -->
+            <option value="" disabled
+                    th:selected="${status == null or status == ''}">
+                Status
+            </option>
+
+            <!-- Danh sách status -->
+            <option th:each="s : ${AllStatus}"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${s == status}">
+            </option>
+        </select>
+        <button type="button"
+                onclick="clearFilters()"
+                class="ml-2 text-gray-400 hover:text-red-500 text-lg focus:outline-none"
+                aria-label="Clear filters">
+            &times;
+        </button>
+
+    </nav>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+            <tr>
+                <th class="p-3 w-[15%] text-left text-xs font-semibold text-gray-700">Submissions Name</th>
+                <th class="p-3 w-[35%] text-left text-xs font-semibold text-gray-700">Description</th>
+                <th class="p-3 w-[12%] text-left text-xs font-semibold text-gray-700">Type</th>
+                <th class="p-3 w-[8%] py-3 text-left text-xs font-semibold text-gray-700">Status</th>
+                <th class="p-3 w-[15%] text-left text-xs font-semibold text-gray-700">Request At</th>
+                <th class="p-3 w-[13%] text-left text-xs font-semibold text-gray-700">From</th>
+                <th class="p-3 w-[2%]"></th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 text-sm font-normal text-gray-900">
+            <tr th:each="request : ${requests.content}"
+                class="hover:bg-gray-100 h-[52px] cursor-pointer"
+                th:onclick="'window.location.href=\'/adminPage/request-detail?id=' + ${request.id} + '\';'">
+
+                <td class="p-3">
+                    <p class="truncate max-w-[200px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.submissionName}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="truncate max-w-[300px] font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.message}"
+                       th:attr="title=${request.message}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.type}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.status}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.timestamp}"></p>
+                </td>
+                <td class="p-3">
+                    <p class="font-semibold text-gray-400 text-xs select-text"
+                       th:text="${request.sender}"></p>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-400 text-lg cursor-pointer">
+                    <i class="fas fa-ellipsis-v"></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="flex items-center justify-end space-x-6 text-xs text-gray-600 font-normal select-none px-4 py-3">
+        <div th:text="${requests.number * requests.size + 1} + '-' + (${requests.number + 1} * ${requests.size} > ${requests.totalElements} ? ${requests.totalElements} : (${requests.number + 1} * ${requests.size})) + ' of ' + ${requests.totalElements}">
+        </div>
+
+
+        <button
+                type="button"
+                aria-label="Previous page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${requests.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${requests.number - 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-type=${type}"
+                th:disabled="${requests.first}">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button
+                type="button"
+                aria-label="Next page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${requests.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${requests.number + 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-type=${type},
+           data-category=${category},
+           data-topic=${topic}"
+                th:disabled="${requests.last}">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </footer>
+    <script>
+        function loadRequest(text, status, type) {
+            const url = `/adminPage/request-page?text=${encodeURIComponent(text)}`
+                + `&status=${encodeURIComponent(status)}`
+                + `&type=${encodeURIComponent(type)}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Cập nhật bảng
+                    const newTable = doc.querySelector('table');
+                    const oldTable = document.querySelector('table');
+                    if (newTable && oldTable) {
+                        oldTable.replaceWith(newTable);
+                    }
+
+                    // Cập nhật phân trang
+                    const newFooter = doc.querySelector('footer');
+                    const oldFooter = document.querySelector('footer');
+                    if (newFooter && oldFooter) {
+                        oldFooter.replaceWith(newFooter);
+                    }
+
+                    setupPagination(); // Gắn lại sự kiện cho nút chuyển trang
+                })
+                .catch(error => {
+                    console.error("Error loading requests:", error);
+                });
+        }
+
+        function clearFilters() {
+            document.getElementById('searchText').value = '';
+            document.getElementById('status').value = '';
+            document.getElementById('type').value = '';
+
+            loadRequest('', '', '');
+        }
+
+        function setupPagination() {
+            document.querySelectorAll('.pagination-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    if (this.disabled) return;
+
+                    const page = this.getAttribute('data-page');
+                    const size = this.getAttribute('data-size') || 5;
+
+                    const text = document.getElementById('searchText').value;
+                    const status = document.getElementById('status').value;
+                    const type = document.getElementById('type').value;
+
+                    const url = `/adminPage/request-page?page=${page}&size=${size}`
+                        + `&text=${encodeURIComponent(text)}`
+                        + `&status=${encodeURIComponent(status)}`
+                        + `&type=${encodeURIComponent(type)}`;
+
+
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            const newTable = doc.querySelector('table');
+                            const oldTable = document.querySelector('table');
+                            if (newTable && oldTable) {
+                                oldTable.replaceWith(newTable);
+                            }
+
+                            const newFooter = doc.querySelector('footer');
+                            const oldFooter = document.querySelector('footer');
+                            if (newFooter && oldFooter) {
+                                oldFooter.replaceWith(newFooter);
+                            }
+
+                            setupPagination(); // Gắn lại sự kiện sau khi load trang mới
+                        })
+                        .catch(error => {
+                            console.error("Error on pagination:", error);
+                        });
+                });
+            });
+        }
+
+        // Gọi khi trang load lần đầu
+        document.addEventListener("DOMContentLoaded", function () {
+            setupPagination();
+        });
+    </script>
+
+</div>
+
+

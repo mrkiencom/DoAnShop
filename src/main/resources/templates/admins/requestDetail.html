@@ -1,0 +1,91 @@
+<div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-3xl mx-auto" th:fragment="content">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Request Detail</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+
+        <!-- Submission Name -->
+        <div>
+            <p class="text-gray-500 mb-1">Submission Name</p>
+            <p class="text-base font-semibold text-gray-800" th:text="${request.submissionName}">Course A</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500 mb-1">Sender Name</p>
+            <p class="text-base font-semibold text-gray-800" th:text="${request.sender}">John Doe</p>
+        </div>
+
+        <!-- Type -->
+        <div>
+            <p class="text-gray-500 mb-1">Type</p>
+            <span class="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-600 font-medium text-sm"
+                  th:text="${request.type}">Course Request</span>
+        </div>
+
+        <!-- Status -->
+        <div>
+            <p class="text-gray-500 mb-1">Status</p>
+            <span class="inline-block px-3 py-1 rounded-full font-medium text-sm"
+                  th:text="${request.status}"
+                  th:classappend="${request.status == 'Approved'} ?
+                         'bg-green-100 text-green-700' :
+                      (${request.status == 'Denied'} ?
+                         'bg-red-100 text-red-700' :
+                         'bg-yellow-100 text-yellow-700')">
+            </span>
+        </div>
+
+        <!-- Timestamp -->
+        <div class="md:col-span-2">
+            <p class="text-gray-500 mb-1">Submitted At</p>
+            <p class="text-base font-semibold text-gray-800"
+               th:text="${#temporals.format(request.timestamp, 'yyyy-MM-dd HH:mm')}">2025-06-16 12:00</p>
+        </div>
+
+        <!-- Message -->
+        <div class="md:col-span-2">
+            <p class="text-gray-500 mb-1">Message</p>
+            <div class="whitespace-pre-wrap px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 h-[210px]"
+                 th:text="${request.message}">
+                Request for uploading course A about advanced math...
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 flex justify-between items-center">
+        <!-- Nút Back nằm trái -->
+        <a href="/adminPage/request-page"
+           class="inline-block px-6 py-2 text-sm font-medium text-black transition">
+            ← Back to Request List
+        </a>
+
+        <!-- Cụm xử lý yêu cầu: nếu đã xử lý thì hiện text, chưa thì hiện 2 nút -->
+        <div th:if="${request.doneDate != null}" class="text-sm text-gray-600 text-center">
+            Request has been <span th:text="${request.status.toLowerCase()}">approved</span> at
+            <span th:text="${#temporals.format(request.doneDate, 'yyyy-MM-dd HH:mm')}">2025-06-16 13:00</span>
+        </div>
+
+        <div th:if="${request.doneDate == null}" class="flex space-x-4">
+            <!-- Approve Button -->
+            <form th:action="@{/adminPage/handle-request}" method="post">
+                <input type="hidden" name="id" th:value="${request.id}"/>
+                <input type="hidden" name="approve" value="true"/>
+                <button type="submit"
+                        class="px-5 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition">
+                    Approve
+                </button>
+            </form>
+
+            <!-- Deny Button -->
+            <form th:action="@{/adminPage/handle-request}" method="post">
+                <input type="hidden" name="id" th:value="${request.id}"/>
+                <input type="hidden" name="approve" value="false"/>
+                <button type="submit"
+                        class="px-5 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition">
+                    Deny
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+</div>

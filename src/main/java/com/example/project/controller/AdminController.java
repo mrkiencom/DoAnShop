@@ -1,6 +1,7 @@
 package com.example.project.controller;
 
 import com.example.project.service.AdminService;
+import com.example.project.service.RequestService;
 import com.example.project.service.model.admin.UserInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Controller
 public class AdminController {
     final AdminService adminService;
+    final RequestService requestService;
 
     @GetMapping("/adminPage/users")
     public String getUsers(@RequestParam final String timeRangeUser, final Model model) {
@@ -83,9 +85,12 @@ public class AdminController {
     @GetMapping("/adminPage/dashboard")
     public String getDashBoard(final Model model) {
         final var dashboard = adminService.getUsers("defaultTimeRange");
+        final var list = requestService.getLimitRequestBell();
+
         model.addAttribute("dashboard", dashboard);
         model.addAttribute("timeRangeUser", "defaultTimeRange");
         model.addAttribute("contentTemplate", "admins/dashboard");
+        model.addAttribute("listRequestBell", list);
 
         return "admins/layout";
     }
@@ -168,6 +173,69 @@ public class AdminController {
         model.addAttribute("AllStatus", List.of(
                 "Waiting", "Approved"
         ));
+        return "admins/layout";
+    }
+
+    @GetMapping("/adminPage/get-request-bell")
+    public String getRequestBell(final Model model) {
+        final var list = requestService.getLimitRequestBell();
+        model.addAttribute("listRequestBell", list);
+        return "admins/layout";
+    }
+
+    @GetMapping("/adminPage/request-page")
+    public String getRequest(@RequestParam(value = "text", required = false, defaultValue = "") final String text,
+                             @RequestParam(value = "status", required = false, defaultValue = "") final String status,
+                             @RequestParam(value = "type", required = false, defaultValue = "") final String type,
+                             @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
+                             @RequestParam(value = "size", required = false, defaultValue = "5") final int size,
+                             final Model model) {
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        final var request = adminService.getRequests(text, type, status, pageable);
+
+        model.addAttribute("requests", request);
+        model.addAttribute("text", text);
+        model.addAttribute("status", status);
+        model.addAttribute("type", type);
+        model.addAttribute("contentTemplate", "admins/request");
+        model.addAttribute("allTypes", List.of(
+                "To Lecturer", "Up load course"
+        ));
+        model.addAttribute("AllStatus", List.of(
+                "Waiting", "Approved", "Denied"
+        ));
+        return "admins/layout";
+    }
+
+    @GetMapping("/adminPage/request-detail")
+    public String getRequestDetail(@RequestParam(value = "id") final int id, final Model model) {
+        final var request = adminService.getRequestById(id);
+
+        if (request == null) {
+            model.addAttribute("contentTemplate", "admins/notfound");
+
+            return "admin/layout";
+        }
+        model.addAttribute("request", request);
+        model.addAttribute("contentTemplate", "admins/requestDetail");
+
+        return "admins/layout";
+    }
+
+    @PostMapping("adminPage/handle-request")
+    public String handleRequest(@RequestParam(value = "id") final int id,
+                                @RequestParam(value = "approve") final boolean approve,
+                                final Model model) {
+        final var request = adminService.handleRequest(id, approve);
+
+        if (request == null) {
+            model.addAttribute("message", "failed");
+        } else {
+            model.addAttribute("request", request);
+            model.addAttribute("contentTemplate", "admins/requestDetail");
+        }
+
         return "admins/layout";
     }
 }
