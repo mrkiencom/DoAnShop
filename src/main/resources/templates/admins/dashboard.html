@@ -67,10 +67,11 @@
 
     </div>
     <!-- Bottom cards -->
-    <section class=" flex flex-col sm:flex-row gap-8 overflow-hidden">
+    <section class="flex flex-col sm:flex-row gap-8 overflow-hidden">
         <!-- Registered Users -->
         <div th:fragment="usersListAndCount"
-             class="flex-1 bg-white rounded-2xl p-6 shadow-inner max-w-[600px] min-w-[280px] flex flex-col">
+             class="flex-1 bg-white rounded-2xl p-3 shadow-inner flex flex-col">
+
             <!-- Header Users Count -->
             <div id="usersCount" th:fragment="usersCountFragment" class="flex items-center gap-2 mb-4">
                 <div class="bg-[#a04a44] text-white rounded-full p-2 text-sm flex items-center justify-center"
@@ -79,145 +80,54 @@
                 </div>
                 <span class="text-[#a04a44] font-semibold text-lg select-none"
                       th:text="${dashboard.users?.size()}">0</span>
-                <span class="text-gray-700 text-sm select-none">
-              users registered so far
-        </span>
+                <span class="text-gray-700 text-sm select-none">users registered so far</span>
             </div>
 
             <!-- Tabs + TimeRange Select -->
-            <div class="flex gap-6 border-b border-gray-200 mb-4 text-sm text-gray-400 select-none">
-                <button class="tab-button active-tab font-normal"
-                        type="button" id="usersTab">
-                    Users
-                </button>
-                <button class="tab-button inactive-tab font-normal" type="button" id="chartTab">
-                    Chart
-                </button>
-                <div class="ml-auto relative">
+            <div class="flex gap-6 border-b border-gray-200 mb-4 text-sm text-gray-400 select-none items-center">
+                <button class="tab-button active-tab font-normal" type="button" id="usersTab">Users</button>
+                <button class="tab-button inactive-tab font-normal" type="button" id="chartTab">Chart</button>
+
+                <!-- Filter chỉ hiện khi tab là Users -->
+                <div class="ml-auto relative" id="timeFilterContainer">
                     <select id="timeRangeSelect"
                             class="border border-gray-300 rounded-md text-xs py-1 px-2 cursor-pointer">
-                        <option value="lastWeek" th:selected="${timeRangeUser == 'lastWeek'}">Last
-                            Week
-                        </option>
-                        <option value="lastMonth" th:selected="${timeRangeUser == 'lastMonth'}">Last
-                            Month
-                        </option>
-                        <option value="lastYear" th:selected="${timeRangeUser == 'lastYear'}">Last
-                            Year
-                        </option>
+                        <option value="All" th:selected="${timeRangeUser == 'All'}">All</option>
+                        <option value="lastWeek" th:selected="${timeRangeUser == 'lastWeek'}">Last Week</option>
+                        <option value="lastMonth" th:selected="${timeRangeUser == 'lastMonth'}">Last Month</option>
+                        <option value="lastYear" th:selected="${timeRangeUser == 'lastYear'}">Last Year</option>
                     </select>
                 </div>
             </div>
 
-            <!-- List Users -->
-            <div id="userContainer">
-                <div id="userList" th:fragment="userListFragment"
-                     class="flex flex-col gap-4 overflow-y-auto scrollbar-thin max-h-[280px] pr-2">
+            <!-- Nội dung chính (List hoặc Chart) -->
+            <div id="userContainer" class="flex-1">
+                <!-- User List -->
+                <div id="userList" th:fragment="usersListAndCount"
+                     class=" max-h-[200px] flex flex-col gap-4 overflow-y-auto scrollbar-thin pr-2 max-h-[300px] min-h-[300px]">
                     <div th:each="user : ${dashboard.users}" class="flex items-center gap-3">
                         <img th:src="${user.picture}" alt="Portrait of [[${user.fullName}]]"
                              class="rounded-full w-10 h-10 object-cover" width="40" height="40"/>
                         <div class="flex flex-col text-xs">
-                                            <span class="font-semibold text-gray-700 select-text"
-                                                  th:text="${user.fullName}"></span>
+                            <span class="font-semibold text-gray-700 select-text" th:text="${user.fullName}"></span>
                             <span class="text-gray-400 select-text" th:text="${user.gmail}"></span>
                         </div>
                         <div class="flex items-center space-x-2 ml-auto">
-                      <span class="text-gray-400 text-[10px] font-medium uppercase tracking-wide select-text"
-                            th:text="${user.role}"></span>
+                        <span class="text-gray-400 text-[10px] font-medium uppercase tracking-wide select-text"
+                              th:text="${user.role}"></span>
                         </div>
                     </div>
                 </div>
-                <!-- Chart Users -->
+
+                <!-- Chart -->
                 <div id="chartContent" style="display: none;"
-                     class="flex flex-col items-center justify-center h-[180px] text-gray-500 text-sm">
+                     class="flex items-center justify-center min-h-[300px] text-gray-500 text-sm">
                     <canvas id="usersChart" width="400" height="180"></canvas>
-                </div>
-            </div>
-
-        </div>
-
-
-        <!-- course -->
-        <div class="flex-1 bg-white rounded-2xl p-6 shadow-inner max-w-[600px] min-w-[280px] flex flex-col">
-            <div class="flex items-center gap-2 mb-4">
-                <div class="bg-[#a04a44] text-white rounded-full p-2 text-sm flex items-center justify-center"
-                     style="width: 32px; height: 32px">
-                    <i class="fas fa-user-friends">
-                    </i>
-                </div>
-                <span class="text-[#a04a44] font-semibold text-lg select-none"
-                      th:text="${dashboard.courses?.size()}">0
-       </span>
-                <span class="text-gray-700 text-sm select-none">
-        Count of courses
-       </span>
-            </div>
-            <div class="flex gap-6 border-b border-gray-200 mb-4 text-sm text-gray-400 select-none">
-                <button class="font-normal" type="button">
-                    Total
-                </button>
-                <button class="pb-1 border-b-2 border-[#a04a44] text-[#a04a44] font-semibold"
-                        type="button">
-                    Chart
-                </button>
-                <div class="ml-auto relative">
-                    <select aria-label="Select time range"
-                            class="border border-gray-300 rounded-md text-xs py-1 px-2 cursor-pointer">
-                        <option>
-                            Last Week
-                        </option>
-                        <option>
-                            Last Month
-                        </option>
-                        <option>
-                            Last Year
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex-1">
-                <svg class="w-full h-[120px]" fill="none" viewbox="0 0 300 120"
-                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 90C30 40 60 80 90 70C120 60 150 100 180 50C210 0 240 90 270 80C300 70 300 90 300 90V120H0V90Z"
-                          fill="#ff8a66" fill-opacity="0.15">
-                    </path>
-                    <path d="M0 90C30 40 60 80 90 70C120 60 150 100 180 50C210 0 240 90 270 80C300 70 300 90 300 90"
-                          stroke="#ff8a66" stroke-linecap="round" stroke-linejoin="round"
-                          stroke-width="2">
-                    </path>
-                    <circle cx="30" cy="40" fill="#ff8a66" r="3">
-                    </circle>
-                    <circle cx="90" cy="70" fill="#ff8a66" r="3">
-                    </circle>
-                    <circle cx="150" cy="100" fill="#ff8a66" r="3">
-                    </circle>
-                    <circle cx="210" cy="0" fill="#ff8a66" r="3">
-                    </circle>
-                    <circle cx="240" cy="90" fill="#ff8a66" r="3">
-                    </circle>
-                    <circle cx="270" cy="80" fill="#ff8a66" r="3">
-                    </circle>
-                </svg>
-                <div class="flex justify-between text-xs text-gray-400 mt-1 select-none">
-        <span>
-         0
-        </span>
-                    <span>
-         50
-        </span>
-                    <span>
-         100
-        </span>
-                    <span>
-         150
-        </span>
-                    <span>
-         200
-        </span>
                 </div>
             </div>
         </div>
     </section>
+
 
     <!-- Script: ĐỂ Ở CUỐI fragment -->
     <script>
@@ -266,8 +176,8 @@
                     tempDiv.innerHTML = html;
 
                     // Lấy đúng .users-container
-                    const newFragment = tempDiv.querySelector('.users-container');
-                    const container = document.querySelector('.users-container');
+                    const newFragment = tempDiv.querySelector('#userList');
+                    const container = document.querySelector('#userList');
 
                     if (container && newFragment) {
                         container.outerHTML = newFragment.outerHTML;
@@ -275,6 +185,13 @@
                         // Re-bind events
                         bindTabButtons();
                         bindTimeRangeSelect();
+                    }
+
+                    const newCountFragment = tempDiv.querySelector('#usersCount');
+                    const oldCountFragment = document.querySelector('#usersCount');
+
+                    if (oldCountFragment && newCountFragment) {
+                        oldCountFragment.replaceWith(newCountFragment);
                     }
 
                     // Show userList, hide chart
@@ -288,12 +205,13 @@
         }
 
         function showChart() {
+            console.log(selectedValue);
             fetch(`/adminPage/usersChart?timeRangeUser=${selectedValue}`)
                 .then(response => response.json())
                 .then(data => {
                     renderUsersChart(data.labels, data.data);
+                    console.log(data);
                 });
-
             const userList = document.getElementById('userList');
             const chartContent = document.getElementById('chartContent');
             if (userList && chartContent) {
@@ -341,6 +259,24 @@
             // Initial binding
             bindTabButtons();
             bindTimeRangeSelect();
+        });
+
+        const usersTabBtn = document.getElementById("usersTab");
+        const chartTabBtn = document.getElementById("chartTab");
+        const timeFilter = document.getElementById("timeFilterContainer");
+
+        usersTabBtn.addEventListener("click", () => {
+            usersTabBtn.classList.add("active-tab");
+            chartTabBtn.classList.remove("active-tab");
+            timeFilter.style.display = "block";
+            // logic show tab content Users...
+        });
+
+        chartTabBtn.addEventListener("click", () => {
+            chartTabBtn.classList.add("active-tab");
+            usersTabBtn.classList.remove("active-tab");
+            timeFilter.style.display = "none";
+            // logic show tab content Chart...
         });
     </script>
 </div>

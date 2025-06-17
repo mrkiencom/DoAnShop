@@ -23,12 +23,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -63,29 +65,42 @@ public class AdminService {
     }
 
     public Dashboard getUsers(final String timeRageUser) {
-        final var users = switch (timeRageUser) {
-            case "lastMonth" -> userRepo.findUserByTimeRage(LocalDateTime.now()
-                    .withDayOfMonth(1)
-                    .withHour(0)
-                    .withMinute(0)
-                    .withSecond(0)
-                    .withNano(0));
-            case "lastYear" -> userRepo.findUserByTimeRage(LocalDate.now()
-                    .withDayOfMonth(1)
-                    .atStartOfDay());
-            default -> userRepo.findUserByTimeRage((LocalDateTime.now()
-                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                    .minusWeeks(1)));
+        final LocalDateTime endDate = LocalDateTime.now();
+        final LocalDateTime fromDate = switch (timeRageUser) {
+            case "lastMonth" -> LocalDateTime.now().minusMonths(1);
+            case "lastWeek" -> LocalDateTime.now().minusWeeks(1);
+            case "lastYear" -> LocalDateTime.now().minusYears(1);
+            default -> null;
         };
 
+        final List<Users> users = userRepo.findUserByTimeRange(fromDate, endDate);
+
         return Dashboard.builder()
-                .users(users.stream().map(this::buildUserInfo).toList())
-                .courses(null)
-                .userChart(Chart.builder()
-                        .labels(List.of("1", "4", "8", "12"))
-                        .counts(List.of(10, 15, 8, 12))
-                        .build())
+                .users(users.stream()
+                        .map(user -> buildUserInfo(user)) // tránh dùng this:: nếu lỗi
+                        .toList())
+                .userChart(getUserChartByMonth(LocalDateTime.now().minusYears(1), endDate))
                 .build();
+    }
+
+    public Chart getUserChartByMonth(final LocalDateTime fromDate, final LocalDateTime toDate) {
+        final List<Users> users = userRepo.findUserByTimeRange(fromDate, toDate);
+
+        // Group theo tháng-năm
+        final Map<String, Long> grouped = users.stream()
+                .collect(Collectors.groupingBy(
+                        u -> u.getCreatedAt().getMonthValue() + "/" + u.getCreatedAt().getYear(),
+                        TreeMap::new, // đảm bảo thứ tự tháng tăng dần
+                        Collectors.counting()
+                ));
+
+        // Chuyển thành dạng list
+        final List<String> labels = new ArrayList<>(grouped.keySet());
+        final List<Integer> counts = grouped.values().stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
+
+        return Chart.builder().labels(labels).counts(counts).build();
     }
 
     public CardCount count() {
