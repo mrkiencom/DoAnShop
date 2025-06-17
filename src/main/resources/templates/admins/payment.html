@@ -1,0 +1,174 @@
+<div class="space-y-6" th:fragment="content">
+    <!-- Form lọc -->
+    <form method="get" class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-xl shadow">
+        <div>
+            <a href="/adminPage/revenue-page"><--</a>
+            <label class="block text-sm font-semibold text-gray-700">Từ khóa</label>
+            <input type="text" id="searchText" name="text" th:value="${text}" class="border px-3 py-2 rounded w-100"
+                   placeholder="Tìm theo tên khóa học hoặc người mua">
+        </div>
+        <div>
+            <label class="block text-sm font-semibold text-gray-700">Từ ngày</label>
+            <input type="text" id="fromDate" name="fromDate" th:value="${fromDate}"
+                   class="border px-3 py-2 rounded flatpickr" placeholder="Chọn ngày bắt đầu">
+        </div>
+        <div>
+            <label class="block text-sm font-semibold text-gray-700">Đến ngày</label>
+            <input type="text" id="endDate" name="endDate" th:value="${endDate}"
+                   class="border px-3 py-2 rounded flatpickr" placeholder="Chọn ngày kết thúc">
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700">
+            Tìm kiếm
+        </button>
+        <button onclick="clearFilters()"
+                class="bg-red-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700">
+            Reset
+        </button>
+
+    </form>
+
+    <!-- Danh sách kết quả -->
+    <div class="bg-white rounded-xl shadow overflow-x-auto">
+        <table id="paymentTable" class="min-w-full text-sm table-auto">
+            <thead class="bg-gray-100 text-gray-800 font-semibold">
+            <tr>
+                <th class="p-3 text-left">#</th>
+                <th class="p-3 text-left">Khóa học</th>
+                <th class="p-3 text-left">Giá (VND)</th>
+                <th class="p-3 text-left">Người mua</th>
+                <th class="p-3 text-left">Ngày mua</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${paymentHist.content}" class="border-t">
+                <td class="p-3" th:text="${item.stt}">1</td>
+                <td class="p-3" th:text="${item.courseTitle}">Khóa học ABC</td>
+                <td class="p-3" th:text="${#numbers.formatInteger(item.price, 0, 'POINT')}">300,000</td>
+                <td class="p-3" th:text="${item.username}">nguyenvanA</td>
+                <td class="p-3" th:text="${#temporals.format(item.enrollmentDate, 'dd/MM/yyyy HH:mm')}">01/06/2025</td>
+            </tr>
+            <tr th:if="${paymentHist.totalElements == 0}">
+                <td colspan="5" class="text-center py-4 text-gray-500">Không có dữ liệu</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <footer id="paymentFooter"
+            class="flex items-center justify-end space-x-6 text-xs text-gray-600 font-normal select-none px-4 py-3">
+        <div th:text="${paymentHist.number * paymentHist.size + 1} + '-' + (${paymentHist.number + 1} * ${paymentHist.size} > ${paymentHist.totalElements} ? ${paymentHist.totalElements} : (${paymentHist.number + 1} * ${paymentHist.size})) + ' of ' + ${paymentHist.totalElements}">
+        </div>
+
+
+        <button
+                type="button"
+                aria-label="Previous page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${paymentHist.first} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${paymentHist.number - 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-type=${type}"
+                th:disabled="${paymentHist.first}">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button
+                type="button"
+                aria-label="Next page"
+                class="pagination-btn text-gray-400 hover:text-gray-600"
+                th:classappend="${paymentHist.last} ? 'disabled opacity-50 cursor-not-allowed' : ''"
+                th:attr="data-page=${paymentHist.number + 1},
+           data-size=${pageSize},
+           data-text=${text},
+           data-status=${status},
+           data-type=${type},
+           data-category=${category},
+           data-topic=${topic}"
+                th:disabled="${paymentHist.last}">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </footer>
+
+
+    <script>
+        const fromPicker = flatpickr("#fromDate", {
+            dateFormat: "Y-m-d",
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length > 0) {
+                    toPicker.set("minDate", selectedDates[0]);
+                }
+            }
+        });
+
+        const toPicker = flatpickr("#endDate", {
+            dateFormat: "Y-m-d",
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length > 0) {
+                    fromPicker.set("maxDate", selectedDates[0]);
+                }
+            }
+        });
+
+        function setupPagination() {
+            document.querySelectorAll('.pagination-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    if (this.disabled) return;
+
+                    const page = this.getAttribute('data-page');
+                    const size = this.getAttribute('data-size') || 10;
+
+                    const text = document.getElementById('searchText').value;
+                    const fromDate = document.getElementById('fromDate').value;
+                    const endDate = document.getElementById('endDate').value;
+
+                    const url = `/adminPage/payment-detail-page?page=${page}&size=${size}`
+                        + `&text=${encodeURIComponent(text)}`
+                        + `&fromDate=${encodeURIComponent(fromDate)}`
+                        + `&endDate=${encodeURIComponent(endDate)}`;
+
+
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            const newTable = doc.querySelector('table');
+                            const oldTable = document.querySelector('table');
+                            if (newTable && oldTable) {
+                                oldTable.replaceWith(newTable);
+                            }
+
+                            const newFooter = doc.querySelector('footer');
+                            const oldFooter = document.querySelector('footer');
+                            if (newFooter && oldFooter) {
+                                oldFooter.replaceWith(newFooter);
+                            }
+
+                            setupPagination(); // Gắn lại sự kiện sau khi load trang mới
+                        })
+                        .catch(error => {
+                            console.error("Error on pagination:", error);
+                        });
+                });
+            });
+        }
+
+        // Gọi khi trang load lần đầu
+        document.addEventListener("DOMContentLoaded", function () {
+            setupPagination();
+        });
+
+        function clearFilters() {
+            document.getElementById('searchText').value = '';
+            document.getElementById('fromDate').value = '';
+            document.getElementById('endDate').value = '';
+        }
+    </script>
+
+</div>

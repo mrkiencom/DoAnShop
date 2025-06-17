@@ -28,7 +28,11 @@ public class AuthenticationController {
     private final RequestService requestService;
 
     @GetMapping("/login")
-    public String login() {
+    public String loginPage(@RequestParam(value = "error", required = false) final String error,
+                            final Model model) {
+        if (error != null) {
+            model.addAttribute("loginError", "Tài khoản hoặc mật khẩu không chính xác.");
+        }
         return "login";
     }
 

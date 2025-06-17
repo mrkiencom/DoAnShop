@@ -16,10 +16,10 @@ public class MyUserDetailsService implements UserDetailsService {
     private UserRepo repo;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = repo.findByUsername(username);
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final Users user = repo.findByUsername(username);
 
-        if(user == null){
+        if (user == null || !user.isActive()) {
             System.out.println("User Not Found");
             throw new UsernameNotFoundException("User Not Found");
         }

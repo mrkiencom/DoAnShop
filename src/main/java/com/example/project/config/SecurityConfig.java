@@ -24,6 +24,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+
         http
                 .csrf(custumizer -> custumizer.disable())
                 .authorizeHttpRequests(registry -> {
@@ -32,6 +33,7 @@ public class SecurityConfig {
                 })
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .failureUrl("/login?error=true")
                         .successHandler(customAuthenticationSuccessHandler)// Đường dẫn đến trang login tùy chỉnh của bạn
                         .permitAll())
                 .oauth2Login(oauth2Login -> {

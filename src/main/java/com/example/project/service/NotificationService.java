@@ -13,7 +13,7 @@ import java.util.Map;
 public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
     private static final String TO_LECTURER = "To Lecturer";
-    private static final String LOAD_COURSE = "Load Course";
+    private static final String LOAD_COURSE = "Up load course";
 
     public void notifyAdmin(final int requestId, final String type, final String name, final String description, final int id) {
         final var text = handleMessage(type, name, description, id);

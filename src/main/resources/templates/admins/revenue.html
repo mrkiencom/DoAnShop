@@ -1,0 +1,134 @@
+<div class="bg-white rounded-xl shadow px-4 py-4 h-[700px] overflow-y-auto space-y-6" th:fragment="content">
+
+    <!-- Tổng doanh thu -->
+    <div class="flex items-center justify-between mb-2">
+        <h2 class="text-xl font-semibold text-gray-800">Tổng doanh thu</h2>
+        <a href="/adminPage/payment-detail-page" class="text-sm text-blue-600 hover:underline">(Xem chi tiết)</a>
+    </div>
+    <p class="text-3xl text-blue-600 font-bold" th:text="${total} + ' VND'"></p>
+
+
+    <!-- Doanh thu theo tháng -->
+    <div>
+        <h2 class="text-lg font-medium text-gray-700 mb-1">Doanh thu theo tháng</h2>
+        <div id="monthly-loading" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        <canvas id="monthlyRevenueChart" class="hidden w-full" height="180"></canvas>
+        <p id="monthly-empty" class="text-gray-500 hidden">Không có dữ liệu.</p>
+    </div>
+
+    <!-- Doanh thu theo khóa học -->
+    <div>
+        <h2 class="text-lg font-medium text-gray-700 mb-1">Doanh thu theo khóa học</h2>
+        <div id="course-loading" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        <canvas id="courseRevenueChart" class="hidden w-full" height="180"></canvas>
+        <p id="course-empty" class="text-gray-500 hidden">Không có dữ liệu.</p>
+    </div>
+
+    <!-- Doanh thu theo người dùng -->
+    <div>
+        <h2 class="text-lg font-medium text-gray-700 mb-1">Doanh thu theo người dùng</h2>
+        <div id="user-loading" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        <canvas id="userRevenueChart" class="hidden w-full" height="180"></canvas>
+        <p id="user-empty" class="text-gray-500 hidden">Không có dữ liệu.</p>
+    </div>
+
+    <script th:inline="javascript">
+        const monthlyData = [[${monthly}]];
+        const byCourseData = [[${byCourse}]];
+        const byUserData = [[${byUser}]];
+
+        function renderChart({data, labels, targetId, type, color, emptyId, loadingId}) {
+            const canvas = document.getElementById(targetId);
+            const emptyText = document.getElementById(emptyId);
+            const loadingSpinner = document.getElementById(loadingId);
+
+            // Delay giả lập load dữ liệu
+            setTimeout(() => {
+                loadingSpinner.classList.add('hidden');
+                if (labels.length === 0) {
+                    emptyText.classList.remove('hidden');
+                    return;
+                }
+
+                canvas.classList.remove('hidden');
+                new Chart(canvas, {
+                    type: type,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Doanh thu (VND)',
+                            data: data,
+                            backgroundColor: color.bg,
+                            borderColor: color.border,
+                            borderWidth: 2,
+                            fill: type === 'line',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        indexAxis: type === 'bar' ? 'y' : 'x',
+                        scales: {
+                            y: {beginAtZero: true},
+                            x: {beginAtZero: true}
+                        }
+                    }
+                });
+            }, 500);
+        }
+
+        renderChart({
+            data: monthlyData.map(i => i.totalRevenue),
+            labels: monthlyData.map(i => `${i.month}/${i.year}`),
+            targetId: 'monthlyRevenueChart',
+            emptyId: 'monthly-empty',
+            loadingId: 'monthly-loading',
+            type: 'line',
+            color: {bg: 'rgba(59,130,246,0.2)', border: 'rgba(59,130,246,1)'}
+        });
+
+        console.log({byCourseData})
+        renderChart({
+            data: byCourseData.map(i => i.totalRevenue),
+            labels: byCourseData.map(i => i.title.length > 25 ? i.title.slice(0, 22) + '...' : i.title),
+            targetId: 'courseRevenueChart',
+            emptyId: 'course-empty',
+            loadingId: 'course-loading',
+            type: 'bar',
+            color: {bg: 'rgba(16,185,129,0.7)'},
+            options: {
+                indexAxis: 'y',
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (tooltipItems) => {
+                                const index = tooltipItems[0].dataIndex;
+                                return byCourseData[index].title; // Hiện đầy đủ
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {beginAtZero: true}
+                }
+            }
+        });
+
+        renderChart({
+            data: byUserData.map(i => i.totalRevenue),
+            labels: byUserData.map(i => i.fullName),
+            targetId: 'userRevenueChart',
+            emptyId: 'user-empty',
+            loadingId: 'user-loading',
+            type: 'bar',
+            color: {bg: 'rgba(234,88,12,0.7)'}
+        });
+    </script>
+
+</div>

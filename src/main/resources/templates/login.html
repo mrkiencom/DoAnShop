@@ -50,6 +50,9 @@
             </div>
             <form class="flex flex-col max-w-xs w-full space-y-4 text-xs text-gray-700" th:action="@{/login}"
                   method="post" id="loginForm">
+                <div th:if="${loginError}" class="text-red-600 text-sm">
+                    <span th:text="${loginError}"></span>
+                </div>
                 <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Username"
                        required="" type="text" name="username"/>
                 <input class="border-b border-gray-300 focus:border-black outline-none py-1" placeholder="Password"

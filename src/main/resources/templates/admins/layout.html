@@ -3,10 +3,15 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <title>
-        ZON Dashboard
+        ZIN Dashboard
     </title>
-    <script src="https://cdn.tailwindcss.com">
-    </script>
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -70,6 +75,31 @@
         .unread-dot {
             animation: pulse-dot 1.2s infinite;
         }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-tr from-[#dbe5ff] to-[#f0f4ff] flex items-center justify-center p-6">
@@ -114,7 +144,7 @@
                 </a>
                 <a class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ease-in-out
                hover:scale-105 hover:shadow-lg"
-                   href="#">
+                   href="/adminPage/revenue-page">
                     <i class="fas fa-credit-card text-white text-base"></i>
                     Revenue
                 </a>
@@ -159,7 +189,12 @@
                             <!-- Nội dung thông báo -->
                             <div class="flex flex-col">
                         <span><strong th:text="${noti.getSubmissionName}">Sender</strong>:
-                            <span th:text="${noti.message}">Message content...</span></span>
+                       <span th:utext="${noti.message.length() > 30} ?
+                ${#strings.concat(#strings.substring(noti.message, 0, 30), '...')} :
+                ${noti.message}">
+</span>
+
+
                                 <span class="text-xs text-gray-400" th:text="${noti.timestamp}">2025-06-15T15:30</span>
                             </div>
                         </div>

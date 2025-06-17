@@ -1,5 +1,6 @@
 package com.example.project.service;
 
+import com.example.project.MailProperties;
 import com.example.project.model.Courses;
 import com.example.project.model.Requests;
 import com.example.project.model.Videos;
@@ -24,6 +25,7 @@ public class LecturerService {
     private final UserRepo userRepo;
     private final RequestRepo requestRepo;
     private final NotificationService notificationService;
+    private final MailProperties mailProperties;
 
 
     public Integer createCourses(final Courses course) {
@@ -36,6 +38,8 @@ public class LecturerService {
         course.setDate(currentDate);
         course.setStatus("Waiting");
         final Courses savedCourse = courseRepo.save(course);
+
+        sendRequestToCreateCourse(course);
         return savedCourse.getCourseId();
     }
 
@@ -44,6 +48,28 @@ public class LecturerService {
         video.setUploadedAt(currentDate);
         video.setCourse(Course);
         videoRepo.save(video);
+    }
+
+    private void sendRequestToCreateCourse(final Courses courses) {
+        final var request = Requests.builder()
+                .status("Waiting")
+                .description("A new course has been submitted for approval. "
+                        + "You can view the details at: "
+                        + "<a href='" + mailProperties.getDomain()
+                        + "/adminPage/course-details?id=" + courses.getCourseId()
+                        + "' target='_blank' style='color:#1d4ed8; text-decoration:underline;'>"
+                        + "View Course Details</a>")
+                .user(courses.getLecturer())
+                .type("Up load course")
+                .submissionName(courses.getTitle())
+                .submissionId(courses.getCourseId())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        final var requestSaved = requestRepo.save(request);
+        notificationService.notifyAdmin(requestSaved.getId(), request.getType(),
+                request.getUser().getFirstname() + ' ' + request.getUser().getLastname(), "Request to upload course", request.getUser().getId());
+
     }
 
     public Courses getCourseById(final Integer courseId) {

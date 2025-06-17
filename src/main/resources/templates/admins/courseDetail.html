@@ -1,0 +1,131 @@
+<div th:fragment="content"
+     class="space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] px-2">
+
+    <h1 class="text-2xl font-bold text-gray-800 sticky top-0 bg-white z-10 pb-2">Chi tiết khóa học</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Hình ảnh -->
+        <div>
+            <img th:src="@{${course.image}}" alt="Course Image" class="rounded shadow max-w-full">
+        </div>
+
+        <!-- Thông tin chính -->
+        <div class="space-y-2">
+            <h2 class="text-xl font-semibold text-gray-700" th:text="${course.title}">Tên khóa học</h2>
+            <p><strong>Chủ đề:</strong> <span th:text="${course.topic}">Topic</span></p>
+            <p><strong>Danh mục:</strong> <span th:text="${course.category}">Category</span></p>
+            <p><strong>Trình độ:</strong> <span th:text="${course.level}">Level</span></p>
+            <p><strong>Giá:</strong> <span th:text="${#numbers.formatInteger(course.price, 0, 'COMMA')}">0</span> VND
+            </p>
+            <p><strong>Trạng thái:</strong> <span th:text="${course.status}">Status</span></p>
+            <p><strong>Ngày tạo:</strong> <span th:text="${#dates.format(course.date, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p><strong>Giảng viên:</strong>
+                <span th:text="${course.lecturer.firstname + ' ' + course.lecturer.lastname}">Lecturer Name</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Miêu tả -->
+    <div class="bg-white rounded p-4 shadow space-y-4">
+        <h3 class="text-lg font-semibold">Mô tả</h3>
+        <p th:utext="${course.description}"></p>
+
+        <h3 class="text-lg font-semibold">Nội dung khóa học</h3>
+        <p th:utext="${course.content}"></p>
+
+        <h3 class="text-lg font-semibold">Yêu cầu</h3>
+        <p th:utext="${course.requirement}"></p>
+    </div>
+
+    <!-- Danh sách video và trình phát -->
+    <!-- Danh sách video -->
+    <div class="bg-white rounded p-4 shadow space-y-4">
+        <h3 class="text-lg font-semibold">Video</h3>
+        <ul class="max-h-[400px] overflow-y-auto space-y-4">
+            <li th:each="video : ${course.videos}"
+                class="grid grid-cols-[auto,1fr] gap-5 items-center bg-gray-50 p-3 rounded-lg shadow hover:bg-gray-100 transition">
+                <!-- Thumbnail -->
+                <img th:src="${course.image}" alt="Thumbnail"
+                     class="w-36 h-20 object-cover rounded shadow-md">
+
+                <!-- Nút tiêu đề -->
+                <button type="button"
+                        class="text-blue-700 hover:underline text-base text-left font-medium truncate"
+                        th:text="${video.title}"
+                        th:attr="data-url=${video.videoUrl}"
+                        onclick="openVideoModal(this)">
+                </button>
+            </li>
+        </ul>
+
+    </div>
+
+
+    <!-- Modal video viewer -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden items-center justify-center">
+        <div class="relative w-full max-w-4xl mx-auto p-4">
+            <!-- Nút đóng -->
+            <button onclick="closeVideoModal()"
+                    class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300 z-10">✖
+            </button>
+
+            <!-- iframe -->
+            <div class="aspect-video w-full relative hidden" id="iframeContainer">
+                <iframe id="videoFrame"
+                        class="absolute top-0 left-0 w-full h-full rounded shadow"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- video mp4 -->
+            <video id="videoTag" controls class="w-full rounded shadow hidden">
+                <source id="videoSource" src="" type="video/mp4">
+                Trình duyệt không hỗ trợ HTML5 video.
+            </video>
+        </div>
+    </div>
+
+
+    <script>
+        function openVideoModal(button) {
+            const url = button.getAttribute('data-url');
+            const modal = document.getElementById("videoModal");
+            const iframe = document.getElementById("videoFrame");
+            const iframeContainer = document.getElementById("iframeContainer");
+            const video = document.getElementById("videoTag");
+            const source = document.getElementById("videoSource");
+
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                const embedUrl = url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+                iframe.src = embedUrl;
+                iframeContainer.classList.remove("hidden");
+                video.classList.add("hidden");
+            } else {
+                source.src = url;
+                video.load();
+                video.classList.remove("hidden");
+                iframeContainer.classList.add("hidden");
+                iframe.src = "";
+            }
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById("videoModal");
+            const iframe = document.getElementById("videoFrame");
+            const video = document.getElementById("videoTag");
+
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+
+            iframe.src = "";
+            video.pause();
+        }
+    </script>
+
+
+</div>

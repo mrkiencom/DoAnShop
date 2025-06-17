@@ -5,8 +5,12 @@ import com.example.project.model.Courses;
 import com.example.project.model.Requests;
 import com.example.project.model.Users;
 import com.example.project.repo.CourseRepo;
+import com.example.project.repo.CourseRevenue;
+import com.example.project.repo.MonthlyRevenue;
+import com.example.project.repo.PaymentDetailHistory;
 import com.example.project.repo.RequestRepo;
 import com.example.project.repo.UserRepo;
+import com.example.project.repo.UserRevenue;
 import com.example.project.service.model.admin.CardCount;
 import com.example.project.service.model.admin.Chart;
 import com.example.project.service.model.admin.CourseInfo;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
@@ -150,6 +155,7 @@ public class AdminService {
                 .level(course.getLevel())
                 .requirement(course.getRequirement())
                 .topic(course.getTopic())
+                .status(course.getStatus())
                 .build();
     }
 
@@ -194,7 +200,7 @@ public class AdminService {
             }
         } else {
             final var course = courseRepo.findById(request.getSubmissionId()).orElseThrow();
-            course.setStatus(approve ? "Approved" : "Denied");
+            course.setStatus(approve ? "Published" : "Denied");
         }
 
         request.setStatus(status);
@@ -203,5 +209,30 @@ public class AdminService {
         requestRepo.save(request);
 
         return buildRequest(request);
+    }
+
+    public Long getTotalRevenue() {
+        final Long total = courseRepo.sumTotalRevenue();
+        return total != null ? total : 0L;
+    }
+
+    public List<MonthlyRevenue> getMonthlyRevenue() {
+        return courseRepo.getMonthlyRevenue();
+    }
+
+    public List<CourseRevenue> getRevenueByCourse() {
+        return courseRepo.getRevenueByCourse();
+    }
+
+    public List<UserRevenue> getRevenueByUser() {
+        return courseRepo.getRevenueByUser();
+    }
+
+    public Page<PaymentDetailHistory> getPaymentHist(final String text, final LocalDate fromDate, final LocalDate endDate, final Pageable pageable) {
+        return courseRepo.findPaymentsByDateAndSearchText(fromDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), text, pageable);
+    }
+
+    public Courses getCourseDetail(final int id) {
+        return courseRepo.getCourseDetailById(id).orElse(null);
     }
 }

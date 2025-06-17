@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseRepo extends JpaRepository<Courses, Integer> {
@@ -53,4 +55,81 @@ public interface CourseRepo extends JpaRepository<Courses, Integer> {
             and (:topic = '' or c.topic = :topic)
             """)
     Page<Courses> findAllBy(String text, String status, String level, String category, String topic, Pageable pageable);
+
+    @Query("""
+                SELECT SUM(p.course.price)
+                FROM Payments p
+            """)
+    Long sumTotalRevenue();
+
+    @Query("""
+                SELECT FUNCTION('YEAR', p.enrollmentDate) AS year,
+                       FUNCTION('MONTH', p.enrollmentDate) AS month,
+                       SUM(p.course.price) AS totalRevenue
+                FROM Payments p
+                GROUP BY FUNCTION('YEAR', p.enrollmentDate), FUNCTION('MONTH', p.enrollmentDate)
+                ORDER BY FUNCTION('YEAR', p.enrollmentDate), FUNCTION('MONTH', p.enrollmentDate)
+            """)
+    List<MonthlyRevenue> getMonthlyRevenue();
+
+    @Query("""
+                SELECT p.course.title AS title,
+                       COUNT(p.id) AS purchaseCount,
+                       SUM(p.course.price) AS totalRevenue
+                FROM Payments p
+                GROUP BY p.course.title
+                ORDER BY SUM(p.course.price) DESC
+            """)
+    List<CourseRevenue> getRevenueByCourse();
+
+    @Query("""
+                SELECT p.user.username as fullName, COUNT(p.id) as purchaseCount, SUM(p.course.price) as totalRevenue
+                FROM Payments p
+                GROUP BY p.user.username
+                ORDER BY SUM(p.course.price) DESC
+            """)
+    List<UserRevenue> getRevenueByUser();
+
+    @Query(value = """
+            SELECT 
+                ROW_NUMBER() OVER (ORDER BY p.enrollment_date DESC) AS stt,
+                c.title AS courseTitle,
+                c.price AS price,
+                u.username AS username,
+                p.enrollment_date AS enrollmentDate
+            FROM payment p
+            JOIN courses c ON p.course_id = c.course_id
+            JOIN users u ON p.user_id = u.id
+            WHERE p.enrollment_date BETWEEN :startDate AND :endDate
+              AND (
+                    :searchText = '' or :searchText is null or
+                  LOWER(c.title) LIKE LOWER(CONCAT('%', :searchText, '%')) OR
+                  LOWER(u.username) LIKE LOWER(CONCAT('%', :searchText, '%'))
+              )
+            """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM payment p
+                    JOIN courses c ON p.course_id = c.course_id
+                    JOIN users u ON p.user_id = u.id
+                    WHERE p.enrollment_date BETWEEN :startDate AND :endDate
+                      AND (
+                         :searchText = '' or :searchText is null or
+                          LOWER(c.title) LIKE LOWER(CONCAT('%', :searchText, '%')) OR
+                          LOWER(u.username) LIKE LOWER(CONCAT('%', :searchText, '%'))
+                      )
+                    """,
+            nativeQuery = true)
+    Page<PaymentDetailHistory> findPaymentsByDateAndSearchText(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("searchText") String searchText,
+            Pageable pageable
+    );
+
+    @Query("""
+            select c from Courses c left join c.videos left join c.lecturer
+            where c.courseId = :id
+            """)
+    Optional<Courses> getCourseDetailById(int id);
 }

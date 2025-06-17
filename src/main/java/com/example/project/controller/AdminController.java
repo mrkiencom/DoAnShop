@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,7 @@ public class AdminController {
                 "All Levels", "Beginner", "Intermediate", "expect"
         ));
         model.addAttribute("AllStatus", List.of(
-                "Waiting", "Approved"
+                "Waiting", "Published", "Denied"
         ));
         return "admins/layout";
     }
@@ -236,6 +237,81 @@ public class AdminController {
             model.addAttribute("contentTemplate", "admins/requestDetail");
         }
 
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/revenue-total")
+    public String getTotalRevenue(final Model model) {
+        model.addAttribute("total", adminService.getTotalRevenue());
+        model.addAttribute("contentTemplate", "admins/revenue");
+
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/revenue-monthly")
+    public String getMonthlyRevenue(final Model model) {
+        model.addAttribute("monthly", adminService.getMonthlyRevenue());
+        model.addAttribute("contentTemplate", "admins/revenue");
+
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/revenue-by-course")
+    public String getRevenueByCourse(final Model model) {
+        model.addAttribute("monthly", adminService.getRevenueByCourse());
+        model.addAttribute("contentTemplate", "admins/revenue");
+
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/revenue-by-user")
+    public String getRevenueByUser(final Model model) {
+        model.addAttribute("monthly", adminService.getRevenueByUser());
+        model.addAttribute("contentTemplate", "admins/revenue");
+
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/revenue-page")
+    public String showRevenueDashboard(final Model model) {
+        model.addAttribute("total", adminService.getTotalRevenue());
+        model.addAttribute("monthly", adminService.getMonthlyRevenue());
+        model.addAttribute("byCourse", adminService.getRevenueByCourse());
+        model.addAttribute("byUser", adminService.getRevenueByUser());
+        model.addAttribute("contentTemplate", "admins/revenue");
+        return "admins/layout";
+    }
+
+    @GetMapping("adminPage/payment-detail-page")
+    public String showPaymentHist(
+            @RequestParam(value = "text", required = false, defaultValue = "") final String text,
+            @RequestParam(value = "fromDate", required = false, defaultValue = "") final LocalDate fromDate,
+            @RequestParam(value = "endDate", required = false, defaultValue = "") final LocalDate endDate,
+            @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") final int size,
+            final Model model
+    ) {
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "enrollmentDate"));
+
+        final var hist = adminService.getPaymentHist(text, fromDate == null ? LocalDate.now().minusYears(100) : fromDate, endDate == null ? LocalDate.now() : endDate, pageable);
+        model.addAttribute("paymentHist", hist);
+        model.addAttribute("text", text);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("contentTemplate", "admins/payment");
+
+        return "admins/layout";
+
+    }
+
+    @GetMapping("adminPage/course-details")
+    public String getCourseDetails(
+            @RequestParam(value = "id") final int id,
+            final Model model
+
+    ) {
+        model.addAttribute("course", adminService.getCourseDetail(id));
+        model.addAttribute("contentTemplate", "admins/courseDetail");
         return "admins/layout";
     }
 }
