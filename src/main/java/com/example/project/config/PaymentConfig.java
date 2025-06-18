@@ -16,7 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class PaymentConfig {
 	public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:8080/successfulPayment";
+    public static String vnp_ReturnUrl = "https://doanshop.onrender.com/successfulPayment";
     public static String vnp_TmnCode = "UCS4MJPH";
     public static String secretKey = "47OUNEHAYP642KVH5Z9A3NRRXDPIFENZ";
     public static String vnp_Version = "2.1.0";

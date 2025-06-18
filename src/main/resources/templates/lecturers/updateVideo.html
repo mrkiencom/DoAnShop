@@ -159,101 +159,102 @@
 
         // --- Logic Tải video lên Cloudinary khi SUBMIT FORM ---
         uploadVideoForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        saveVideoButton.disabled = true;
-        saveVideoButton.textContent = 'Đang lưu video...';
+            event.preventDefault();
+            saveVideoButton.disabled = true;
+            saveVideoButton.textContent = 'Đang lưu video...';
 
-        const file = videoUploadInput.files[0];
-        if (!file && !videoUrlInput.value) {
-            videoUploadMessage.textContent = 'Vui lòng chọn video.';
-            videoUploadMessage.style.color = 'red';
-            saveVideoButton.disabled = false;
-            saveVideoButton.textContent = 'Save';
-        return;
-        }
-
-    if (file) {
-        videoUploadMessage.textContent = 'Đang tải lên Cloudinary...';
-        try {
-            const publicId = `course_${courseId}_video_${Date.now()}`.replace(/[^a-zA-Z0-9_-]/g, '_');
-            console.log('DEBUG: Public ID =', publicId);
-            const signatureResponse = await fetch(`/api/cloudinary/video-upload?folder=course_videos&publicId=${publicId}&resourceType=video`, {
-                method: 'GET'
-            });
-
-            if (!signatureResponse.ok) {
-                throw new Error('Lỗi lấy chữ ký: ' + await signatureResponse.text());
+            const file = videoUploadInput.files[0];
+            if (!file && !videoUrlInput.value) {
+                videoUploadMessage.textContent = 'Vui lòng chọn video.';
+                videoUploadMessage.style.color = 'red';
+                saveVideoButton.disabled = false;
+                saveVideoButton.textContent = 'Save';
+                return;
             }
 
-            const signatureData = await signatureResponse.json();
-            console.log('DEBUG: Signature Data =', signatureData);
+            if (file) {
+                videoUploadMessage.textContent = 'Đang tải lên Cloudinary...';
+                try {
+                    const publicId = `course_${courseId}_video_${Date.now()}`.replace(/[^a-zA-Z0-9_-]/g, '_');
+                    console.log('DEBUG: Public ID =', publicId);
+                    const signatureResponse = await fetch(`/api/cloudinary/video-upload?folder=course_videos&publicId=${publicId}&resourceType=video`, {
+                        method: 'GET'
+                    });
 
-            const cloudinaryFormData = new FormData();
-            cloudinaryFormData.append('file', file);
-            cloudinaryFormData.append('api_key', signatureData.api_key);
-            cloudinaryFormData.append('timestamp', signatureData.timestamp);
-            cloudinaryFormData.append('signature', signatureData.signature);
-            cloudinaryFormData.append('folder', 'course_videos');
-            cloudinaryFormData.append('public_id', publicId);
-            cloudinaryFormData.append('resource_type', signatureData.resource_type);
+                    if (!signatureResponse.ok) {
+                        throw new Error('Lỗi lấy chữ ký: ' + await signatureResponse.text());
+                    }
 
-            console.log('DEBUG: FormData Entries:');
-            for (let [key, value] of cloudinaryFormData.entries()) {
-                console.log(`${key}:`, value);
-            }
+                    const signatureData = await signatureResponse.json();
+                    console.log('DEBUG: Signature Data =', signatureData);
 
-            const cloudinaryUploadUrl = `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/${signatureData.resource_type}/upload`;
-            console.log('DEBUG: Cloudinary URL =', cloudinaryUploadUrl);
+                    const cloudinaryFormData = new FormData();
+                    cloudinaryFormData.append('file', file);
+                    cloudinaryFormData.append('api_key', signatureData.api_key);
+                    cloudinaryFormData.append('timestamp', signatureData.timestamp);
+                    cloudinaryFormData.append('signature', signatureData.signature);
+                    cloudinaryFormData.append('folder', 'course_videos');
+                    cloudinaryFormData.append('public_id', publicId);
+                    cloudinaryFormData.append('resource_type', signatureData.resource_type);
 
-            const cloudinaryResponse = await fetch(cloudinaryUploadUrl, {
-                method: 'POST',
-                body: cloudinaryFormData
-            });
+                    console.log('DEBUG: FormData Entries:');
+                    for (let [key, value] of cloudinaryFormData.entries()) {
+                        console.log(`${key}:`, value);
+                    }
 
-            if (cloudinaryResponse.ok) {
-                const cloudinaryData = await cloudinaryResponse.json();
-                videoUrlInput.value = cloudinaryData.secure_url;
-                if (cloudinaryData.duration) {
-                    durationInput.value = cloudinaryData.duration.toFixed(2);
+                    const cloudinaryUploadUrl = `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/${signatureData.resource_type}/upload`;
+                    console.log('DEBUG: Cloudinary URL =', cloudinaryUploadUrl);
+
+                    const cloudinaryResponse = await fetch(cloudinaryUploadUrl, {
+                        method: 'POST',
+                        body: cloudinaryFormData
+                    });
+
+                    if (cloudinaryResponse.ok) {
+                        const cloudinaryData = await cloudinaryResponse.json();
+                        videoUrlInput.value = cloudinaryData.secure_url;
+                        if (cloudinaryData.duration) {
+                            durationInput.value = cloudinaryData.duration.toFixed(2);
+                        }
+                        videoUploadMessage.textContent = 'Video uploaded successfully!';
+                        videoUploadMessage.style.color = 'green';
+                    } else {
+                        const errorData = await cloudinaryResponse.json();
+                        console.error('DEBUG: Cloudinary Error =', errorData);
+                        throw new Error('Cloudinary Upload Error: ' + (errorData.error.message || 'Unknown'));
+                    }
+                } catch (error) {
+                    console.error('Upload Error:', error);
+                    videoUploadMessage.textContent = 'Lỗi: ' + error.message;
+                    videoUploadMessage.style.color = 'red';
+                    saveVideoButton.disabled = false;
+                    saveVideoButton.textContent = 'Save';
+                    return;
                 }
-                videoUploadMessage.textContent = 'Video uploaded successfully!';
-                videoUploadMessage.style.color = 'green';
-            } else {
-                const errorData = await cloudinaryResponse.json();
-                console.error('DEBUG: Cloudinary Error =', errorData);
-                throw new Error('Cloudinary Upload Error: ' + (errorData.error.message || 'Unknown'));
             }
-        } catch (error) {
-            console.error('Upload Error:', error);
-            videoUploadMessage.textContent = 'Lỗi: ' + error.message;
-            videoUploadMessage.style.color = 'red';
-            saveVideoButton.disabled = false;
-            saveVideoButton.textContent = 'Save';
-            return;
-        }
-    }
-    uploadVideoForm.submit();
-});
+            uploadVideoForm.submit();
+        });
 
-    // Khởi tạo trạng thái ban đầu của video preview
-    // Nếu video.videoUrl đã có giá trị từ model (khi chỉnh sửa hoặc tải lại trang)
-    if (videoUrlInput && videoUrlInput.value && videoPreviewThumb) {
-        videoPreviewThumb.src = videoUrlInput.value;
-        videoPreviewThumb.classList.remove('hidden');
-        noVideoOverlay.classList.add('hidden');
-        videoFileNameDisplay.textContent = 'Video đã có sẵn.';
-        videoFileNameDisplay.classList.remove('hidden');
-    } else {
-        if (videoPreviewThumb) {
-            videoPreviewThumb.classList.add('hidden');
+        // Khởi tạo trạng thái ban đầu của video preview
+        // Nếu video.videoUrl đã có giá trị từ model (khi chỉnh sửa hoặc tải lại trang)
+        if (videoUrlInput && videoUrlInput.value && videoPreviewThumb) {
+            videoPreviewThumb.src = videoUrlInput.value;
+            videoPreviewThumb.classList.remove('hidden');
+            noVideoOverlay.classList.add('hidden');
+            videoFileNameDisplay.textContent = 'Video đã có sẵn.';
+            videoFileNameDisplay.classList.remove('hidden');
+        } else {
+            if (videoPreviewThumb) {
+                videoPreviewThumb.classList.add('hidden');
+            }
+            if (noVideoOverlay) {
+                noVideoOverlay.classList.remove('hidden');
+            }
+            if (videoFileNameDisplay) {
+                videoFileNameDisplay.classList.add('hidden');
+            }
         }
-        if (noVideoOverlay) {
-            noVideoOverlay.classList.remove('hidden');
-        }
-        if (videoFileNameDisplay) {
-            videoFileNameDisplay.classList.add('hidden');
-        }
-    });
+    }); // This is the corrected closing bracket for DOMContentLoaded
 </script>
 </body>
 </html>
