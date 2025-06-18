@@ -25,18 +25,15 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 @Controller
 public class PaymentController {
@@ -245,17 +242,17 @@ public class PaymentController {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang : " + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         vnp_Params.put("vnp_ReturnUrl", PaymentConfig.vnp_ReturnUrl);
 
-        final Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        final String vnp_CreateDate = formatter.format(cld.getTime());
-        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        final ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+        final ZonedDateTime createDate = ZonedDateTime.now(zoneId);
+        final ZonedDateTime expireDate = createDate.plusMinutes(15);
 
-        cld.add(Calendar.MINUTE, 10);
-        final String vnp_ExpireDate = formatter.format(cld.getTime());
-        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        vnp_Params.put("vnp_CreateDate", createDate.format(formatter));
+        vnp_Params.put("vnp_ExpireDate", expireDate.format(formatter));
 
         final List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
