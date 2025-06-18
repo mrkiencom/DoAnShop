@@ -2,8 +2,9 @@ package com.example.project.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-//import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -11,11 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
 public class PaymentConfig {
-	public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "https://doanshop.onrender.com/successfulPayment";
     public static String vnp_TmnCode = "UCS4MJPH";
     public static String secretKey = "47OUNEHAYP642KVH5Z9A3NRRXDPIFENZ";
@@ -40,9 +38,9 @@ public class PaymentConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
-    
+
     public static String hmacSHA512(final String key, final String data) {
         try {
 
@@ -65,7 +63,7 @@ public class PaymentConfig {
             return "";
         }
     }
-    
+
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
@@ -88,4 +86,6 @@ public class PaymentConfig {
         }
         return sb.toString();
     }
+
+
 }

@@ -1,11 +1,5 @@
 package com.example.project.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.example.project.config.PaymentConfig;
 import com.example.project.model.Courses;
 import com.example.project.model.Payments;
@@ -22,8 +16,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 @Controller
 public class PaymentController {
@@ -40,48 +50,48 @@ public class PaymentController {
     @Autowired
     CartService cartService;
 
-	@GetMapping("/create_payment/{courseId}")
-	public RedirectView creatPayment(HttpServletRequest request,
-                                     @PathVariable("courseId") Integer courseId,
-                                     Authentication authentication) throws UnsupportedEncodingException{
-		int price = courseService.getCourseById(courseId).getPrice();
-        String orderType = "other";
-        String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
-        String vnp_IpAddr = PaymentConfig.getIpAddress(request);
+    @GetMapping("/create_payment/{courseId}")
+    public RedirectView creatPayment(final HttpServletRequest request,
+                                     @PathVariable("courseId") final Integer courseId,
+                                     final Authentication authentication) throws UnsupportedEncodingException {
+        final int price = courseService.getCourseById(courseId).getPrice();
+        final String orderType = "other";
+        final String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
+        final String vnp_IpAddr = PaymentConfig.getIpAddress(request);
 
-        String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
-        
-        Map<String, String> vnp_Params = new HashMap<>();
+        final String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
+
+        final Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", PaymentConfig.vnp_Version);
         vnp_Params.put("vnp_Command", PaymentConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(price*100));
+        vnp_Params.put("vnp_Amount", String.valueOf(price * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang : " + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         vnp_Params.put("vnp_ReturnUrl", PaymentConfig.vnp_ReturnUrl);
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+        final Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        final String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        
+
         cld.add(Calendar.MINUTE, 10);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        final String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-        
-        List fieldNames = new ArrayList(vnp_Params.keySet());
+
+        final List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        final StringBuilder hashData = new StringBuilder();
+        final StringBuilder query = new StringBuilder();
+        final Iterator itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
+            final String fieldName = (String) itr.next();
+            final String fieldValue = (String) vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 //Build hash data
                 hashData.append(fieldName);
@@ -99,61 +109,60 @@ public class PaymentController {
         }
 
         String queryUrl = query.toString();
-        String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
+        final String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = PaymentConfig.vnp_PayUrl + "?" + queryUrl;
+        final String paymentUrl = PaymentConfig.vnp_PayUrl + "?" + queryUrl;
         System.out.println(paymentUrl);
-        RedirectView redirectView = new RedirectView();
+        final RedirectView redirectView = new RedirectView();
         redirectView.setUrl(paymentUrl);
 
-        Object principal = authentication.getPrincipal();
+        final Object principal = authentication.getPrincipal();
         Users currentUser = new Users();
 
         // **Cách 1: Xử lý người dùng đăng nhập truyền thống (qua UserDetails)**
         if (principal instanceof UserPrincipal) {
-            UserPrincipal userPrincipal = (UserPrincipal) principal;
+            final UserPrincipal userPrincipal = (UserPrincipal) principal;
             currentUser = authenticationService.getInforUser(userPrincipal.getUsername());
         }
         // **Cách 2: Xử lý người dùng đăng nhập qua OAuth2 (Gmail/Google)**
         else if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
 
             currentUser = authenticationService.getInforUserByGmail(oauthToken.getPrincipal().getAttribute("email"));
         }
 
-        Courses course = courseService.getCourseById(courseId);
-        paymentService.addPayment(currentUser,course);
-        cartService.deleteItemCartAfterPayment(currentUser,course);
+        final Courses course = courseService.getCourseById(courseId);
+        paymentService.addPayment(currentUser, course);
+        cartService.deleteItemCartAfterPayment(currentUser, course);
 
         return redirectView;
-	}
+    }
 
     @GetMapping("/successfulPayment")
-    public String successfulPaymentPage(Model model){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+    public String successfulPaymentPage(final Model model) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
-                Users user = authenticationService.getInforUserByGmail(gmail);
+                final Users user = authenticationService.getInforUserByGmail(gmail);
 
                 if (user != null) {
                     model.addAttribute("photo_user", user.getPicture());
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
 
-                Users user = authenticationService.getInforUser(username);
+                final Users user = authenticationService.getInforUser(username);
 
                 if (user != null) {
                     model.addAttribute("photo_user", user.getPicture());
@@ -162,20 +171,21 @@ public class PaymentController {
         }
         return "users/successfulPayment";
     }
-    @GetMapping("/myCourse")
-    public String myCourse(Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+    @GetMapping("/myCourse")
+    public String myCourse(final Model model) {
+
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -184,10 +194,9 @@ public class PaymentController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
 
                 user = authenticationService.getInforUser(username);
 
@@ -197,34 +206,34 @@ public class PaymentController {
             }
         }
 
-        List<Payments> myCourse = paymentService.getPaymentsByUser(user);
+        final List<Payments> myCourse = paymentService.getPaymentsByUser(user);
         model.addAttribute("myCourses", myCourse);
 
         return "users/yourCourse";
     }
 
     @PostMapping("/payForCart")
-    public RedirectView processCheckout(@RequestParam("courseIds") List<Integer> courseIds,HttpServletRequest request
-                                    ,Authentication authentication) throws UnsupportedEncodingException {
+    public RedirectView processCheckout(@RequestParam("courseIds") final List<Integer> courseIds, final HttpServletRequest request
+            , final Authentication authentication) throws UnsupportedEncodingException {
         // Bây giờ 'courseIds' chứa danh sách tất cả các ID khóa học từ giỏ hàng
         System.out.println("Đã nhận các ID khóa học để thanh toán: " + courseIds);
 
         int totalPrice = 0;
-        for (int courseId : courseIds) {
-            Courses course = courseService.getCourseById(courseId);
+        for (final int courseId : courseIds) {
+            final Courses course = courseService.getCourseById(courseId);
             totalPrice += course.getPrice();
         }
-        String orderType = "other";
-        String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
-        String vnp_IpAddr = PaymentConfig.getIpAddress(request);
+        final String orderType = "other";
+        final String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
+        final String vnp_IpAddr = PaymentConfig.getIpAddress(request);
 
-        String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
+        final String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
 
-        Map<String, String> vnp_Params = new HashMap<>();
+        final Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", PaymentConfig.vnp_Version);
         vnp_Params.put("vnp_Command", PaymentConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(totalPrice*100));
+        vnp_Params.put("vnp_Amount", String.valueOf(totalPrice * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
@@ -234,23 +243,23 @@ public class PaymentController {
         vnp_Params.put("vnp_IpAddr", "127.0.0.1");
         vnp_Params.put("vnp_ReturnUrl", PaymentConfig.vnp_ReturnUrl);
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+        final Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        final String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         cld.add(Calendar.MINUTE, 10);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        final String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-        List fieldNames = new ArrayList(vnp_Params.keySet());
+        final List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        final StringBuilder hashData = new StringBuilder();
+        final StringBuilder query = new StringBuilder();
+        final Iterator itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
+            final String fieldName = (String) itr.next();
+            final String fieldValue = (String) vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 //Build hash data
                 hashData.append(fieldName);
@@ -268,32 +277,32 @@ public class PaymentController {
         }
 
         String queryUrl = query.toString();
-        String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
+        final String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = PaymentConfig.vnp_PayUrl + "?" + queryUrl;
+        final String paymentUrl = PaymentConfig.vnp_PayUrl + "?" + queryUrl;
         System.out.println(paymentUrl);
-        RedirectView redirectView = new RedirectView();
+        final RedirectView redirectView = new RedirectView();
         redirectView.setUrl(paymentUrl);
 
-        Object principal = authentication.getPrincipal();
+        final Object principal = authentication.getPrincipal();
         Users currentUser = new Users();
 
         // **Cách 1: Xử lý người dùng đăng nhập truyền thống (qua UserDetails)**
         if (principal instanceof UserPrincipal) {
-            UserPrincipal userPrincipal = (UserPrincipal) principal;
+            final UserPrincipal userPrincipal = (UserPrincipal) principal;
             currentUser = authenticationService.getInforUser(userPrincipal.getUsername());
         }
         // **Cách 2: Xử lý người dùng đăng nhập qua OAuth2 (Gmail/Google)**
         else if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
 
             currentUser = authenticationService.getInforUserByGmail(oauthToken.getPrincipal().getAttribute("email"));
         }
 
-        for (int courseId : courseIds) {
-            Courses course = courseService.getCourseById(courseId);
-            paymentService.addPayment(currentUser,course);
-            cartService.deleteItemCartAfterPayment(currentUser,course);
+        for (final int courseId : courseIds) {
+            final Courses course = courseService.getCourseById(courseId);
+            paymentService.addPayment(currentUser, course);
+            cartService.deleteItemCartAfterPayment(currentUser, course);
         }
 
         return redirectView;
