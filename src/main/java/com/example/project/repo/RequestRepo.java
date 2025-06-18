@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface RequestRepo extends JpaRepository<Requests, Integer> {
     @Query("""
-            select r from Requests r order by r.createdAt desc limit 5
+            select r from Requests r where r.type <> 'FROM_ADMIN' order by r.createdAt desc limit 5
             """)
     List<Requests> getInBell();
 
