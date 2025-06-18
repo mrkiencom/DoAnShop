@@ -21,14 +21,14 @@ public class PaymentConfig {
     public static String vnp_Command = "pay";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
-    public static String hashAllFields(Map fields) {
-        List fieldNames = new ArrayList(fields.keySet());
+    public static String hashAllFields(final Map fields) {
+        final List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
-        StringBuilder sb = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        final StringBuilder sb = new StringBuilder();
+        final Iterator itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) fields.get(fieldName);
+            final String fieldName = (String) itr.next();
+            final String fieldValue = (String) fields.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 sb.append(fieldName);
                 sb.append("=");
@@ -48,39 +48,40 @@ public class PaymentConfig {
                 throw new NullPointerException();
             }
             final Mac hmac512 = Mac.getInstance("HmacSHA512");
-            byte[] hmacKeyBytes = key.getBytes();
+            final byte[] hmacKeyBytes = key.getBytes();
             final SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
             hmac512.init(secretKey);
-            byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-            byte[] result = hmac512.doFinal(dataBytes);
-            StringBuilder sb = new StringBuilder(2 * result.length);
-            for (byte b : result) {
+            final byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
+            final byte[] result = hmac512.doFinal(dataBytes);
+            final StringBuilder sb = new StringBuilder(2 * result.length);
+            for (final byte b : result) {
                 sb.append(String.format("%02x", b & 0xff));
             }
             return sb.toString();
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return "";
         }
     }
 
-    public static String getIpAddress(HttpServletRequest request) {
+    public static String getIpAddress(final HttpServletRequest request) {
         String ipAdress;
         try {
             ipAdress = request.getHeader("X-FORWARDED-FOR");
             if (ipAdress == null) {
                 ipAdress = request.getRemoteAddr();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             ipAdress = "Invalid IP:" + e.getMessage();
         }
         return ipAdress;
     }
+    
 
-    public static String getRandomNumber(int len) {
-        Random rnd = new Random();
-        String chars = "0123456789";
-        StringBuilder sb = new StringBuilder(len);
+    public static String getRandomNumber(final int len) {
+        final Random rnd = new Random();
+        final String chars = "0123456789";
+        final StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }

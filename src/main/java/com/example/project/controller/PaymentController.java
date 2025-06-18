@@ -141,36 +141,37 @@ public class PaymentController {
     @GetMapping("/successfulPayment")
     public String successfulPaymentPage(final Model model) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         if (isAuthenticated) {
             final Object principal = authentication.getPrincipal();
 
-            if (authentication instanceof OAuth2AuthenticationToken) {
-                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                final String gmail = oauthToken.getPrincipal().getAttribute("email");
-
-                authenticationService.saveGmailAccount(gmail);
-
-                final Users user = authenticationService.getInforUserByGmail(gmail);
-
-                if (user != null) {
-                    model.addAttribute("photo_user", user.getPicture());
+            try {
+                if (authentication instanceof final OAuth2AuthenticationToken oauthToken) {
+                    final String gmail = oauthToken.getPrincipal().getAttribute("email");
+                    authenticationService.saveGmailAccount(gmail);
+                    final Users user = authenticationService.getInforUserByGmail(gmail);
+                    if (user != null) {
+                        model.addAttribute("photo_user", user.getPicture());
+                    }
+                } else if (principal instanceof final UserPrincipal userPrincipal) {
+                    final String username = userPrincipal.getUsername();
+                    final Users user = authenticationService.getInforUser(username);
+                    if (user != null) {
+                        model.addAttribute("photo_user", user.getPicture());
+                    }
                 }
-            } else if (principal instanceof UserPrincipal) {
-                final UserPrincipal userPrincipal = (UserPrincipal) principal;
-                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
-
-                final Users user = authenticationService.getInforUser(username);
-
-                if (user != null) {
-                    model.addAttribute("photo_user", user.getPicture());
-                }
+            } catch (final Exception e) {
+                // log lại nếu muốn
+                System.out.println("Lỗi xử lý người dùng sau thanh toán: " + e.getMessage());
             }
         }
-        return "users/successfulPayment";
+
+        return "users/successfulPayment"; // đảm bảo file này tồn tại
     }
+
 
     @GetMapping("/myCourse")
     public String myCourse(final Model model) {
