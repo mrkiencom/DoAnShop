@@ -36,5 +36,17 @@ public class NotificationService {
             default -> String.valueOf(type);
         };
     }
+
+    public void notiFromAdmin(final int courseId, final String text, final String name, final String title, final int id) {
+        final Map<String, Object> payload = new HashMap<>();
+
+        payload.put("courseId", courseId);
+        payload.put("sender", name);
+        payload.put("message", text);
+        payload.put("timestamp", LocalDateTime.now().toString());
+
+        messagingTemplate.convertAndSend("/topic/lecturer/" + id + "/notifications", payload);
+
+    }
 }
 

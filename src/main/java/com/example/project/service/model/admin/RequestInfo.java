@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class RequestInfo {
     int id;
     String submissionName;
+    int courseId;
     String message;
     int senderId;
     String sender;

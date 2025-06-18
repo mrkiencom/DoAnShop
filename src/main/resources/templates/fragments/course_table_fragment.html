@@ -1,0 +1,24 @@
+<!-- fragments/course_table_fragment.html -->
+<div id="course-table-wrapper" th:fragment="courseTable(courses)">
+    <div class="relative overflow-y-auto ">
+        <div th:if="${courses.isEmpty()}">
+            <p>Bạn chưa tạo khóa học nào.</p>
+        </div>
+        <table th:unless="${courses.isEmpty()}" class="min-w-full divide-y divide-gray-200">
+            <!-- toàn bộ phần table như bạn đã có -->
+        </table>
+
+        <!-- Phân trang -->
+        <div class="flex items-center justify-end mt-4 px-6 py-2 space-x-2 text-sm">
+            <a th:if="${courses.hasPrevious()}"
+               th:href="@{/lecturerPage(page=${courses.number - 1}, size=${courses.size})}"
+               class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-100">Previous</a>
+            <span class="px-3 py-1 text-gray-500 font-medium">
+                Page <span th:text="${courses.number + 1}"></span> of <span th:text="${courses.totalPages}"></span>
+            </span>
+            <a th:if="${courses.hasNext()}"
+               th:href="@{/lecturerPage(page=${courses.number + 1}, size=${courses.size})}"
+               class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-100">Next</a>
+        </div>
+    </div>
+</div>

@@ -24,4 +24,12 @@ public interface RequestRepo extends JpaRepository<Requests, Integer> {
                     and (:status = '' or r.status = :status)
             """)
     Page<Requests> getRequests(String text, String type, String status, Pageable pageable);
+
+
+    @Query("""
+                    select r from Requests r left join r.user u
+                    where u.id = :id and r.type = 'FROM_ADMIN'
+                    order by r.createdAt desc limit 5
+            """)
+    List<Requests> getInBellByUserId(int id);
 }

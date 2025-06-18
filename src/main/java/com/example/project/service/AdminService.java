@@ -38,6 +38,7 @@ public class AdminService {
     private final UserRepo userRepo;
     private final CourseRepo courseRepo;
     private final RequestRepo requestRepo;
+    private final NotificationService notificationService;
 
     private static final String LECTURER_ROLE = "lecturer";
     private static final String LEARNER_ROLE = "learner";
@@ -216,6 +217,9 @@ public class AdminService {
         } else {
             final var course = courseRepo.findById(request.getSubmissionId()).orElseThrow();
             course.setStatus(approve ? "Published" : "Denied");
+            final var requestFromAdmin = buildSendBackFromAdmin(request, course);
+            notificationService.notiFromAdmin(requestFromAdmin.getSubmissionId(),
+                    requestFromAdmin.getDescription(), course.getLecturer().getUsername(), course.getTitle(), requestFromAdmin.getUser().getId());
         }
 
         request.setStatus(status);
@@ -224,6 +228,15 @@ public class AdminService {
         requestRepo.save(request);
 
         return buildRequest(request);
+    }
+
+    private Requests buildSendBackFromAdmin(final Requests requests, final Courses courses) {
+        return requestRepo.save(Requests.builder()
+                .type("FROM_ADMIN")
+                .user(courses.getLecturer())
+                .submissionId(courses.getCourseId())
+                .description(String.format("Quản trị viên đã %s yêu cầu muốn đăng tải khóa học có tiêu đề là: %s", courses.getStatus().toLowerCase(), courses.getTitle()))
+                .build());
     }
 
     public Long getTotalRevenue() {

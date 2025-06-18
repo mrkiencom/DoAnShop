@@ -1,64 +1,243 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<header class="flex items-center justify-between mb-6" th:fragment="header_lecturer">
-  <h1 class="text-lg font-semibold text-gray-900 select-none" th:text="'Hello ' + ${lecturer_account.firstname} + ' ' + ${lecturer_account.lastname}">
+<div class="flex items-center justify-between mb-6" th:fragment="header_lecturer">
+    <h1 class="text-lg font-semibold text-gray-900 select-none"
+        th:text="'Hello ' + ${lecturer_account.firstname} + ' ' + ${lecturer_account.lastname}">
+    </h1>
 
-  </h1>
-  <div class="flex items-center gap-6">
-    <button aria-label="Search" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm">
-      <i class="fas fa-search text-base">
-      </i>
-      Search
-    </button>
-    <button aria-label="Notifications" class="text-gray-500 hover:text-gray-900 text-lg" >
-      <i class="fas fa-bell">
-      </i>
-    </button>
-    <div class="relative">
-      <button type="button">
-        <img alt="User avatar with sunglasses and beard, circular crop" class="w-10 h-10 rounded-full object-cover" height="40" th:src="${lecturer_account.picture}" width="40"/>
-      </button>
-      <div class="z-50 absolute hidden top-12 right-0 w-[280px] bg-white shadow-md border border-gray-200 rounded-md font-mono-custom text-[10px] font-semibold">
-        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <span class="text-black" th:text="${lecturer_account.firstname} + ' ' + ${lecturer_account.lastname}"></span>
-            <span class="text-gray-600 uppercase tracking-widest mt-0.5" th:text="${lecturer_account.gmail}"></span>
-          </div>
-          <div>
-            <span class="bg-[#e6ff00] text-[8px] font-extrabold uppercase px-2 py-0.5 rounded select-none" th:text="${lecturer_account.role}"></span>
-          </div>
+    <div class="flex items-center gap-6">
+
+        <!-- Thanh tìm kiếm -->
+        <div x-data="{ open: false, searchText: '' }"
+             th:attr="data-lecturer-id=${lecturer_account.id}"
+             x-init="$watch('searchText', value => {
+         if (!value.trim()) {
+             const lecturerId = $el.dataset.lecturerId;
+             fetch(`/search-lecturer?id=${lecturerId}`)
+                 .then(response => response.text())
+                 .then(html => {
+                     const parser = new DOMParser();
+                     const doc = parser.parseFromString(html, 'text/html');
+                     const newTableWrapper = doc.querySelector('#course-table-wrapper');
+                     if (newTableWrapper) {
+                         document.getElementById('course-table-wrapper').innerHTML = newTableWrapper.innerHTML;
+                     }
+                 });
+         }
+     })"
+             class="relative flex justify-end w-[200px]">
+
+
+            <input
+                    id="searchText"
+                    x-show="open"
+                    x-transition:enter="transition-all duration-200 ease-out"
+                    x-transition:enter-start="opacity-0 scale-x-0"
+                    x-transition:enter-end="opacity-100 scale-x-100"
+                    x-transition:leave="transition-all duration-150 ease-in"
+                    x-transition:leave-start="opacity-100 scale-x-100"
+                    x-transition:leave-end="opacity-0 scale-x-0"
+                    x-ref="searchInput"
+                    @click.away="open = false"
+                    @keydown.escape.window="open = false"
+                    type="text"
+                    placeholder="Search..."
+                    x-model="searchText"
+                    @input="() => searchCourses($el.value, $el.closest('div').dataset.lecturerId)"
+                    class="absolute right-0 top-0 w-full px-3 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring bg-white z-20 origin-right"
+            />
+
+            <button
+                    @click="open = true; $nextTick(() => $refs.searchInput.focus())"
+                    aria-label="Search"
+                    class="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm z-10 relative"
+            >
+                <i class="fas fa-search text-base"></i>
+            </button>
         </div>
-        <ul class="divide-y divide-gray-200">
-          <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
-            <a href="/image_lecturer">
-              <i class="far fa-user-circle text-[12px]"></i>
-              <span>Image settings</span>
-            </a>
-          </li>
-          <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
-            <a href="/profile_lecturer">
-              <i class="fas fa-user-edit text-[12px]"></i>
-              <span>Profile settings</span>
-            </a>
-          </li>
-          <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
-            <a href="/changePassword_lecturer">
-              <i class="fas fa-lock text-[12px]"></i>
-              <span>Change password</span>
-            </a>
-          </li>
-          <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
-            <a href="/logout">
-              <i class="fas fa-sign-out-alt text-[12px]"></i>
-              <span>Sign out</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+
+
+        <!-- Icon thông báo -->
+        <!-- Icon thông báo -->
+        <div class="relative">
+            <button id="notificationBell" aria-label="Notifications"
+                    class="text-gray-500 hover:text-gray-900 text-lg relative">
+                <i class="fas fa-bell"></i>
+                <!-- Chấm đỏ -->
+                <span id="bellDot"
+                      class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+            </button>
+
+            <!-- Dropdown danh sách thông báo -->
+            <div id="notificationDropdown"
+                 class="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden max-h-[300px] overflow-y-auto">
+                <div class="p-4 font-semibold text-gray-700 border-b">Thông báo mới</div>
+                <ul id="notificationList" class="divide-y divide-gray-100 text-sm">
+                    <li th:each="r : ${bellList}" class="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <div class="text-gray-800 font-medium"
+                        > From admin
+                        </div>
+                        <div class="text-gray-600 text-sm" th:utext="${#strings.abbreviate(r.message, 80)}">
+                            Thông báo nội
+                            dung
+                        </div>
+                        <div class="text-gray-400 text-xs mt-1"
+                             th:text="${#temporals.format(r.timestamp, 'dd/MM/yyyy HH:mm')}">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- Avatar Dropdown -->
+        <div class="relative" id="dropdown-profile">
+            <button type="button" id="dropdownButton">
+                <img alt="User avatar"
+                     class="w-10 h-10 rounded-full object-cover"
+                     th:src="${lecturer_account.picture}"
+                     width="40" height="40"/>
+            </button>
+
+            <div id="dropdownMenu"
+                 class="z-50 absolute hidden top-12 right-0 w-[280px] bg-white shadow-md border border-gray-200 rounded-md font-mono-custom text-[10px] font-semibold">
+                <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-black"
+                              th:text="${lecturer_account.firstname} + ' ' + ${lecturer_account.lastname}"></span>
+                        <span class="text-gray-600 uppercase tracking-widest mt-0.5"
+                              th:text="${lecturer_account.gmail}"></span>
+                    </div>
+                    <div>
+                        <span class="bg-[#e6ff00] text-[8px] font-extrabold uppercase px-2 py-0.5 rounded select-none"
+                              th:text="${lecturer_account.role}"></span>
+                    </div>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <a href="/image_lecturer">
+                            <i class="far fa-user-circle text-[12px]"></i>
+                            <span>Image settings</span>
+                        </a>
+                    </li>
+                    <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <a href="/profile_lecturer">
+                            <i class="fas fa-user-edit text-[12px]"></i>
+                            <span>Profile settings</span>
+                        </a>
+                    </li>
+                    <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <a href="/changePassword_lecturer">
+                            <i class="fas fa-lock text-[12px]"></i>
+                            <span>Change password</span>
+                        </a>
+                    </li>
+                    <li class="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <a href="/logout">
+                            <i class="fas fa-sign-out-alt text-[12px]"></i>
+                            <span>Sign out</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const dropdownButton = document.getElementById('dropdownButton');
+                const dropdownMenu = document.getElementById('dropdownMenu');
+
+                dropdownButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            function searchCourses(text, lecturerId) {
+                fetch(`/search-lecturer-course?id=${encodeURIComponent(lecturerId)}&text=${encodeURIComponent(text)}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTableWrapper = doc.querySelector('#course-table-wrapper');
+                        if (newTableWrapper) {
+                            document.getElementById('course-table-wrapper').innerHTML = newTableWrapper.innerHTML;
+                        }
+                    });
+            }
+
+
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const bellBtn = document.getElementById('notificationBell');
+                const dropdown = document.getElementById('notificationDropdown');
+                const bellDot = document.getElementById('bellDot');
+                const notificationList = document.getElementById('notificationList');
+
+                // Mảng lưu thông báo
+                let notifications = [];
+
+                // Toggle dropdown
+                bellBtn.addEventListener('click', () => {
+                    dropdown.classList.toggle('hidden');
+                    bellDot.classList.add('hidden');
+                    bellDot.classList.remove('animate-pulse-dot'); // ẩn chấm đỏ khi xem
+                });
+
+                // WebSocket
+                const socket = new SockJS('/ws');
+                const stompClient = Stomp.over(socket);
+
+                const lecturerId = document.querySelector('[data-lecturer-id]').dataset.lecturerId;
+
+                stompClient.connect({}, function (frame) {
+                    console.log('Connected: ' + frame);
+
+                    // Subscribe vào topic cá nhân hóa
+                    stompClient.subscribe(`/topic/lecturer/${lecturerId}/notifications`, function (notification) {
+                        const data = JSON.parse(notification.body);
+                        renderNotification(data);
+                        bellDot.classList.remove('hidden');
+                        bellDot.classList.add('animate-pulse-dot');
+                    });
+                });
+
+
+                // Hàm render 1 thông báo
+                function renderNotification(data) {
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer';
+
+                    li.innerHTML = `
+                <div class="text-gray-800 font-medium">${data.sender} (${data.type})</div>
+                <div class="text-gray-600 text-sm">${data.message}</div>
+                <div class="text-gray-400 text-xs mt-1">${formatTime(data.timestamp)}</div>
+            `;
+
+                    notificationList.prepend(li);
+                }
+
+                function formatTime(timestamp) {
+                    const date = new Date(timestamp);
+                    return date.toLocaleString('vi-VN');
+                }
+
+                // Click ngoài dropdown thì ẩn
+                document.addEventListener('click', function (e) {
+                    if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            });
+        </script>
+
+
     </div>
-  </div>
-</header>
-</html>
+
+
+</div>

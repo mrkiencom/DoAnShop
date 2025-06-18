@@ -9,11 +9,12 @@ import com.example.project.repo.RequestRepo;
 import com.example.project.repo.UserRepo;
 import com.example.project.repo.VideoRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -77,8 +78,12 @@ public class LecturerService {
         return optionalCourse.orElse(null);
     }
 
-    public List<Courses> getCoursesByLecturer(final Integer lecturerId) {
-        return courseRepo.findByLecturerId(lecturerId);
+    public Page<Courses> getCoursesByLecturer(final Integer lecturerId, final Pageable pageable) {
+        return courseRepo.findByLecturerId(lecturerId, pageable);
+    }
+
+    public Page<Courses> searchCourses(final String text, final int id, final Pageable pageable) {
+        return courseRepo.searchCoursesById(text, id, pageable);
     }
 
     public void saveCourse(final Courses course) {

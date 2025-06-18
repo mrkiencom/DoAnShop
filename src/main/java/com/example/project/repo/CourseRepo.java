@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepo extends JpaRepository<Courses, Integer> {
-    List<Courses> findByLecturerId(Integer lecturerId);
+    Page<Courses> findByLecturerId(Integer lecturerId, Pageable pageable);
 
     @Query("SELECT c FROM Courses c " +
             "WHERE c.status = 'Published' " + // Thêm điều kiện này
@@ -132,4 +132,15 @@ public interface CourseRepo extends JpaRepository<Courses, Integer> {
             where c.courseId = :id
             """)
     Optional<Courses> getCourseDetailById(int id);
+
+    @Query("""
+                SELECT c FROM Courses c left join c.lecturer cl
+                WHERE cl.id = :id 
+                  AND (
+                      :text IS NULL OR :text = '' OR 
+                      LOWER(c.title) LIKE LOWER(CONCAT('%', :text, '%')) OR 
+                      LOWER(c.category) LIKE LOWER(CONCAT('%', :text, '%'))
+                  )
+            """)
+    Page<Courses> searchCoursesById(final String text, final int id, Pageable pageable);
 }

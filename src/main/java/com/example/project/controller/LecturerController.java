@@ -6,8 +6,13 @@ import com.example.project.model.Users;
 import com.example.project.model.Videos;
 import com.example.project.service.AuthenticationService;
 import com.example.project.service.LecturerService;
+import com.example.project.service.RequestService;
 import com.example.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -35,6 +40,9 @@ public class LecturerController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RequestService requestService;
 
     @PostMapping("/createCourses")
     public String createCourses(@ModelAttribute("course") final Courses course, final Model model) {
@@ -129,7 +137,10 @@ public class LecturerController {
     }
 
     @GetMapping("/lecturerPage")
-    public String lecturerPage(final Model model) {
+    public String lecturerPage(
+            @RequestParam(value = "page", required = false, defaultValue = "0") final int page,
+            @RequestParam(value = "size", required = false, defaultValue = "7") final int size,
+            final Model model) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
@@ -162,7 +173,9 @@ public class LecturerController {
             }
         }
 
-        final List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
+        final Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
+        final Page<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId(), pageable);
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
         model.addAttribute("courses", courses);
 
         return "lecturers/lecturerPage";
@@ -201,6 +214,7 @@ public class LecturerController {
                 }
             }
         }
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
 
         model.addAttribute("course", new Courses());
         return "lecturers/createCourses";
@@ -301,7 +315,7 @@ public class LecturerController {
         existingCourse.setDate(currentDate);
 
         lecturerService.saveCourse(existingCourse);
-
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
         return "redirect:/lecturerPage";
     }
 
@@ -341,7 +355,9 @@ public class LecturerController {
             }
         }
 
-        final List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
+        final Pageable pageable = PageRequest.of(0, 7, Sort.by("date").ascending());
+        final Page<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId(), pageable);
         model.addAttribute("courses", courses);
         return "redirect:/lecturerPage";
     }
@@ -433,7 +449,7 @@ public class LecturerController {
         existingVideo.setUploadedAt(currentDate);
 
         lecturerService.saveVideo(existingVideo);
-
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
         return "redirect:/lecturerPage";
     }
 
@@ -469,11 +485,14 @@ public class LecturerController {
 
                 if (lecturer != null) {
                     model.addAttribute("lecturer_account", lecturer);
+
                 }
             }
         }
 
-        final List<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId());
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(lecturer.getId()));
+        final Pageable pageable = PageRequest.of(0, 7, Sort.by("date").ascending());
+        final Page<Courses> courses = lecturerService.getCoursesByLecturer(lecturer.getId(), pageable);
         model.addAttribute("courses", courses);
         return "redirect:/lecturerPage";
     }
@@ -660,4 +679,23 @@ public class LecturerController {
         return "request_lecturer";
     }
 
+    @GetMapping("/search-lecturer-course")
+    public String searchLecturer(
+            @RequestParam("id") final int id,
+            @RequestParam(value = "text", required = false) final String text,
+            @RequestParam(value = "page", defaultValue = "0") final int page,
+            @RequestParam(value = "size", defaultValue = "7") final int size,
+            final Model model) {
+        final var lecturer = userService.getUserById(id);
+        final String keyword = (text != null && !text.trim().isEmpty()) ? text.trim() : null;
+        final Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
+        final Page<Courses> courses = lecturerService.searchCourses(keyword, id, pageable);
+
+        model.addAttribute("bellList", requestService.getLimitRequestBellByUserId(id));
+        model.addAttribute("courses", courses);
+        model.addAttribute("lecturer_account", lecturer);
+        model.addAttribute("searchText", keyword);
+
+        return "lecturers/lecturerPage";
+    }
 }

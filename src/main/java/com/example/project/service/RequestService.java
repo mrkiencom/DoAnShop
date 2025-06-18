@@ -24,4 +24,18 @@ public class RequestService {
                         .build())
                 .toList();
     }
+
+    public List<RequestInfo> getLimitRequestBellByUserId(final int id) {
+        return requestRepo.getInBellByUserId(id).stream()
+                .map(i -> RequestInfo.builder()
+                        .id(i.getId())
+                        .submissionName(i.getSubmissionName())
+                        .courseId(i.getSubmissionId())
+                        .message(i.getDescription())
+                        .senderId(i.getUser().getId())
+                        .sender(i.getUser().getFirstname() + ' ' + i.getUser().getLastname())
+                        .timestamp(i.getCreatedAt())
+                        .build())
+                .toList();
+    }
 }
