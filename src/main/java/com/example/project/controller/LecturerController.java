@@ -665,6 +665,36 @@ public class LecturerController {
 
     @GetMapping("/request-to-lecturer")
     public String showRequestForm(@RequestParam("id") final String id, final Model model) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        if (isAuthenticated) {
+            final Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                final Users user = authenticationService.getInforUserByGmail(gmail);
+
+                if (user != null) {
+                    model.addAttribute("user_account", user);
+                }
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                final Users user = authenticationService.getInforUser(username);
+
+                if (user != null) {
+                    model.addAttribute("user_account", user);
+                }
+            }
+        }
+        
         model.addAttribute("id", id);
         return "request_lecturer"; // tên file .html trong templates
     }
