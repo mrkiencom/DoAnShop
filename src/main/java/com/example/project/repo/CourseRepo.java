@@ -63,14 +63,20 @@ public interface CourseRepo extends JpaRepository<Courses, Integer> {
     Long sumTotalRevenue();
 
     @Query("""
-                SELECT FUNCTION('YEAR', p.enrollmentDate) AS year,
-                       FUNCTION('MONTH', p.enrollmentDate) AS month,
-                       SUM(p.course.price) AS totalRevenue
+                SELECT 
+                    EXTRACT(YEAR FROM p.enrollmentDate) AS year,
+                    EXTRACT(MONTH FROM p.enrollmentDate) AS month,
+                    SUM(p.course.price) AS totalRevenue
                 FROM Payments p
-                GROUP BY FUNCTION('YEAR', p.enrollmentDate), FUNCTION('MONTH', p.enrollmentDate)
-                ORDER BY FUNCTION('YEAR', p.enrollmentDate), FUNCTION('MONTH', p.enrollmentDate)
+                GROUP BY 
+                    EXTRACT(YEAR FROM p.enrollmentDate),
+                    EXTRACT(MONTH FROM p.enrollmentDate)
+                ORDER BY 
+                    EXTRACT(YEAR FROM p.enrollmentDate),
+                    EXTRACT(MONTH FROM p.enrollmentDate)
             """)
     List<MonthlyRevenue> getMonthlyRevenue();
+
 
     @Query("""
                 SELECT p.course.title AS title,
