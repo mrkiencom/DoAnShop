@@ -71,7 +71,7 @@ public class AdminService {
             case "lastMonth" -> LocalDateTime.now().minusMonths(1);
             case "lastWeek" -> LocalDateTime.now().minusWeeks(1);
             case "lastYear" -> LocalDateTime.now().minusYears(1);
-            default -> null;
+            default -> LocalDateTime.now().minusYears(100);
         };
 
         final List<Users> users = userRepo.findUserByTimeRange(fromDate, endDate);
