@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -26,13 +27,13 @@ public interface UserRepo extends JpaRepository<Users, Integer> {
 
     @Query("""
                 SELECT u FROM Users u
-                WHERE (:fromDate IS NULL OR :endDate IS NULL OR u.createdAt BETWEEN :fromDate AND :endDate)
+                WHERE (u.createdAt BETWEEN :fromDate AND :endDate)
                 AND u.role <> 'admin'
                 ORDER BY u.createdAt, u.firstname
             """)
     List<Users> findUserByTimeRange(
-            LocalDateTime fromDate,
-            LocalDateTime endDate);
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("endDate") LocalDateTime endDate);
 
     @Query("""
                 select u from Users u where u.role <> 'admin'
