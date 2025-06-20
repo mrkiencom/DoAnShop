@@ -1,6 +1,7 @@
 package com.example.project.service;
 
 import com.example.project.MailProperties;
+import com.example.project.exception.NotFoundException;
 import com.example.project.model.PasswordResetToken;
 import com.example.project.model.Users;
 import com.example.project.repo.PasswordResetTokenRepo;
@@ -204,5 +205,9 @@ public class AuthenticationService {
         return passwordResetTokenRepo.findByToken(token)
                 .filter(t -> !t.isUsed())
                 .filter(t -> t.getExpiryDate().isAfter(LocalDateTime.now()));
+    }
+
+    public Users findById(final int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Cannot find user has id: " + id));
     }
 }
