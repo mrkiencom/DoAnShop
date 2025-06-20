@@ -3,32 +3,52 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Sign Up Page</title>
+    <title>Thanh toán thành công</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
 </head>
 <header th:replace="~{fragments/header :: header}"></header>
 <body class="bg-white p-6">
-<div class="max-w-md mx-auto">
-    <h1 class="text-green-600 text-lg font-normal mb-2">Thanh toán thành công</h1>
-    <img class="w-full border border-gray-300 text-sm mb-2" src="https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg">
-    <a class="mt-4 bg-blue-600 text-white text-xs font-normal px-3 py-1 rounded" href="/">Về trang chủ</a>
+<div class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 text-center">
+    <!-- Tiêu đề -->
+    <h1 class="text-2xl font-semibold text-green-600 mb-4">🎉 Thanh toán thành công!</h1>
+
+    <!-- Logo VNPay -->
+    <div class="mb-4">
+        <img
+                class="w-40 h-auto mx-auto border border-gray-200 rounded-md"
+                src="https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg"
+                alt="VNPay Logo"
+        />
+    </div>
+
+    <!-- Thông báo phụ -->
+    <p class="text-gray-700 text-sm mb-6">
+        Cảm ơn bạn đã thanh toán. Bạn đã đăng ký khóa học thành công.
+    </p>
+
+    <!-- Nút về trang chủ -->
+    <a href="/"
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-full transition duration-200">
+        Về trang chủ
+    </a>
 </div>
+
 </body>
 <script>
     const dropdownButton = document.querySelector('.relative button');
     const dropdownMenu = document.querySelector('.relative div');
 
     dropdownButton.addEventListener('click', () => {
-      dropdownMenu.classList.toggle('hidden');
+        dropdownMenu.classList.toggle('hidden');
     });
 
     // Đóng dropdown khi click ra ngoài
     document.addEventListener('click', (event) => {
-      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.add('hidden');
-      }
+        if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
     });
 </script>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
