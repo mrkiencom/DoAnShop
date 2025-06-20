@@ -9,166 +9,203 @@
 </head>
 <header th:replace="~{fragments/header :: header}"></header>
 <body class="bg-white text-gray-900 font-sans">
-    <div class="max-w-[1280px] mx-auto px-6 py-12">
-        <form class="flex flex-wrap items-center gap-3 mb-8" th:action="@{/listCourses}" method="get">
-            <button type="submit" class="border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
-                <i class="fas fa-search"></i>
-                <span>Find</span>
-            </button>
+<div class="max-w-[1280px] mx-auto px-6 py-12">
+    <form class="flex flex-wrap items-center gap-3 mb-8" th:action="@{/listCourses}" method="get">
+        <button type="submit"
+                class="border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
+            <i class="fas fa-search"></i>
+            <span>Find</span>
+        </button>
 
-            <select id="category-select"
-                    name="category"  class="w-32 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
-                <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">Category</option>
-                <option value="Web Development" th:selected="${selectedCategory == 'Web Development'}">Web Development</option>
-                <option value="Data Science" th:selected="${selectedCategory == 'Data Science'}">Data Science</option>
-                <option value="Mobile Development" th:selected="${selectedCategory == 'Mobile Development'}">Mobile Development</option>
-                <option value="Programming Languages" th:selected="${selectedCategory == 'Programming Languages'}">Programming Languages</option>
-                <option value="Game Development" th:selected="${selectedCategory == 'Game Development'}">Game Development</option>
-                <option value="Database Design & Development" th:selected="${selectedCategory == 'Database Design & Development'}">Database Design & Development</option>
-                <option value="Software Testing" th:selected="${selectedCategory == 'Software Testing'}">Software Testing</option>
-                <option value="Software Engineering" th:selected="${selectedCategory == 'Software Engineering'}">Software Engineering</option>
-                <option value="Software Development Tools" th:selected="${selectedCategory == 'Software Development Tools'}">Software Development Tools</option>
-            </select>
+        <select id="category-select"
+                name="category"
+                class="w-32 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
+            <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">Category</option>
+            <option value="Web Development" th:selected="${selectedCategory == 'Web Development'}">Web Development
+            </option>
+            <option value="Data Science" th:selected="${selectedCategory == 'Data Science'}">Data Science</option>
+            <option value="Mobile Development" th:selected="${selectedCategory == 'Mobile Development'}">Mobile
+                Development
+            </option>
+            <option value="Programming Languages" th:selected="${selectedCategory == 'Programming Languages'}">
+                Programming Languages
+            </option>
+            <option value="Game Development" th:selected="${selectedCategory == 'Game Development'}">Game Development
+            </option>
+            <option value="Database Design & Development"
+                    th:selected="${selectedCategory == 'Database Design & Development'}">Database Design & Development
+            </option>
+            <option value="Software Testing" th:selected="${selectedCategory == 'Software Testing'}">Software Testing
+            </option>
+            <option value="Software Engineering" th:selected="${selectedCategory == 'Software Engineering'}">Software
+                Engineering
+            </option>
+            <option value="Software Development Tools"
+                    th:selected="${selectedCategory == 'Software Development Tools'}">Software Development Tools
+            </option>
+        </select>
 
-            <select id="topic-select"
-                    name="topic" class="w-24 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
-                <option value="" th:selected="${selectedTopic == null or selectedTopic == ''}">Topic</option>
-            </select>
+        <select id="topic-select"
+                name="topic"
+                class="w-24 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
+            <option value="" th:selected="${selectedTopic == null or selectedTopic == ''}">Topic</option>
+        </select>
 
-            <select id="level"
-                    name="level"
-                    class="w-24 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
-                <option value="" th:selected="${selectedLevel == null or selectedLevel == ''}">Level</option>
-                <option value="All Levels" th:selected="${selectedLevel == 'All Levels'}">All</option>
-                <option value="Beginner Level" th:selected="${selectedLevel == 'Beginner Level'}">Beginner</option>
-                <option value="Intermediate Level" th:selected="${selectedLevel == 'Intermediate Level'}">Intermediate</option>
-                <option value="Expert Level" th:selected="${selectedLevel == 'Expert Level'}">Expert</option>
-            </select>
+        <select id="level"
+                name="level"
+                class="w-24 border border-gray-400 rounded-md text-gray-900 text-base font-normal px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600">
+            <option value="" th:selected="${selectedLevel == null or selectedLevel == ''}">Level</option>
+            <option value="All Levels" th:selected="${selectedLevel == 'All Levels'}">All</option>
+            <option value="Beginner Level" th:selected="${selectedLevel == 'Beginner Level'}">Beginner</option>
+            <option value="Intermediate Level" th:selected="${selectedLevel == 'Intermediate Level'}">Intermediate
+            </option>
+            <option value="Expert Level" th:selected="${selectedLevel == 'Expert Level'}">Expert</option>
+        </select>
 
-            <select class="ml-auto font-semibold text-gray-900 text-sm flex items-center cursor-pointer select-none">
-                <option selected>Most Relevant</option>
-            </select>
-        </form>
-        <div th:if="${coursePage.empty}">
-            <p>Không có khóa học nào được tìm thấy.</p>
-        </div>
-        <div th:unless="${coursePage.empty}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Card 1 -->
-            <div th:each="course : ${coursePage.content}" class="border border-gray-200 rounded-xl overflow-hidden flex flex-col">
-                <a th:href="@{/courseDetail/{courseId}(courseId=${course.courseId})}" class="p-4 flex flex-col flex-grow cursor-pointer">
-                    <img th:alt="${course.title + ' image'}" class="w-full object-cover mb-2 rounded-xl" height="150" th:src="${course.image}" width="400"/>
-                    <h3 class="font-bold text-gray-900 text-lg leading-tight mb-1 hover:underline" th:text="${course.title}"></h3>
-                    <p class="text-gray-700 text-sm leading-snug mb-1 overflow-hidden text-ellipsis line-clamp-3" th:text="${course.description}"></p>
-                    <p th:text="${course?.lecturer?.firstname} + ' '+ ${course?.lecturer?.lastname}" class="text-gray-400 text-xs mb-3"></p>
-                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                        <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]" th:text="${course.category}"></span>
-                        <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]" th:text="${course.topic}"></span>
-                    </div>
-                    <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px] w-max mb-4" th:text="${course.level}"></span>
-                    <div class="mt-auto flex items-center gap-2 text-base font-extrabold text-gray-900">
-                        <span th:text="${course.price} + ' ₫'"></span>
-                        <!--<span class="line-through text-gray-400 text-sm">₫399,000</span>-->
-                    </div>
-                </a>
-            </div>
-        </div>
-        <ul class="flex justify-center list-none p-5 mt-10">
-            <li th:classappend="${currentPage == 0 ? 'pointer-events-none opacity-50' : ''} + ' mx-1'">
-                <a th:href="@{/listCourses(page=${currentPage - 1}, size=${coursePage.size})}"
-                   class="inline-block px-3 py-2 border border-gray-300 text-blue-600 rounded hover:bg-gray-100">Trước</a>
-            </li>
-
-            <th:block th:if="${totalPages > 0}">
-                <li th:if="${pageNumbers[0] > 0}" class="mx-1">
-                    <span class="inline-block px-3 py-2 text-gray-500">...</span>
-                </li>
-
-                <li th:each="i : ${pageNumbers}"
-                    th:classappend="${currentPage == i ? 'bg-blue-600 text-white border-blue-600' : 'text-blue-600 border-gray-300 hover:bg-gray-100'} + ' mx-1'">
-                    <a th:href="@{/listCourses(page=${i}, size=${coursePage.size})}" th:text="${i + 1}"
-                       class="inline-block px-3 py-2 border rounded"></a>
-                </li>
-
-                <li th:if="${pageNumbers[#lists.size(pageNumbers) - 1] < totalPages - 1}" class="mx-1">
-                    <span class="inline-block px-3 py-2 text-gray-500">...</span>
-                </li>
-            </th:block>
-
-            <li th:classappend="${currentPage == totalPages - 1 ? 'pointer-events-none opacity-50' : ''} + ' mx-1'">
-                <a th:href="@{/listCourses(page=${currentPage + 1}, size=${coursePage.size})}"
-                   class="inline-block px-3 py-2 border border-gray-300 text-blue-600 rounded hover:bg-gray-100">Tiếp</a>
-            </li>
-        </ul>
+        <select class="ml-auto font-semibold text-gray-900 text-sm flex items-center cursor-pointer select-none">
+            <option selected>Most Relevant</option>
+        </select>
+    </form>
+    <div th:if="${coursePage.empty}">
+        <p>Không có khóa học nào được tìm thấy.</p>
     </div>
+    <div th:unless="${coursePage.empty}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1 -->
+        <div th:each="course : ${coursePage.content}"
+             class="border border-gray-200 rounded-xl overflow-hidden flex flex-col transition duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-gray-300">
+
+            <a th:href="@{/courseDetail/{courseId}(courseId=${course.courseId})}"
+               class="p-4 flex flex-col flex-grow cursor-pointer group">
+
+                <img th:alt="${course.title + ' image'}"
+                     class="w-full object-cover mb-2 rounded-xl transition-transform duration-300 group-hover:scale-105"
+                     height="150" th:src="${course.image}" width="400"/>
+
+                <h3 class="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-blue-600 transition">
+                    <span th:text="${course.title}"></span>
+                </h3>
+
+                <p class="text-gray-700 text-sm leading-snug mb-1 overflow-hidden text-ellipsis line-clamp-3"
+                   th:text="${course.description}"></p>
+
+                <p th:text="${course?.lecturer?.firstname} + ' '+ ${course?.lecturer?.lastname}"
+                   class="text-gray-400 text-xs mb-3"></p>
+
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]"
+                  th:text="${course.category}"></span>
+                    <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px]"
+                          th:text="${course.topic}"></span>
+                </div>
+
+                <span class="text-xs text-gray-700 border border-gray-300 rounded px-2 py-[2px] w-max mb-4"
+                      th:text="${course.level}"></span>
+
+                <div class="mt-auto flex items-center gap-2 text-base font-extrabold text-gray-900">
+                    <span th:text="${course.price} + ' ₫'"></span>
+                </div>
+
+            </a>
+        </div>
+
+    </div>
+    <ul class="flex justify-center list-none p-5 mt-10">
+        <li th:classappend="${currentPage == 0 ? 'pointer-events-none opacity-50' : ''} + ' mx-1'">
+            <a th:href="@{/listCourses(page=${currentPage - 1}, size=${coursePage.size})}"
+               class="inline-block px-3 py-2 border border-gray-300 text-blue-600 rounded hover:bg-gray-100">Trước</a>
+        </li>
+
+        <th:block th:if="${totalPages > 0}">
+            <li th:if="${pageNumbers[0] > 0}" class="mx-1">
+                <span class="inline-block px-3 py-2 text-gray-500">...</span>
+            </li>
+
+            <li th:each="i : ${pageNumbers}"
+                th:classappend="${currentPage == i ? 'bg-blue-600 text-white border-blue-600' : 'text-blue-600 border-gray-300 hover:bg-gray-100'} + ' mx-1'">
+                <a th:href="@{/listCourses(page=${i}, size=${coursePage.size})}" th:text="${i + 1}"
+                   class="inline-block px-3 py-2 border rounded"></a>
+            </li>
+
+            <li th:if="${pageNumbers[#lists.size(pageNumbers) - 1] < totalPages - 1}" class="mx-1">
+                <span class="inline-block px-3 py-2 text-gray-500">...</span>
+            </li>
+        </th:block>
+
+        <li th:classappend="${currentPage == totalPages - 1 ? 'pointer-events-none opacity-50' : ''} + ' mx-1'">
+            <a th:href="@{/listCourses(page=${currentPage + 1}, size=${coursePage.size})}"
+               class="inline-block px-3 py-2 border border-gray-300 text-blue-600 rounded hover:bg-gray-100">Tiếp</a>
+        </li>
+    </ul>
+</div>
 </body>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-      const categorySelect = document.getElementById('category-select');
-      const topicSelect = document.getElementById('topic-select');
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category-select');
+        const topicSelect = document.getElementById('topic-select');
 
-      // Lấy giá trị đã chọn từ Controller (Thymeleaf Inline JS)
-      const selectedCategoryFromController = /*[[${selectedCategory}]]*/ '';
-      const selectedTopicFromController = /*[[${selectedTopic}]]*/ '';
+        // Lấy giá trị đã chọn từ Controller (Thymeleaf Inline JS)
+        const selectedCategoryFromController = /*[[${selectedCategory}]]*/ '';
+        const selectedTopicFromController = /*[[${selectedTopic}]]*/ '';
 
-      // Dữ liệu mẫu cho các chủ đề tương ứng với từng danh mục
-      const topicsByCategory = {
-        'Web Development': ['JavaScript', 'React JS', 'Angular', 'Next.js', 'CSS', 'Typescript', 'ASP.NET Core', 'HTML', 'Vue JS'],
-        'Data Science': ['Machine Learning', 'Artificial Intelligence (AI)', 'Large Language Models (LLM)', 'Python', 'AI Agents', 'Deep Learning', 'Generative AI (GenAI)', 'LangChain'],
-        'Mobile Development': ['Google Flutter', 'React Native', 'Android Development', 'iOS Development', 'Dart', 'Swift', 'Kotlin', 'SwiftUI', 'Mobile App Development'],
-        'Programming Languages': ['Python', 'Java', 'C++', 'C#', 'Node JS', 'PHP', 'Ruby', 'Spring Framework', 'JavaScript'],
-        'Game Development': ['Unity', 'Unreal Engine', 'C#', 'Game Design', 'Godot', 'Game Development Fundamentals', '2D Game Development', '3D Game Development'],
-        'Database Design & Development': ['SQL', 'MySQL', 'SQL Server','PostgreSQL', 'MongoDB'],
-        'Software Testing': ['Microsoft Playwright', 'Selenium WebDriver', 'Java', 'Automation Testing', 'Postman', 'Selenium Testing Framework', 'API Testing'],
-        'Software Engineering': ['Data Structures', 'Certified Kubernetes Application Developer (CKAD)', 'Software Architecture', 'Coding Interview', 'Algorithms', 'Spring Framework', 'Microservices', 'Node.Js', 'Front End Web Development', 'Back End Web Development'],
-        'Software Development Tools': ['Git', 'Docker', 'Kubernetes', 'GitHub', 'CI/CD', 'Confluence', 'Prompt Engineering', 'GitHub Copilot', 'JIRA'],
-      };
+        // Dữ liệu mẫu cho các chủ đề tương ứng với từng danh mục
+        const topicsByCategory = {
+            'Web Development': ['JavaScript', 'React JS', 'Angular', 'Next.js', 'CSS', 'Typescript', 'ASP.NET Core', 'HTML', 'Vue JS'],
+            'Data Science': ['Machine Learning', 'Artificial Intelligence (AI)', 'Large Language Models (LLM)', 'Python', 'AI Agents', 'Deep Learning', 'Generative AI (GenAI)', 'LangChain'],
+            'Mobile Development': ['Google Flutter', 'React Native', 'Android Development', 'iOS Development', 'Dart', 'Swift', 'Kotlin', 'SwiftUI', 'Mobile App Development'],
+            'Programming Languages': ['Python', 'Java', 'C++', 'C#', 'Node JS', 'PHP', 'Ruby', 'Spring Framework', 'JavaScript'],
+            'Game Development': ['Unity', 'Unreal Engine', 'C#', 'Game Design', 'Godot', 'Game Development Fundamentals', '2D Game Development', '3D Game Development'],
+            'Database Design & Development': ['SQL', 'MySQL', 'SQL Server', 'PostgreSQL', 'MongoDB'],
+            'Software Testing': ['Microsoft Playwright', 'Selenium WebDriver', 'Java', 'Automation Testing', 'Postman', 'Selenium Testing Framework', 'API Testing'],
+            'Software Engineering': ['Data Structures', 'Certified Kubernetes Application Developer (CKAD)', 'Software Architecture', 'Coding Interview', 'Algorithms', 'Spring Framework', 'Microservices', 'Node.Js', 'Front End Web Development', 'Back End Web Development'],
+            'Software Development Tools': ['Git', 'Docker', 'Kubernetes', 'GitHub', 'CI/CD', 'Confluence', 'Prompt Engineering', 'GitHub Copilot', 'JIRA'],
+        };
 
-      // Hàm để cập nhật các option của select "Topic"
-      function updateTopicOptions(selectedCategory, initialSelectedTopic = '') {
-        // Xóa tất cả các option hiện có trong select "Topic"
-        topicSelect.innerHTML = '';
+        // Hàm để cập nhật các option của select "Topic"
+        function updateTopicOptions(selectedCategory, initialSelectedTopic = '') {
+            // Xóa tất cả các option hiện có trong select "Topic"
+            topicSelect.innerHTML = '';
 
-        // Thêm option "Topic" mặc định
-        const defaultOption = document.createElement('option');
-        defaultOption.value = ''; // Giá trị rỗng
-        defaultOption.textContent = 'Topic';
-        topicSelect.appendChild(defaultOption);
+            // Thêm option "Topic" mặc định
+            const defaultOption = document.createElement('option');
+            defaultOption.value = ''; // Giá trị rỗng
+            defaultOption.textContent = 'Topic';
+            topicSelect.appendChild(defaultOption);
 
-        // Nếu một danh mục được chọn và có dữ liệu chủ đề cho nó
-        if (selectedCategory && topicsByCategory.hasOwnProperty(selectedCategory)) {
-          const topics = topicsByCategory[selectedCategory];
+            // Nếu một danh mục được chọn và có dữ liệu chủ đề cho nó
+            if (selectedCategory && topicsByCategory.hasOwnProperty(selectedCategory)) {
+                const topics = topicsByCategory[selectedCategory];
 
-          // Thêm các option mới vào select "Topic"
-          topics.forEach(topic => {
-            const option = document.createElement('option');
-            option.value = topic;
-            option.textContent = topic;
-            // Chọn lại topic nếu nó khớp với initialSelectedTopic
-            if (topic === initialSelectedTopic) {
-                option.selected = true;
+                // Thêm các option mới vào select "Topic"
+                topics.forEach(topic => {
+                    const option = document.createElement('option');
+                    option.value = topic;
+                    option.textContent = topic;
+                    // Chọn lại topic nếu nó khớp với initialSelectedTopic
+                    if (topic === initialSelectedTopic) {
+                        option.selected = true;
+                    }
+                    topicSelect.appendChild(option);
+                });
             }
-            topicSelect.appendChild(option);
-          });
         }
-      }
 
-      // 1. Đặt giá trị category ban đầu dựa trên Controller
-      // Điều này đảm bảo category được chọn đúng khi trang tải lại
-      if (selectedCategoryFromController) {
-          categorySelect.value = selectedCategoryFromController;
-      }
+        // 1. Đặt giá trị category ban đầu dựa trên Controller
+        // Điều này đảm bảo category được chọn đúng khi trang tải lại
+        if (selectedCategoryFromController) {
+            categorySelect.value = selectedCategoryFromController;
+        }
 
-      // 2. Gọi hàm updateTopicOptions lần đầu tiên để thiết lập trạng thái ban đầu của Topic
-      // Truyền cả selectedCategory ban đầu và selectedTopic ban đầu
-      updateTopicOptions(categorySelect.value, selectedTopicFromController);
+        // 2. Gọi hàm updateTopicOptions lần đầu tiên để thiết lập trạng thái ban đầu của Topic
+        // Truyền cả selectedCategory ban đầu và selectedTopic ban đầu
+        updateTopicOptions(categorySelect.value, selectedTopicFromController);
 
 
-      // 3. Lắng nghe sự kiện 'change' trên select "CATEGORY"
-      categorySelect.addEventListener('change', function() {
-        const selectedCategory = this.value;
-        updateTopicOptions(selectedCategory); // Không truyền initialSelectedTopic khi thay đổi category
-      });
+        // 3. Lắng nghe sự kiện 'change' trên select "CATEGORY"
+        categorySelect.addEventListener('change', function () {
+            const selectedCategory = this.value;
+            updateTopicOptions(selectedCategory); // Không truyền initialSelectedTopic khi thay đổi category
+        });
     });
 
     const dropdownButton = document.querySelector('.relative button');
