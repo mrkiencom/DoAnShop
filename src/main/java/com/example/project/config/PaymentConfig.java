@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class PaymentConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "https://doanshop.onrender.com/successfulPayment";
+    public static String vnp_ReturnUrl = "https://doanshop.onrender.com/vnpay_return";
     public static String vnp_TmnCode = "UCS4MJPH";
     public static String secretKey = "47OUNEHAYP642KVH5Z9A3NRRXDPIFENZ";
     public static String vnp_Version = "2.1.0";
@@ -76,7 +76,7 @@ public class PaymentConfig {
         }
         return ipAdress;
     }
-    
+
 
     public static String getRandomNumber(final int len) {
         final Random rnd = new Random();
