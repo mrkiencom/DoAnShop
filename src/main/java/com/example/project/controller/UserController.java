@@ -2,7 +2,8 @@ package com.example.project.controller;
 
 import com.example.project.model.UserPrincipal;
 import com.example.project.model.Users;
-import com.example.project.service.*;
+import com.example.project.service.AuthenticationService;
+import com.example.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,20 +24,20 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/profile")
-    public String getImage(Model model) {
+    public String getImage(final Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -45,10 +46,9 @@ public class UserController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
 
                 user = authenticationService.getInforUser(username);
 
@@ -62,20 +62,20 @@ public class UserController {
     }
 
     @GetMapping("/information")
-    public String getInformation(Model model) {
+    public String getInformation(final Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -84,10 +84,9 @@ public class UserController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
 
                 user = authenticationService.getInforUser(username);
 
@@ -103,20 +102,20 @@ public class UserController {
     }
 
     @PostMapping("/information")
-    public String updateInformation(Model model, @ModelAttribute("updateInformation") Users informationUser) {
+    public String updateInformation(final Model model, @ModelAttribute("updateInformation") final Users informationUser) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -125,10 +124,9 @@ public class UserController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
 
                 user = authenticationService.getInforUser(username);
 
@@ -138,7 +136,7 @@ public class UserController {
             }
         }
 
-        Users existingUser = userService.getUserById(informationUser.getId());
+        final Users existingUser = userService.getUserById(informationUser.getId());
 
         existingUser.setFirstname(informationUser.getFirstname());
         existingUser.setLastname(informationUser.getLastname());
@@ -152,20 +150,20 @@ public class UserController {
     }
 
     @GetMapping("/change_password")
-    public String changePasswordPage(Model model) {
+    public String changePasswordPage(final Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
         model.addAttribute("isAuthenticated", isAuthenticated);
 
         Users user = new Users();
 
         if (isAuthenticated) {
-            Object principal = authentication.getPrincipal();
+            final Object principal = authentication.getPrincipal();
 
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                String gmail = oauthToken.getPrincipal().getAttribute("email");
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
 
                 authenticationService.saveGmailAccount(gmail);
 
@@ -174,10 +172,9 @@ public class UserController {
                 if (user != null) {
                     model.addAttribute("user_account", user);
                 }
-            }
-            else if (principal instanceof UserPrincipal) {
-                UserPrincipal userPrincipal = (UserPrincipal) principal;
-                String username = userPrincipal.getUsername();
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername();
 
                 user = authenticationService.getInforUser(username);
 
@@ -190,5 +187,42 @@ public class UserController {
         model.addAttribute("changePasswordDto", new Users());
 
         return "users/changePassword";
+    }
+
+    @GetMapping("/about")
+    public String about(final Model model) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName());
+        model.addAttribute("isAuthenticated", isAuthenticated);
+
+        Users user = new Users();
+
+        if (isAuthenticated) {
+            final Object principal = authentication.getPrincipal();
+
+            if (authentication instanceof OAuth2AuthenticationToken) {
+                final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                final String gmail = oauthToken.getPrincipal().getAttribute("email");
+
+                authenticationService.saveGmailAccount(gmail);
+
+                user = authenticationService.getInforUserByGmail(gmail);
+
+                if (user != null) {
+                    model.addAttribute("user_account", user);
+                }
+            } else if (principal instanceof UserPrincipal) {
+                final UserPrincipal userPrincipal = (UserPrincipal) principal;
+                final String username = userPrincipal.getUsername(); // Lấy username từ UserPrincipal
+
+                user = authenticationService.getInforUser(username);
+
+                if (user != null) {
+                    model.addAttribute("user_account", user);
+                }
+            }
+        }
+
+        return "about";
     }
 }

@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
                 .csrf(custumizer -> custumizer.disable())
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/register", "/login", "/", "/listCourses", "/courseDetail/**", "/search_courses", "/forgot-password", "reset-password", "send-email-reset-password").permitAll();
+                    registry.requestMatchers("/register", "/login", "/about", "/images/**", "/", "/listCourses", "/courseDetail/**", "/search_courses", "/forgot-password", "reset-password", "send-email-reset-password").permitAll();
                     registry.anyRequest().authenticated(); // Đặt rule này ở cuối
                 })
                 .formLogin(form -> form

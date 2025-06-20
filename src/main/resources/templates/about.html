@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Về Chúng Tôi</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<header th:replace="~{fragments/header :: header}"></header>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+<!-- Hero section -->
+<section class="bg-indigo-600 text-white py-16">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl font-bold mb-4">Về Chúng Tôi</h2>
+        <p class="max-w-2xl mx-auto text-lg">Nền tảng học trực tuyến chất lượng, giúp bạn tiến xa trong hành trình tri
+            thức.</p>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="py-16">
+    <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        <div>
+            <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Chúng tôi là ai?</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                ZenLearn là nền tảng giáo dục trực tuyến được tạo ra để mang đến những khoá học chất lượng với chi phí
+                phù hợp.
+                Chúng tôi kết nối học viên và giảng viên trên khắp cả nước, tạo ra một cộng đồng học tập tích cực và
+                linh hoạt.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+                Với giao diện dễ sử dụng, hệ thống theo dõi tiến độ học tập thông minh, ZenLearn giúp bạn học mọi lúc,
+                mọi nơi.
+            </p>
+        </div>
+        <img src="/images/about_us.png" alt="Về chúng tôi"
+             class="w-[500px] h-[200px] object-contain rounded-xl shadow-md transition-transform transform hover:scale-105 duration-300">
+    </div>
+</section>
+
+<!-- Core values -->
+<section class="bg-white py-16">
+    <div class="container mx-auto px-6 text-center">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-6">Giá trị cốt lõi</h3>
+        <div class="grid md:grid-cols-3 gap-8 text-left">
+            <div class="p-6 bg-gray-50 rounded-xl shadow hover:shadow-md transition">
+                <h4 class="font-semibold text-lg text-indigo-600 mb-2">Chất lượng</h4>
+                <p class="text-gray-600 text-sm">Mỗi khoá học đều được kiểm duyệt chặt chẽ để đảm bảo hiệu quả giảng
+                    dạy.</p>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl shadow hover:shadow-md transition">
+                <h4 class="font-semibold text-lg text-indigo-600 mb-2">Tiện lợi</h4>
+                <p class="text-gray-600 text-sm">Học mọi nơi, bất cứ khi nào, chỉ với một thiết bị kết nối Internet.</p>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl shadow hover:shadow-md transition">
+                <h4 class="font-semibold text-lg text-indigo-600 mb-2">Cộng đồng</h4>
+                <p class="text-gray-600 text-sm">Kết nối giảng viên và học viên để cùng nhau phát triển lâu dài.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team section -->
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+        <h3 class="text-2xl font-bold text-indigo-700 text-center mb-10">Đội ngũ giảng viên</h3>
+        <div class="grid gap-8 md:grid-cols-3">
+            <div class="bg-white rounded-xl shadow p-6 text-center hover:shadow-lg transition">
+                <img th:src="@{/images/men.png}"
+                     class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" alt="Giảng viên A">
+                <h4 class="text-lg font-semibold text-gray-800">Nguyễn Văn Trung</h4>
+                <p class="text-gray-500 text-sm">Giảng viên Frontend</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 text-center hover:shadow-lg transition">
+                <img src="/images/girl1.jpeg"
+                     class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" alt="Giảng viên B">
+                <h4 class="text-lg font-semibold text-gray-800">Nguyễn Thị Ngọc Bích</h4>
+                <p class="text-gray-500 text-sm">Giảng viên Backend</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 text-center hover:shadow-lg transition">
+                <img src="/images/girl2.jpeg"
+                     class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" alt="Giảng viên C">
+                <h4 class="text-lg font-semibold text-gray-800">Đinh Ngọc An Nhiên</h4>
+                <p class="text-gray-500 text-sm">Giảng viên Data Science</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>
