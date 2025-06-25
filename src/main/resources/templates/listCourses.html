@@ -102,9 +102,15 @@
                       th:text="${course.level}"></span>
 
                 <div class="mt-auto flex items-center gap-2 text-base font-extrabold text-gray-900">
-                    <span th:text="${course.price} + ' ₫'"></span>
+                    <span id="coursePrice" th:text="${course.price} + ' ₫'"></span>
                 </div>
-
+                <script th:inline="javascript">
+                    const price = /*[[${course.price}]]*/ 0;
+                    document.getElementById('coursePrice').textContent = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(price);
+                </script>
             </a>
         </div>
 
