@@ -152,7 +152,7 @@
                 <div th:if="${courseDetail.is_paid}">
                     <div th:if="${checkPayment}" class="flex gap-3 flex-col">
                         <a class="flex justify-center border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition"
-                           th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo.videoId})}">Watch
+                           th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo?.videoId})}">Watch
                             now</a>
                     </div>
 
@@ -170,10 +170,10 @@
                 </div>
 
                 <div th:unless="${courseDetail.is_paid}" class="flex gap-3 flex-col">
-                    <button class="border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition"
-                            th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo.videoId})}">
+                    <a class="border border-green-600 rounded-md py-3 font-semibold text-green-600 hover:bg-green-50 transition text-center block"
+                       th:href="@{/learn/{courseId}/{videoId}(courseId=${courseDetail.courseId}, videoId=${earliestVideo?.videoId})}">
                         Watch now
-                    </button>
+                    </a>
                 </div>
             </div>
         </aside>
