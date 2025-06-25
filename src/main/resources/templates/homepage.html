@@ -50,7 +50,8 @@
 
         <!-- Call to Action Button -->
         <a class="absolute left-1/2 transform -translate-x-1/2 mt-6 bg-gradient-to-r from-orange-400 to-orange-300 text-white text-lg font-semibold px-8 py-3 rounded-full hover:brightness-110 transition"
-           href="/login">
+           th:href="${user_account == null ? '/login' :' /listCourses'}"
+           th:text="${user_account == null ? 'Start learning' : 'View courses'}">
             Let's Start
         </a>
 
