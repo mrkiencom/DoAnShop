@@ -16,7 +16,8 @@
     <!-- Left content -->
     <div class="flex-1 flex flex-col">
         <div class="relative bg-black flex justify-center items-center" style="aspect-ratio: 16/9;">
-            <video controls class="w-full h-full"> <source th:src="${videoLearn.videoUrl}" type="video/mp4">
+            <video controls class="w-full h-full">
+                <source th:src="${videoLearn.videoUrl}" type="video/mp4">
                 Trình duyệt của bạn không hỗ trợ thẻ video.
             </video>
         </div>
@@ -29,7 +30,8 @@
         <section class="flex-1 mx-20">
             <h1 th:text="${courseVideo.title}" class="text-3xl md:text-4xl font-extrabold leading-tight mb-4"></h1>
             <p class="text-sm mb-6">Created by
-                <a class=" hover:underline font-semibold" href="#" th:text="${courseVideo.lecturer.firstname} + ' '+ ${courseVideo.lecturer.lastname}"></a>
+                <a class=" hover:underline font-semibold" href="#"
+                   th:text="${courseVideo.lecturer.firstname} + ' '+ ${courseVideo.lecturer.lastname}"></a>
             </p>
             <div class="flex flex-wrap items-center gap-6 text-sm text-gray-900">
                 <div class="flex items-center gap-1">
@@ -46,13 +48,15 @@
                 </div>
             </div>
         </section>
-        <section class="border border-gray-300 rounded-md max-w-5xl mx-20 p-6 sm:p-10 mt-10" aria-labelledby="learn-heading">
+        <section class="border border-gray-300 rounded-md max-w-5xl mx-20 p-6 sm:p-10 mt-10"
+                 aria-labelledby="learn-heading">
             <h2 id="learn-heading" class="text-2xl font-extrabold text-gray-900 mb-6">What you'll learn</h2>
             <div class="text-gray-900 text-sm sm:text-base leading-relaxed">
                 <ul class="space-y-3">
                     <li class="flex items-start space-x-3"
                         th:each="sentence : ${#strings.arraySplit(courseVideo.content, '.')}"
-                        th:if="${#strings.trim(sentence).length() > 0}"> <i class="fas fa-check text-gray-700 mt-1 flex-shrink-0"></i>
+                        th:if="${#strings.trim(sentence).length() > 0}"><i
+                            class="fas fa-check text-gray-700 mt-1 flex-shrink-0"></i>
                         <span th:text="${#strings.trim(sentence) + '.'}"></span>
                     </li>
                 </ul>
@@ -61,9 +65,12 @@
         <section class="max-w-5xl mx-20 mt-10 px-6 sm:px-0">
             <h3 class="text-2xl font-extrabold text-gray-900 mb-4">Explore related topics</h3>
             <div class="flex flex-wrap gap-3">
-                <span th:text="${courseVideo.category}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
-                <span th:text="${courseVideo.topic}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
-                <span th:text="${courseVideo.level}" class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                <span th:text="${courseVideo.category}"
+                      class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                <span th:text="${courseVideo.topic}"
+                      class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
+                <span th:text="${courseVideo.level}"
+                      class="border border-gray-400 rounded-md px-4 py-2 text-gray-900 font-semibold text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600"></span>
             </div>
         </section>
         <section class="max-w-5xl mx-20 mt-10 px-6 sm:px-0">
@@ -90,25 +97,29 @@
             Danh sách bài học
         </header>
         <div class="overflow-y-auto flex-1">
-            <ul class="divide-y divide-gray-200">
-                <th:block th:if="${listVideoLearn != null and !listVideoLearn.empty}">
+            <ul class="divide-y divide-gray-200 relative">
+                <th:block th:if="${listVideoLearn != null and listVideoLearn.size() != 0}">
                     <li th:each="video : ${listVideoLearn}"
-                        class="px-4 py-3 bg-gray-50 cursor-pointer flex justify-between items-center">
+                        class="group px-4 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer flex justify-between items-center relative">
                         <a th:href="@{/learn/{courseId}/{videoId}(courseId=${courseVideo.courseId}, videoId=${video.videoId})}">
-                            <h3 class="font-semibold text-gray-900" th:text="${video.title}"></h3>
-                            <div class="text-xs text-gray-600 mt-1">
-                                <span th:text="'Duration: ' + ${video.duration} + ' s'"></span>
-                            </div>
-                            <div class="text-xs text-gray-600 mt-1">
-                                <span th:text="'Description: ' + ${video.description}"></span>
-                            </div>
-                            <div class="text-xs text-gray-600 mt-1">
-                                <span th:text="'Upload: ' + ${video.uploadedAt}"></span>
+                            <div>
+                                <h3 class="font-semibold text-gray-900" th:text="${video.title}"></h3>
+                                <div class="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                                    <i class="far fa-clock text-gray-500"></i>
+                                    <span th:text="${video.duration < 60} ? ${video.duration + 's'} : ${#numbers.formatDecimal(video.duration / 60.0, 1, 1) + 'm'}"></span>
+                                </div>
                             </div>
                         </a>
+
+                        <!-- Mô tả hiện khi hover -->
+                        <div class="absolute top-full left-4 mt-2 w-64 bg-white text-sm text-gray-700 p-3 rounded-lg shadow-xl border border-gray-200
+                        opacity-0 group-hover:opacity-100 pointer-events-none transition duration-300 z-10">
+                            <p th:text="${video.description}"></p>
+                        </div>
                     </li>
                 </th:block>
-                <th:block th:unless="${listVideoLearn != null and !listVideoLearn.empty}">
+
+                <th:block th:unless="${listVideoLearn != null and listVideoLearn.size() != 0}">
                     <li class="px-4 py-3 text-gray-600">
                         Chưa có video nào trong khóa học này.
                     </li>
@@ -122,14 +133,14 @@
     const dropdownMenu = document.querySelector('.relative div');
 
     dropdownButton.addEventListener('click', () => {
-      dropdownMenu.classList.toggle('hidden');
+        dropdownMenu.classList.toggle('hidden');
     });
 
     // Đóng dropdown khi click ra ngoài
     document.addEventListener('click', (event) => {
-      if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.add('hidden');
-      }
+        if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+        }
     });
 </script>
 </body>
