@@ -147,15 +147,10 @@
             <div class="p-6 flex flex-col gap-4 bg-[#b0b0d812]">
                 <div class="grid">
                     <span class="text-2xl font-extrabold" th:text="${courseDetail.title}"></span>
-                    <span id="coursePriceId" class="text-2xl font-extrabold text-gray-600"
+                    <span class="text-2xl font-extrabold text-gray-600"
+                          th:id="'coursePrice-'"
                           th:text="${courseDetail.price} + ' ₫'"></span>
-                    <script th:inline="javascript">
-                        const price = /*[[${courseDetail.price}]]*/ 0; // Fixed to match courseDetail.price
-                        document.getElementById('coursePriceId').textContent = new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(price);
-                    </script>
+
                 </div>
                 <div th:if="${courseDetail.is_paid}">
                     <div th:if="${checkPayment}" class="flex gap-3 flex-col">
@@ -204,14 +199,9 @@
                     <p class="text-sm text-gray-600 mt-2" th:text="${course.category}"></p>
 
                     <p id="coursePrice" class="text-lg font-bold text-gray-800 mt-2"
+                       th:id="'coursePrice-'"
                        th:text="${course.price} + ' ₫'"></p>
-                    <script th:inline="javascript">
-                        const price = /*[[${course.price}]]*/ 0; // Fixed to match courseDetail.price
-                        document.getElementById('coursePrice').textContent = new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(price);
-                    </script>
+
                 </div>
             </div>
         </th:block>
@@ -220,7 +210,16 @@
         </th:block>
     </div>
 </div>
-
+<script th:inline="javascript">
+    // Get all course price elements
+    document.querySelectorAll('[id^="coursePrice-"]').forEach(element => {
+        const price = Number(element.textContent.replace(' ₫', '')) || 0;
+        element.textContent = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
+    });
+</script>
 <script>
 
     // JavaScript của bạn

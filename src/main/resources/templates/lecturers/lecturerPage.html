@@ -116,7 +116,8 @@
                                 </td>
                                 <td th:text="${course.category}" class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
                                 <td th:text="${course.topic}" class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
-                                <td th:text="${course.price} + '$'"
+                                <td th:text="${course.price}"
+                                    th:id="'coursePrice-' + ${course.courseId}"
                                     class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
                                 <td th:text="${course.level}" class="px-6 py-4 whitespace-nowrap text-gray-500"></td>
                                 <td class="px-3 py-4 whitespace-nowrap">
@@ -146,6 +147,16 @@
                                     </a>
                                 </td>
                             </tr>
+                            <script th:inline="javascript">
+                                // Get all course price elements
+                                document.querySelectorAll('[id^="coursePrice-"]').forEach(element => {
+                                    const price = Number(element.textContent.replace(' ₫', '')) || 0;
+                                    element.textContent = new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    }).format(price);
+                                });
+                            </script>
                             </tbody>
                         </table>
                         <!-- Pagination -->
@@ -167,10 +178,9 @@
                 </div>
             </div>
         </div>
+
     </main>
-    <script>
-        console.log({courses})
-    </script>
+
 </div>
 
 </body>

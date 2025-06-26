@@ -90,7 +90,8 @@
                    class="text-sm text-gray-600"></p>
                 <p class="text-gray-700 text-sm leading-snug mt-1 mb-1 overflow-hidden text-ellipsis line-clamp-3"
                    th:text="${course.description}"></p>
-                <p th:text="${course.price} + ' ₫'" class="text-lg font-bold text-gray-800 mt-2"></p>
+                <p th:id="'coursePrice-'" th:text="${course.price} + ' ₫'"
+                   class="text-lg font-bold text-gray-800 mt-2"></p>
             </div>
         </a>
     </div>
@@ -244,6 +245,16 @@
         if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
             dropdownMenu.classList.add('hidden');
         }
+    });
+</script>
+<script th:inline="javascript">
+    // Get all course price elements
+    document.querySelectorAll('[id^="coursePrice-"]').forEach(element => {
+        const price = Number(element.textContent.replace(' ₫', '')) || 0;
+        element.textContent = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
     });
 </script>
 </body>
