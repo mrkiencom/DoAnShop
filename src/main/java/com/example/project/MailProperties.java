@@ -13,5 +13,5 @@ public class MailProperties {
     private String username;
     private String host;
     private int port;
-    private String domain;
+    private String jndiName;
 }

@@ -56,7 +56,7 @@ public class LecturerService {
                 .status("Waiting")
                 .description("A new course has been submitted for approval. "
                         + "You can view the details at: "
-                        + "<a href='" + mailProperties.getDomain()
+                        + "<a href='" + mailProperties.getJndiName()
                         + "/adminPage/course-details?id=" + courses.getCourseId()
                         + "' target='_blank' style='color:#1d4ed8; text-decoration:underline;'>"
                         + "View Course Details</a>")
